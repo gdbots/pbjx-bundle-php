@@ -1,0 +1,15 @@
+{
+    "name": "gdbots/messaging-bundle-php",
+    "homepage": "https://github.com/gdbots/messaging-bundle-php",
+    "description": "Integration of gdbots/messaging-php as a Symfony2 bundle.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4.2",
+        "symfony/symfony": "~2.5",
+        "gdbots/messaging-php": "dev-master"
+    },
+    "autoload": {
+        "psr-0": { "Gdbots\\Bundle\\MessagingBundle\\": "src/" }
+    }
+}

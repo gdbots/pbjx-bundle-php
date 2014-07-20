@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="gdbots_messaging.command_bus.class">Gdbots\Messaging\CommandBus\CommandBus</parameter>
+        <parameter key="gdbots_messaging.service_locator.class">Gdbots\Bundle\MessagingBundle\ContainerAwareServiceLocator</parameter>
+        <parameter key="gdbots_messaging.transport.memory.class">Gdbots\Messaging\Transport\MemoryTransport</parameter>
+        <parameter key="gdbots_messaging.transport.gearman.class">Gdbots\Messaging\Transport\Gearman\GearmanTransport</parameter>
+    </parameters>
+
+    <services>
+        <!-- command bus -->
+        <service id="gdbots_messaging.command_bus" class="%gdbots_messaging.command_bus.class%">
+            <argument type="service" id="gdbots_messaging.dispatcher" />
+            <argument type="service" id="gdbots_messaging.service_locator" />
+            <argument type="service" id="gdbots_messaging.command_bus.transport" />
+        </service>
+
+        <!-- dispatcher -->
+        <service id="gdbots_messaging.dispatcher" alias="event_dispatcher" public="false" />
+
+        <!-- service locator -->
+        <service id="gdbots_messaging.service_locator" class="%gdbots_messaging.service_locator.class%" public="false">
+            <call method="setContainer"><argument type="service" id="service_container" /></call>
+        </service>
+
+        <!-- transports -->
+        <service id="gdbots_messaging.transport.memory" class="%gdbots_messaging.transport.memory.class%" public="false">
+            <argument type="service" id="gdbots_messaging.dispatcher" />
+            <argument type="service" id="gdbots_messaging.service_locator" />
+        </service>
+    </services>
+
+</container>
