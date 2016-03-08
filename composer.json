@@ -6,6 +6,7 @@
   "license": "Apache-2.0",
   "require": {
     "php": ">=5.6",
+    "gdbots/pbj": "dev-aws2 as dev-master",
     "gdbots/pbjx": "dev-2chains",
     "symfony/symfony": "~3.0"
   },
