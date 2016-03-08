@@ -1,15 +1,26 @@
 {
-    "name": "gdbots/messaging-bundle-php",
-    "homepage": "https://github.com/gdbots/messaging-bundle-php",
-    "description": "Integration of gdbots/messaging-php as a Symfony2 bundle.",
-    "type": "library",
-    "license": "MIT",
-    "require": {
-        "php": ">=5.4.2",
-        "symfony/symfony": "~2.5",
-        "gdbots/messaging-php": "dev-master"
-    },
-    "autoload": {
-        "psr-0": { "Gdbots\\Bundle\\MessagingBundle\\": "src/" }
+  "name": "gdbots/pbjx-bundle",
+  "homepage": "https://github.com/gdbots/pbjx-bundle",
+  "description": "Symfony3 bundle that integrates gdbots/pbjx messaging tools.",
+  "type": "library",
+  "license": "Apache-2.0",
+  "require": {
+    "php": ">=5.6",
+    "gdbots/pbjx": "dev-2chains",
+    "symfony/symfony": "~3.0"
+  },
+  "require-dev": {
+    "composer/composer": "1.0.*@dev",
+    "phpunit/phpunit": "~4.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "Gdbots\\Bundle\\PbjxBundle\\": "src"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Gdbots\\Tests\\Bundle\\PbjxBundle\\": "tests"
+    }
+  }
 }

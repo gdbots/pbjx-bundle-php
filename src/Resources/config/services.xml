@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+  <parameters>
+    <!-- start: core services -->
+    <parameter key="gdbots_pbjx.pbjx.class">Gdbots\Pbjx\DefaultPbjx</parameter>
+    <parameter key="gdbots_pbjx.service_locator.class">Gdbots\Bundle\PbjxBundle\ContainerAwareServiceLocator</parameter>
+    <parameter key="gdbots_pbjx.event_dispatcher.class">Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher</parameter>
+    <parameter key="gdbots_pbjx.exception_handler.class">Gdbots\Pbjx\DefaultExceptionHandler</parameter>
+    <!-- end: core services -->
+
+
+    <!-- start: http handling -->
+    <parameter key="gdbots_pbjx.pbjx_controller.class">Gdbots\Bundle\PbjxBundle\Controller\PbjxController</parameter>
+    <parameter key="gdbots_pbjx.envelope_listener.class">Gdbots\Bundle\PbjxBundle\EventListener\EnvelopeListener</parameter>
+    <parameter key="gdbots_pbjx.pbjx_controller.allow_get_request">false</parameter>
+    <!-- end: http handling -->
+
+
+    <!-- start: transports -->
+    <parameter key="gdbots_pbjx.transport.in_memory.class">Gdbots\Pbjx\Transport\InMemoryTransport</parameter>
+
+    <parameter key="gdbots_pbjx.transport.gearman.class">Gdbots\Pbjx\Transport\GearmanTransport</parameter>
+    <parameter key="gdbots_pbjx.transport.gearman_router.class">Gdbots\Pbjx\Transport\GearmanRouter</parameter>
+    <parameter key="gdbots_pbjx.transport.gearman.channel_prefix"/>
+
+    <parameter key="gdbots_pbjx.transport.kinesis.class">Gdbots\Pbjx\Transport\KinesisTransport</parameter>
+    <!-- end: transports -->
+
+
+    <!-- start: binders -->
+    <parameter key="gdbots_pbjx.command_binder.class">Gdbots\Bundle\PbjxBundle\Binder\CommandBinder</parameter>
+    <parameter key="gdbots_pbjx.event_binder.class">Gdbots\Bundle\PbjxBundle\Binder\EventBinder</parameter>
+    <parameter key="gdbots_pbjx.request_binder.class">Gdbots\Bundle\PbjxBundle\Binder\RequestBinder</parameter>
+    <!-- end: binders -->
+  </parameters>
+
+  <services>
+    <!-- start: core services -->
+    <service id="pbjx" class="%gdbots_pbjx.pbjx.class%">
+      <argument type="service" id="gdbots_pbjx.service_locator"/>
+    </service>
+
+    <service id="gdbots_pbjx.service_locator" class="%gdbots_pbjx.service_locator.class%">
+      <argument type="service" id="service_container"/>
+    </service>
+
+    <service id="gdbots_pbjx.event_dispatcher" class="%gdbots_pbjx.event_dispatcher.class%">
+      <argument type="service" id="service_container"/>
+    </service>
+
+    <service id="gdbots_pbjx.exception_handler" class="%gdbots_pbjx.exception_handler.class%">
+      <argument type="service" id="gdbots_pbjx.service_locator"/>
+      <argument type="service" id="logger" on-invalid="ignore"/>
+      <tag name="monolog.logger" channel="pbjx"/>
+    </service>
+    <!-- end: core services -->
+
+
+    <!-- start: http handling -->
+    <service id="gdbots_pbjx.pbjx_controller" class="%gdbots_pbjx.pbjx_controller.class%">
+      <argument type="service" id="pbjx"/>
+      <argument>%gdbots_pbjx.pbjx_controller.allow_get_request%</argument>
+    </service>
+
+    <service id="gdbots_pbjx.envelope_listener" class="%gdbots_pbjx.envelope_listener.class%">
+      <argument type="service" id="pbjx"/>
+      <argument type="service" id="logger" on-invalid="ignore"/>
+      <tag name="monolog.logger" channel="pbjx"/>
+      <tag name="kernel.event_listener" event="kernel.view" />
+    </service>
+    <!-- end: http handling -->
+
+
+    <!-- start: transports -->
+    <service id="gdbots_pbjx.transport.in_memory" class="%gdbots_pbjx.transport.in_memory.class%">
+      <argument type="service" id="gdbots_pbjx.service_locator"/>
+    </service>
+
+    <service id="gdbots_pbjx.transport.gearman" class="%gdbots_pbjx.transport.gearman.class%">
+      <argument type="service" id="gdbots_pbjx.service_locator"/>
+      <argument>%gdbots_pbjx.transport.gearman.servers%</argument>
+      <argument>%gdbots_pbjx.transport.gearman.timeout%</argument>
+      <argument type="service" id="gdbots_pbjx.transport.gearman_router"/>
+    </service>
+
+    <service id="gdbots_pbjx.transport.gearman_router" class="%gdbots_pbjx.transport.gearman_router.class%">
+      <argument>%gdbots_pbjx.transport.gearman.channel_prefix%</argument>
+    </service>
+
+    <service id="gdbots_pbjx.transport.kinesis" class="%gdbots_pbjx.transport.kinesis.class%">
+      <argument type="service" id="gdbots_pbjx.service_locator"/>
+      <argument type="service" id="aws.kinesis"/>
+      <argument type="service" id="gdbots_pbjx.transport.kinesis_router"/>
+    </service>
+    <!-- end: transports -->
+
+
+    <!-- start: binders -->
+    <service id="gdbots_pbjx.command_binder" class="%gdbots_pbjx.command_binder.class%">
+      <argument type="service" id="request_stack"/>
+      <tag name="pbjx.event_subscriber"/>
+    </service>
+
+    <service id="gdbots_pbjx.event_binder" class="%gdbots_pbjx.event_binder.class%">
+      <argument type="service" id="request_stack"/>
+      <tag name="pbjx.event_subscriber"/>
+    </service>
+
+    <service id="gdbots_pbjx.request_binder" class="%gdbots_pbjx.request_binder.class%">
+      <argument type="service" id="request_stack"/>
+      <tag name="pbjx.event_subscriber"/>
+    </service>
+    <!-- end: binders -->
+  </services>
+
+</container>
