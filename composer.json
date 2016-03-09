@@ -9,7 +9,6 @@
     "gdbots/pbj": "dev-aws3 as dev-master",
     "gdbots/pbjx": "dev-2chains",
     "gdbots/schemas": "dev-master",
-    "gdbots/schemas-php": "dev-master",
     "symfony/symfony": "~3.0"
   },
   "require-dev": {
