@@ -43,9 +43,19 @@ class GdbotsPbjxExtension extends Extension
 
             $this->ensureTransportExists($container, $busName, $transport);
 
-            if ($transport == 'in_memory') $this->validateInMemoryTransport($container);
-            if ($transport == 'gearman') $this->validateGearmanTransport($container);
-            if ($transport == 'kinesis') $this->validateKinesisTransport($container);
+            switch ($transport) {
+                case 'in_memory':
+                    $this->validateInMemoryTransport($container);
+                    break;
+
+                case 'gearman':
+                    $this->validateGearmanTransport($container);
+                    break;
+
+                case 'kinesis':
+                    $this->validateKinesisTransport($container);
+                    break;
+            }
 
             $container->setParameter('gdbots_pbjx.'.$busName.'_bus.transport', $transport);
         }
