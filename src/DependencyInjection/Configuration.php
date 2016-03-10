@@ -71,7 +71,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('port')->defaultValue('4730')->end()
                     ->end()
                 ->end()
-                ->integerNode('timeout')->defaultValue('5000')->end()
+                ->integerNode('timeout')->defaultValue(5000)->end()
                 ->scalarNode('channel_prefix')->defaultNull()->end()
             ->end()
         ;
