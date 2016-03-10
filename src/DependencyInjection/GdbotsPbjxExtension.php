@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 class GdbotsPbjxExtension extends Extension
 {
     /**
-     * @param array $config
+     * @param array            $config
      * @param ContainerBuilder $container
      */
     public function load(array $config, ContainerBuilder $container)
@@ -33,22 +33,28 @@ class GdbotsPbjxExtension extends Extension
     }
 
     /**
-     * @param array $config
+     * @param array            $config
      * @param ContainerBuilder $container
      */
     private function addTransports(array $config, ContainerBuilder $container)
     {
         foreach (['command', 'event', 'request'] as $busName) {
             $transport = $config[$busName.'_bus']['transport'];
+
             $this->ensureTransportExists($container, $busName, $transport);
+
+            if ($transport == 'in_memory') $this->validateInMemoryTransport($container);
+            if ($transport == 'gearman') $this->validateGearmanTransport($container);
+            if ($transport == 'kinesis') $this->validateKinesisTransport($container);
+
             $container->setParameter('gdbots_pbjx.'.$busName.'_bus.transport', $transport);
         }
     }
 
     /**
      * @param ContainerBuilder $container
-     * @param string $busName
-     * @param string $transport
+     * @param string           $busName
+     * @param string           $transport
      *
      * @throws \LogicException
      */
@@ -62,5 +68,38 @@ class GdbotsPbjxExtension extends Extension
         throw new \LogicException(
             sprintf('The "%s_bus" transport "%s" requires service "%s".', $busName, $transport, $serviceId)
         );
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     */
+    private function validateInMemoryTransport(ContainerBuilder $container)
+    {
+        // nothing to check
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     *
+     * @throws \LogicException
+     */
+    private function validateGearmanTransport(ContainerBuilder $container)
+    {
+        $servers = $container->getParameter('gdbots_pbjx.transport.gearman.servers');
+        if (empty($servers)) {
+            throw new \LogicException('The service "gdbots_pbjx.transport.gearman" requires "gdbots_pbjx.transport.gearman.servers" parameter to have at least 1 server configured.');
+        }
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     *
+     * @throws \LogicException
+     */
+    private function validateKinesisTransport(ContainerBuilder $container)
+    {
+        if (!$container->hasDefinition('gdbots_pbjx.transport.kinesis_router')) {
+            throw new \LogicException('The service "gdbots_pbjx.transport.kinesis" has a dependency on a non-existent service "gdbots_pbjx.transport.kinesis_router".');
+        }
     }
 }
