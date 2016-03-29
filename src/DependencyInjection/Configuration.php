@@ -2,6 +2,7 @@
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -68,7 +69,7 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('host')->defaultValue('127.0.0.1')->end()
-                        ->scalarNode('port')->defaultValue('4730')->end()
+                        ->integerNode('port')->defaultValue(4730)->end()
                     ->end()
                 ->end()
                 ->integerNode('timeout')->defaultValue(5000)->end()
