@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 class GdbotsPbjxExtension extends Extension
 {
     /**
-     * @param array            $config
+     * @param array $config
      * @param ContainerBuilder $container
      */
     public function load(array $config, ContainerBuilder $container)
@@ -23,7 +23,7 @@ class GdbotsPbjxExtension extends Extension
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
-        // update parameters with config
+        // update parameters with processed config
         $container->setParameter('gdbots_pbjx.pbjx_controller.allow_get_request', $config['pbjx_controller']['allow_get_request']);
         $container->setParameter('gdbots_pbjx.transport.gearman.timeout', $config['transport']['gearman']['timeout']);
         $container->setParameter('gdbots_pbjx.transport.gearman.servers', $config['transport']['gearman']['servers']);
@@ -33,14 +33,13 @@ class GdbotsPbjxExtension extends Extension
     }
 
     /**
-     * @param array            $config
+     * @param array $config
      * @param ContainerBuilder $container
      */
     private function addTransports(array $config, ContainerBuilder $container)
     {
         foreach (['command', 'event', 'request'] as $busName) {
             $transport = $config[$busName.'_bus']['transport'];
-
             $this->ensureTransportExists($container, $busName, $transport);
 
             switch ($transport) {
@@ -63,8 +62,8 @@ class GdbotsPbjxExtension extends Extension
 
     /**
      * @param ContainerBuilder $container
-     * @param string           $busName
-     * @param string           $transport
+     * @param string $busName
+     * @param string $transport
      *
      * @throws \LogicException
      */
@@ -108,8 +107,11 @@ class GdbotsPbjxExtension extends Extension
      */
     private function validateKinesisTransport(ContainerBuilder $container)
     {
+        // this happens to early... symfony DI can detect this later.
+        // it's currently throwing an exception even though the site does
+        // define the router in its own service config.
         if (!$container->hasDefinition('gdbots_pbjx.transport.kinesis_router')) {
-            throw new \LogicException('The service "gdbots_pbjx.transport.kinesis" has a dependency on a non-existent service "gdbots_pbjx.transport.kinesis_router".');
+            //throw new \LogicException('The service "gdbots_pbjx.transport.kinesis" has a dependency on a non-existent service "gdbots_pbjx.transport.kinesis_router".');
         }
     }
 }

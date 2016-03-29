@@ -2,7 +2,7 @@
 
 namespace Gdbots\Bundle\PbjxBundle;
 
-use Gdbots\Pbj\MessageCurie;
+use Gdbots\Pbj\SchemaCurie;
 use Gdbots\Pbjx\AbstractServiceLocator;
 use Gdbots\Pbjx\CommandBus;
 use Gdbots\Pbjx\CommandHandler;
@@ -23,6 +23,14 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
 {
     /** @var ContainerInterface */
     private $container;
+
+    /**
+     * In some cases (console commands for example) we want to force
+     * the system to use the in memory transports.
+     *
+     * @var bool
+     */
+    private $forceTransportsToInMemory = false;
 
     /**
      * @param ContainerInterface $container
@@ -83,7 +91,7 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
     /**
      * {@inheritdoc}
      */
-    public function getCommandHandler(MessageCurie $curie)
+    public function getCommandHandler(SchemaCurie $curie)
     {
         return $this->getHandler($curie);
     }
@@ -91,17 +99,27 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
     /**
      * {@inheritdoc}
      */
-    public function getRequestHandler(MessageCurie $curie)
+    public function getRequestHandler(SchemaCurie $curie)
     {
         return $this->getHandler($curie);
     }
 
     /**
-     * @param MessageCurie $curie
+     * Forces the transports to return the in memory version.
+     * This is really only useful in cli commands where you
+     * want to see the process run locally.
+     */
+    public function forceTransportsToInMemory()
+    {
+        $this->forceTransportsToInMemory = true;
+    }
+
+    /**
+     * @param SchemaCurie $curie
      * @return CommandHandler|RequestHandler
      * @throws HandlerNotFound
      */
-    protected function getHandler(MessageCurie $curie)
+    protected function getHandler(SchemaCurie $curie)
     {
         $id = $this->curieToServiceId($curie);
 
@@ -113,10 +131,10 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
     }
 
     /**
-     * @param MessageCurie $curie
+     * @param SchemaCurie $curie
      * @return string
      */
-    protected function curieToServiceId(MessageCurie $curie)
+    protected function curieToServiceId(SchemaCurie $curie)
     {
         return str_replace('-', '_', sprintf('%s_%s.%s.%s_handler',
             $curie->getVendor(), $curie->getPackage(), $curie->getCategory(), $curie->getMessage())
@@ -130,6 +148,10 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
      */
     protected function getTransportForBus($name)
     {
+        if ($this->forceTransportsToInMemory) {
+            return $this->container->get('gdbots_pbjx.transport.in_memory');
+        }
+
         $transport = $this->container->getParameter('gdbots_pbjx.' . $name . '_bus.transport');
         if (empty($transport)) {
             return $this->getDefaultTransport();

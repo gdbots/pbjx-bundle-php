@@ -2,22 +2,22 @@
 
 namespace Gdbots\Bundle\PbjxBundle\Binder;
 
+use Gdbots\Pbj\Field;
 use Gdbots\Pbjx\Event\PbjxEvent;
 use Gdbots\Pbjx\EventSubscriber;
 use Gdbots\Schemas\Pbjx\Command\Command;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class CommandBinder implements EventSubscriber
 {
     use MessageBinderTrait;
 
     /**
-     * @param RequestStack $requestStack
+     * @param ContainerInterface $container
      */
-    public function __construct(RequestStack $requestStack)
+    public function __construct(ContainerInterface $container)
     {
-        $this->requestStack = $requestStack;
+        $this->container = $container;
     }
 
     /**
@@ -27,16 +27,27 @@ class CommandBinder implements EventSubscriber
     {
         /** @var Command $command */
         $command = $pbjxEvent->getMessage();
-        $request = $this->requestStack->getCurrentRequest() ?: new Request();
+        $request = $this->getCurrentRequest();
 
         $restricted = !$request->attributes->getBoolean('pbjx_bind_unrestricted');
-        $input = (array) $request->attributes->get('pbjx_input');
+        $input = (array)$request->attributes->get('pbjx_input');
 
         if ($restricted) {
-            $this->restrictBindFromInput(
-                $command, $command::schema()->getMixin('gdbots:pbjx:mixin:command')->getFields(), $input
+            $fields = array_filter(
+                $command::schema()->getMixin('gdbots:pbjx:mixin:command')->getFields(),
+                function(Field $field) {
+                    // we allow the client to set ctx_app
+                    return 'ctx_app' !== $field->getName();
+                }
             );
+
+            $this->restrictBindFromInput($command, $fields, $input);
         }
+
+        $this->bindConsoleApp($command, $request);
+        $this->bindCloud($command);
+        $this->bindIp($command, $request);
+        $this->bindUserAgent($command, $request);
     }
 
     /**

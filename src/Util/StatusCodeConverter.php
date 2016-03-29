@@ -3,7 +3,7 @@
 namespace Gdbots\Bundle\PbjxBundle\Util;
 
 use Gdbots\Schemas\Pbjx\Enum\Code;
-use Gdbots\Schemas\Pbjx\Enum\HttpStatusCode;
+use Gdbots\Schemas\Pbjx\Enum\HttpCode;
 
 /**
  * Simple conversions from our "Code" aka vendor codes
@@ -18,114 +18,114 @@ final class StatusCodeConverter
     public static function vendorToHttp($code = Code::OK)
     {
         if (Code::OK === $code) {
-            return HttpStatusCode::HTTP_OK;
+            return HttpCode::HTTP_OK;
         }
 
         switch ($code) {
             case Code::CANCELLED:
-                return HttpStatusCode::HTTP_CLIENT_CLOSED_REQUEST;
+                return HttpCode::HTTP_CLIENT_CLOSED_REQUEST;
 
             case Code::UNKNOWN:
-                return HttpStatusCode::HTTP_INTERNAL_SERVER_ERROR;
+                return HttpCode::HTTP_INTERNAL_SERVER_ERROR;
 
             case Code::INVALID_ARGUMENT:
-                return HttpStatusCode::HTTP_BAD_REQUEST;
+                return HttpCode::HTTP_BAD_REQUEST;
 
             case Code::DEADLINE_EXCEEDED:
-                return HttpStatusCode::HTTP_GATEWAY_TIMEOUT;
+                return HttpCode::HTTP_GATEWAY_TIMEOUT;
 
             case Code::NOT_FOUND:
-                return HttpStatusCode::HTTP_NOT_FOUND;
+                return HttpCode::HTTP_NOT_FOUND;
 
             case Code::ALREADY_EXISTS:
-                return HttpStatusCode::HTTP_CONFLICT;
+                return HttpCode::HTTP_CONFLICT;
 
             case Code::PERMISSION_DENIED:
-                return HttpStatusCode::HTTP_FORBIDDEN;
+                return HttpCode::HTTP_FORBIDDEN;
 
             case Code::UNAUTHENTICATED:
-                return HttpStatusCode::HTTP_UNAUTHORIZED;
+                return HttpCode::HTTP_UNAUTHORIZED;
 
             case Code::RESOURCE_EXHAUSTED:
-                return HttpStatusCode::HTTP_TOO_MANY_REQUESTS;
+                return HttpCode::HTTP_TOO_MANY_REQUESTS;
 
             // questionable... may not always be etag related.
             case Code::FAILED_PRECONDITION:
-                return HttpStatusCode::HTTP_PRECONDITION_FAILED;
+                return HttpCode::HTTP_PRECONDITION_FAILED;
 
             case Code::ABORTED:
-                return HttpStatusCode::HTTP_CONFLICT;
+                return HttpCode::HTTP_CONFLICT;
 
             case Code::OUT_OF_RANGE:
-                return HttpStatusCode::HTTP_BAD_REQUEST;
+                return HttpCode::HTTP_BAD_REQUEST;
 
             case Code::UNIMPLEMENTED:
-                return HttpStatusCode::HTTP_NOT_IMPLEMENTED;
+                return HttpCode::HTTP_NOT_IMPLEMENTED;
 
             case Code::INTERNAL:
-                return HttpStatusCode::HTTP_INTERNAL_SERVER_ERROR;
+                return HttpCode::HTTP_INTERNAL_SERVER_ERROR;
 
             case Code::UNAVAILABLE:
-                return HttpStatusCode::HTTP_SERVICE_UNAVAILABLE;
+                return HttpCode::HTTP_SERVICE_UNAVAILABLE;
 
             case Code::DATA_LOSS:
-                return HttpStatusCode::HTTP_INTERNAL_SERVER_ERROR;
+                return HttpCode::HTTP_INTERNAL_SERVER_ERROR;
 
             default:
-                return HttpStatusCode::HTTP_UNPROCESSABLE_ENTITY;
+                return HttpCode::HTTP_UNPROCESSABLE_ENTITY;
         }
     }
 
     /**
-     * @param int $httpStatus
+     * @param int $httpCode
      * @return int
      */
-    public static function httpToVendor($httpStatus = HttpStatusCode::HTTP_OK)
+    public static function httpToVendor($httpCode = HttpCode::HTTP_OK)
     {
-        if ($httpStatus < 400) {
+        if ($httpCode < 400) {
             return Code::OK;
         }
 
-        switch ($httpStatus) {
-            case HttpStatusCode::HTTP_CLIENT_CLOSED_REQUEST:
+        switch ($httpCode) {
+            case HttpCode::HTTP_CLIENT_CLOSED_REQUEST:
                 return Code::CANCELLED;
 
-            case HttpStatusCode::HTTP_INTERNAL_SERVER_ERROR:
+            case HttpCode::HTTP_INTERNAL_SERVER_ERROR:
                 return Code::INTERNAL;
 
-            case HttpStatusCode::HTTP_GATEWAY_TIMEOUT:
+            case HttpCode::HTTP_GATEWAY_TIMEOUT:
                 return Code::DEADLINE_EXCEEDED;
 
-            case HttpStatusCode::HTTP_NOT_FOUND:
+            case HttpCode::HTTP_NOT_FOUND:
                 return Code::NOT_FOUND;
 
-            case HttpStatusCode::HTTP_CONFLICT:
+            case HttpCode::HTTP_CONFLICT:
                 return Code::ALREADY_EXISTS;
 
-            case HttpStatusCode::HTTP_FORBIDDEN:
+            case HttpCode::HTTP_FORBIDDEN:
                 return Code::PERMISSION_DENIED;
 
-            case HttpStatusCode::HTTP_UNAUTHORIZED:
+            case HttpCode::HTTP_UNAUTHORIZED:
                 return Code::UNAUTHENTICATED;
 
-            case HttpStatusCode::HTTP_TOO_MANY_REQUESTS:
+            case HttpCode::HTTP_TOO_MANY_REQUESTS:
                 return Code::RESOURCE_EXHAUSTED;
 
-            case HttpStatusCode::HTTP_PRECONDITION_FAILED:
+            case HttpCode::HTTP_PRECONDITION_FAILED:
                 return Code::FAILED_PRECONDITION;
 
-            case HttpStatusCode::HTTP_NOT_IMPLEMENTED:
+            case HttpCode::HTTP_NOT_IMPLEMENTED:
                 return Code::UNIMPLEMENTED;
 
-            case HttpStatusCode::HTTP_SERVICE_UNAVAILABLE:
+            case HttpCode::HTTP_SERVICE_UNAVAILABLE:
                 return Code::UNAVAILABLE;
 
             default:
-                if ($httpStatus >= 500) {
+                if ($httpCode >= 500) {
                     return Code::INTERNAL;
                 }
 
-                if ($httpStatus >= 400) {
+                if ($httpCode >= 400) {
                     return Code::INVALID_ARGUMENT;
                 }
 
