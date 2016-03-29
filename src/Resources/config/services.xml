@@ -15,7 +15,6 @@
     <!-- start: http handling -->
     <parameter key="gdbots_pbjx.pbjx_controller.class">Gdbots\Bundle\PbjxBundle\Controller\PbjxController</parameter>
     <parameter key="gdbots_pbjx.envelope_listener.class">Gdbots\Bundle\PbjxBundle\EventListener\EnvelopeListener</parameter>
-    <parameter key="gdbots_pbjx.pbjx_controller.allow_get_request">false</parameter>
     <!-- end: http handling -->
 
 
@@ -24,7 +23,6 @@
 
     <parameter key="gdbots_pbjx.transport.gearman.class">Gdbots\Pbjx\Transport\GearmanTransport</parameter>
     <parameter key="gdbots_pbjx.transport.gearman_router.class">Gdbots\Pbjx\Transport\GearmanRouter</parameter>
-    <parameter key="gdbots_pbjx.transport.gearman.channel_prefix"/>
 
     <parameter key="gdbots_pbjx.transport.kinesis.class">Gdbots\Pbjx\Transport\KinesisTransport</parameter>
     <!-- end: transports -->
