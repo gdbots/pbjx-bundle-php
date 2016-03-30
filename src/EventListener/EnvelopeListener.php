@@ -2,9 +2,7 @@
 
 namespace Gdbots\Bundle\PbjxBundle\EventListener;
 
-use Gdbots\Pbjx\Event\PbjxEvent;
 use Gdbots\Pbjx\Pbjx;
-use Gdbots\Pbjx\PbjxEvents;
 use Gdbots\Schemas\Pbjx\Enum\Code;
 use Gdbots\Schemas\Pbjx\Envelope;
 use Psr\Log\LoggerInterface;
@@ -49,12 +47,9 @@ class EnvelopeListener
         $redact = $request->attributes->getBoolean('pbjx_redact_error_message', true);
 
         try {
-            $pbjxEvent = new PbjxEvent($envelope);
-            $this->pbjx->trigger($envelope, PbjxEvents::SUFFIX_BIND, $pbjxEvent, false);
-            $this->pbjx->trigger($envelope, PbjxEvents::SUFFIX_VALIDATE, $pbjxEvent, false);
-            $this->pbjx->trigger($envelope, PbjxEvents::SUFFIX_ENRICH, $pbjxEvent, false);
+            $this->pbjx->triggerLifecycle($envelope, false);
         } catch (\Exception $e) {
-            $this->logger->error('Error running pbjx->trigger on envelope.', ['exception' => $e]);
+            $this->logger->error('Error running pbjx->triggerLifecycle on envelope.', ['exception' => $e]);
         }
 
         $envelope->set('ok', Code::OK === $envelope->get('code'));

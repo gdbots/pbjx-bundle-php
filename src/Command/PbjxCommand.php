@@ -5,9 +5,7 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 use Gdbots\Bundle\PbjxBundle\ContainerAwareServiceLocator;
 use Gdbots\Bundle\PbjxBundle\Controller\PbjxController;
 use Gdbots\Pbj\SchemaCurie;
-use Gdbots\Pbjx\Event\PbjxEvent;
 use Gdbots\Pbjx\Pbjx;
-use Gdbots\Pbjx\PbjxEvents;
 use Gdbots\Schemas\Pbjx\Enum\Code;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -113,11 +111,7 @@ EOF
         $envelope = $this->getPbjxController()->handleAction($request);
 
         try {
-            $pbjx = $this->getPbjx();
-            $pbjxEvent = new PbjxEvent($envelope);
-            $pbjx->trigger($envelope, PbjxEvents::SUFFIX_BIND, $pbjxEvent, false);
-            $pbjx->trigger($envelope, PbjxEvents::SUFFIX_VALIDATE, $pbjxEvent, false);
-            $pbjx->trigger($envelope, PbjxEvents::SUFFIX_ENRICH, $pbjxEvent, false);
+            $this->getPbjx()->triggerLifecycle($envelope, false);
         } catch (\Exception $e) {
             /*
              * write to std error but return payload as is.  Decorating the envelope
