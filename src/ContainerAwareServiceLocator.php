@@ -22,7 +22,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ContainerAwareServiceLocator extends AbstractServiceLocator
 {
     /** @var ContainerInterface */
-    private $container;
+    protected $container;
 
     /**
      * In some cases (console commands for example) we want to force
@@ -30,7 +30,7 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
      *
      * @var bool
      */
-    private $forceTransportsToInMemory = false;
+    protected $forceTransportsToInMemory = false;
 
     /**
      * @param ContainerInterface $container
@@ -136,8 +136,8 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
      */
     protected function curieToServiceId(SchemaCurie $curie)
     {
-        return str_replace('-', '_', sprintf('%s_%s.%s.%s_handler',
-            $curie->getVendor(), $curie->getPackage(), $curie->getCategory(), $curie->getMessage())
+        return str_replace('-', '_', sprintf('%s_%s.%s_handler',
+            $curie->getVendor(), $curie->getPackage(), $curie->getMessage())
         );
     }
 
