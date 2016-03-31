@@ -23,13 +23,6 @@ class GdbotsPbjxExtension extends Extension
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
-        // update parameters with processed config
-        // fixme: transport configs don't need to be added if not used.
-        // fixme: gearman configs aren't validating:
-        /*
-         * [Symfony\Component\Config\Definition\Exception\InvalidConfigurationException]
-         * Unrecognized option "0" under "gdbots_pbjx.transport.gearman.servers"
-         */
         $container->setParameter('gdbots_pbjx.pbjx_controller.allow_get_request', $config['pbjx_controller']['allow_get_request']);
         $container->setParameter('gdbots_pbjx.transport.gearman.timeout', $config['transport']['gearman']['timeout']);
         $container->setParameter('gdbots_pbjx.transport.gearman.servers', $config['transport']['gearman']['servers']);
