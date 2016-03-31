@@ -65,7 +65,6 @@ trait PermissionValidatorTrait
     {
         return [
             'gdbots_pbjx.message.validate' => 'validate',
-            'eme:solicits:event:solicit-responded-to' => 'test',
         ];
     }
 }
