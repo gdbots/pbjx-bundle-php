@@ -54,6 +54,12 @@
       <argument type="service" id="logger" on-invalid="ignore"/>
       <tag name="monolog.logger" channel="pbjx"/>
     </service>
+
+    <service id="gdbots_pbjx.event_execution_failure_logger" class="Gdbots\Bundle\PbjxBundle\EventExecutionFailureLogger">
+      <argument type="service" id="logger"/>
+      <tag name="monolog.logger" channel="pbjx"/>
+      <tag name="pbjx.event_subscriber"/>
+    </service>
     <!-- end: core services -->
 
 

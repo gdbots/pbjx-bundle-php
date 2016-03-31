@@ -25,6 +25,7 @@ class PbjxCommand extends ContainerAwareCommand
     {
         $this
             ->setName('pbjx')
+            ->setAliases(['pbjx:message'])
             ->setDescription('Handles pbjx messages (command, event, request) and returns an envelope with the result.')
             ->setHelp(<<<EOF
 The <info>%command.name%</info> command will create a pbjx message using the json payload provided and return an envelope with the results.
@@ -127,7 +128,7 @@ EOF
     /**
      * @return Pbjx
      */
-    private function getPbjx()
+    protected function getPbjx()
     {
         return $this->getContainer()->get('pbjx');
     }
@@ -135,7 +136,7 @@ EOF
     /**
      * @return PbjxController
      */
-    private function getPbjxController()
+    protected function getPbjxController()
     {
         return $this->getContainer()->get('gdbots_pbjx.pbjx_controller');
     }
@@ -143,7 +144,7 @@ EOF
     /**
      * @return RequestStack
      */
-    private function getRequestStack()
+    protected function getRequestStack()
     {
         return $this->getContainer()->get('request_stack');
     }

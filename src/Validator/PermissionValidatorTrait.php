@@ -26,7 +26,7 @@ trait PermissionValidatorTrait
         $request = $this->requestStack->getCurrentRequest();
         if (!$request instanceof Request) {
             throw new AccessDeniedHttpException(sprintf(
-                'A request is required to send [%s] messages.',
+                'A request is required to process [%s] messages.',
                 $pbjxEvent->getMessage()->schema()->getId()->toString()
             ));
         }
@@ -65,6 +65,7 @@ trait PermissionValidatorTrait
     {
         return [
             'gdbots_pbjx.message.validate' => 'validate',
+            'eme:solicits:event:solicit-responded-to' => 'test',
         ];
     }
 }
