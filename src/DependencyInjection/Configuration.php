@@ -25,7 +25,6 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('transport')
-                    ->addDefaultsIfNotSet()
                     ->children()
                         ->append($this->getGearmanTransportConfigTree())
                     ->end()
@@ -63,7 +62,6 @@ class Configuration implements ConfigurationInterface
         $node = $treeBuilder->root('gearman');
 
         $node
-            ->addDefaultsIfNotSet()
             ->children()
                 ->arrayNode('servers')
                     ->treatNullLike([['host' => '127.0.0.1', 'port' => 4730]])
