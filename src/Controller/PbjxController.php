@@ -5,6 +5,7 @@ namespace Gdbots\Bundle\PbjxBundle\Controller;
 use Gdbots\Bundle\PbjxBundle\Util\StatusCodeConverter;
 use Gdbots\Common\Util\ClassUtils;
 use Gdbots\Pbj\Exception\GdbotsPbjException;
+use Gdbots\Pbj\Exception\HasEndUserMessage;
 use Gdbots\Pbj\Message;
 use Gdbots\Pbj\MessageResolver;
 use Gdbots\Pbj\Schema;
@@ -234,7 +235,14 @@ class PbjxController
      */
     protected function handleException(Envelope $envelope, Request $request, Message $message, \Exception $exception)
     {
-        if ($exception instanceof HttpExceptionInterface) {
+        if ($exception instanceof HasEndUserMessage) {
+            $code = $exception->getCode();
+            $httpCode = StatusCodeConverter::vendorToHttp($code);
+            $errorName = ClassUtils::getShortName($exception);
+            $errorMessage = $exception->getEndUserMessage();
+            $request->attributes->set('pbjx_redact_error_message', false);
+
+        } elseif ($exception instanceof HttpExceptionInterface) {
             $code = StatusCodeConverter::httpToVendor($exception->getStatusCode());
             $httpCode = $exception->getStatusCode();
             $errorName = ClassUtils::getShortName($exception);

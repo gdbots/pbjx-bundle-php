@@ -28,7 +28,7 @@ class PbjxCommand extends ContainerAwareCommand
             ->setAliases(['pbjx:message'])
             ->setDescription('Handles pbjx messages (command, event, request) and returns an envelope with the result.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will create a pbjx message using the json payload provided and return an envelope with the results.
+The <info>%command.name%</info> command will create a single pbjx message using the json payload provided and return an envelope (also json) with the results.
 
 <info>php %command.full_name% 'acme:service:command:say-hello' '{"name":"Homer"}'</info>
 
