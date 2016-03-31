@@ -113,11 +113,8 @@ class GdbotsPbjxExtension extends Extension
      */
     private function validateKinesisTransport(ContainerBuilder $container)
     {
-        // this happens to early... symfony DI can detect this later.
-        // it's currently throwing an exception even though the site does
-        // define the router in its own service config.
         if (!$container->hasDefinition('gdbots_pbjx.transport.kinesis_router')) {
-            //throw new \LogicException('The service "gdbots_pbjx.transport.kinesis" has a dependency on a non-existent service "gdbots_pbjx.transport.kinesis_router".');
+            throw new \LogicException('The service "gdbots_pbjx.transport.kinesis" has a dependency on a non-existent service "gdbots_pbjx.transport.kinesis_router".');
         }
     }
 }
