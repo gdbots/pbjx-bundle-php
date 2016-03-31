@@ -96,9 +96,20 @@ class GdbotsPbjxExtension extends Extension
      */
     private function validateGearmanTransport(ContainerBuilder $container)
     {
-        $servers = $container->getParameter('gdbots_pbjx.transport.gearman.servers');
+        $parameter = 'gdbots_pbjx.transport.gearman.servers';
+        if (!$container->hasParameter($parameter)) {
+            throw new \LogicException(sprintf(
+                'The service "gdbots_pbjx.transport.gearman" has a dependency on a non-existent parameter "%s".',
+                $parameter
+            ));
+        }
+
+        $servers = $container->getParameter($parameter);
         if (empty($servers)) {
-            throw new \LogicException('The service "gdbots_pbjx.transport.gearman" requires "gdbots_pbjx.transport.gearman.servers" parameter to have at least 1 server configured.');
+            throw new \LogicException(sprintf(
+                'The service "gdbots_pbjx.transport.gearman" requires "%s" parameter to have at least 1 server configured.',
+                $parameter
+            ));
         }
     }
 
