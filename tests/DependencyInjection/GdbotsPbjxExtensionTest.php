@@ -3,12 +3,11 @@
 namespace Gdbots\Tests\Bundle\PbjxBundle\DependencyInjection;
 
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\GdbotsPbjxExtension;
-use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class GdbotsPbjxExtensionTest extends \PHPUnit_Framework_TestCase
 {
-    /** @var \Symfony\Component\DependencyInjection\Container */
+    /** @var ContainerBuilder */
     private $container;
 
     protected function setUp()
