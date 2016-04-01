@@ -18,22 +18,6 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     */
-    public function testInvalidValueEnum()
-    {
-        $processor = new Processor();
-        $configuration = new Configuration(true);
-        $processor->processConfiguration($configuration, [
-            [
-                'command_bus' => [
-                    'transport' => 'invalid value'
-                ],
-            ],
-        ]);
-    }
-
     public function testDefaultTransportGearmanConfig()
     {
         $options = [
