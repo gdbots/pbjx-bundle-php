@@ -107,7 +107,7 @@ class GdbotsPbjxExtension extends Extension
         $servers = $container->getParameter($parameter);
         if (empty($servers)) {
             throw new \LogicException(sprintf(
-                'The service "gdbots_pbjx.transport.gearman" requires "%s" parameter to have at least 1 server configured.',
+                'The service "gdbots_pbjx.transport.gearman" requires "%s" parameter to have at least 1 element(s) defined.',
                 $parameter
             ));
         }

@@ -44,8 +44,8 @@ class GdbotsPbjxExtensionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \LogicException
-     * @expectedExceptionMessage The service "gdbots_pbjx.transport.gearman" requires "gdbots_pbjx.transport.gearman.servers" parameter to have at least 1 server configured.
+     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+     * @expectedExceptionMessage The path "gdbots_pbjx.transport.gearman.servers" should have at least 1 element(s) defined.
      */
     public function testValidateGearmanTransportNoServers()
     {
