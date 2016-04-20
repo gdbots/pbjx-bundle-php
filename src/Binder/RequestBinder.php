@@ -5,7 +5,7 @@ namespace Gdbots\Bundle\PbjxBundle\Binder;
 use Gdbots\Pbj\Field;
 use Gdbots\Pbjx\Event\PbjxEvent;
 use Gdbots\Pbjx\EventSubscriber;
-use Gdbots\Schemas\Pbjx\Request\Request as PbjxRequest;
+use Gdbots\Schemas\Pbjx\Mixin\Request\Request as PbjxRequest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class RequestBinder implements EventSubscriber

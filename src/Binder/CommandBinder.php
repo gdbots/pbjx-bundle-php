@@ -5,7 +5,7 @@ namespace Gdbots\Bundle\PbjxBundle\Binder;
 use Gdbots\Pbj\Field;
 use Gdbots\Pbjx\Event\PbjxEvent;
 use Gdbots\Pbjx\EventSubscriber;
-use Gdbots\Schemas\Pbjx\Command\Command;
+use Gdbots\Schemas\Pbjx\Mixin\Command\Command;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class CommandBinder implements EventSubscriber

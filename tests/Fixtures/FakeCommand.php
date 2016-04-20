@@ -6,9 +6,9 @@ use Gdbots\Pbj\AbstractMessage;
 use Gdbots\Pbj\MessageResolver;
 use Gdbots\Pbj\Schema;
 use Gdbots\Pbj\Type as T;
-use Gdbots\Schemas\Pbjx\Command\CommandV1;
-use Gdbots\Schemas\Pbjx\Command\CommandV1Mixin;
-use Gdbots\Schemas\Pbjx\Command\CommandV1Trait;
+use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1;
+use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1Mixin;
+use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1Trait;
 
 final class FakeCommand extends AbstractMessage implements
     CommandV1

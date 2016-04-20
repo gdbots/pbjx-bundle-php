@@ -13,13 +13,13 @@ use Gdbots\Pbj\SchemaCurie;
 use Gdbots\Pbj\SchemaId;
 use Gdbots\Pbjx\Exception\RequestHandlingFailed;
 use Gdbots\Pbjx\Pbjx;
-use Gdbots\Schemas\Pbjx\Command\Command;
 use Gdbots\Schemas\Pbjx\Enum\Code;
 use Gdbots\Schemas\Pbjx\Enum\HttpCode;
 use Gdbots\Schemas\Pbjx\Envelope;
 use Gdbots\Schemas\Pbjx\EnvelopeV1;
-use Gdbots\Schemas\Pbjx\Event\Event;
-use Gdbots\Schemas\Pbjx\Request\Request as PbjxRequest;
+use Gdbots\Schemas\Pbjx\Mixin\Command\Command;
+use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
+use Gdbots\Schemas\Pbjx\Mixin\Request\Request as PbjxRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 

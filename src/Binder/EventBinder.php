@@ -5,7 +5,7 @@ namespace Gdbots\Bundle\PbjxBundle\Binder;
 use Gdbots\Pbj\Field;
 use Gdbots\Pbjx\Event\PbjxEvent;
 use Gdbots\Pbjx\EventSubscriber;
-use Gdbots\Schemas\Pbjx\Event\Event;
+use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class EventBinder implements EventSubscriber
