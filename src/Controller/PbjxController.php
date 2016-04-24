@@ -177,8 +177,8 @@ class PbjxController
         return $envelope
             ->set('code', Code::OK)
             ->set('http_code', HttpCode::HTTP_ACCEPTED())
-            ->set('message_ref', $command->generateMessageRef())
-            ->set('message', $command);
+            ->set('message_ref', $command->generateMessageRef());
+            //->set('message', $command);
     }
 
     /**

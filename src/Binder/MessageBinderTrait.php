@@ -60,7 +60,7 @@ trait MessageBinderTrait
 
         $app = AppV1::create()
             ->set('vendor', $this->container->getParameter('app_vendor') ?: null)
-            ->set('name', $this->container->getParameter('app_name') . '.console')
+            ->set('name', $this->container->getParameter('app_name') . '-php.console')
             ->set('version', $this->container->getParameter('app_version') ?: null)
             ->set('build', $this->container->getParameter('app_build') ?: null);
 
