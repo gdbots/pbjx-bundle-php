@@ -96,7 +96,7 @@
 
     <service id="gdbots_pbjx.transport.kinesis" class="%gdbots_pbjx.transport.kinesis.class%">
       <argument type="service" id="gdbots_pbjx.service_locator"/>
-      <argument type="service" id="aws.kinesis"/>
+      <argument type="service" id="aws.kinesis" on-invalid="ignore"/>
       <argument type="service" id="gdbots_pbjx.transport.kinesis_router" on-invalid="ignore"/>
     </service>
     <!-- end: transports -->
