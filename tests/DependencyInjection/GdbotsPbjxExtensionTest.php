@@ -31,41 +31,4 @@ class GdbotsPbjxExtensionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($this->container->has('pbjx_controller.allow_get_request'));
     }
-
-    /**
-     * @expectedException \LogicException
-     * @expectedExceptionMessage The service "gdbots_pbjx.transport.gearman" has a dependency on a non-existent parameter "gdbots_pbjx.transport.gearman.servers".
-     */
-    public function testValidateGearmanTransport()
-    {
-        $extension = new GdbotsPbjxExtension();
-        $extension->load([['command_bus' => ['transport' => 'gearman']]], $this->container);
-    }
-
-    /**
-     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage The path "gdbots_pbjx.transport.gearman.servers" should have at least 1 element(s) defined.
-     */
-    public function testValidateGearmanTransportNoServers()
-    {
-        $extension = new GdbotsPbjxExtension();
-        $extension->load([[
-            'command_bus' => ['transport' => 'gearman'],
-            'transport' => [
-                'gearman' => [
-                    'servers' => []
-                ]
-            ]
-        ]], $this->container);
-    }
-
-    /**
-     * @expectedException \LogicException
-     * @expectedExceptionMessage The service "gdbots_pbjx.transport.kinesis" has a dependency on a non-existent service "gdbots_pbjx.transport.kinesis_router".
-     */
-    public function testValidateKinesisTransport()
-    {
-        $extension = new GdbotsPbjxExtension();
-        $extension->load([['command_bus' => ['transport' => 'kinesis']]], $this->container);
-    }
 }
