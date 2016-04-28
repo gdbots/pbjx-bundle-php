@@ -103,15 +103,15 @@ class ValidateTransportsPass implements CompilerPassInterface
         if (!$container->hasDefinition('gdbots_pbjx.transport.kinesis_router')) {
             throw new \LogicException(
                 'The service "gdbots_pbjx.transport.kinesis" has a dependency on a non-existent ' .
-                'service "gdbots_pbjx.transport.kinesis_router".  You must define this in your app ' .
-                'since it requires stream names and partition logic.  See \Gdbots\Pbjx\PartitionableRouter'
+                'service "gdbots_pbjx.transport.kinesis_router". You must define this in your app ' .
+                'since it requires stream names and partition logic. See \Gdbots\Pbjx\PartitionableRouter.'
             );
         }
 
         if (!$container->hasDefinition('aws.kinesis')) {
             throw new \LogicException(
                 'The service "gdbots_pbjx.transport.kinesis" has a dependency on a non-existent ' .
-                'service "aws.kinesis".  This expects the Kinesis Client that comes from ' .
+                'service "aws.kinesis". This expects the Kinesis Client that comes from ' .
                 'composer package "aws/aws-sdk-php-symfony": "~1.0".'
             );
         }
