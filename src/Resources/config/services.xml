@@ -28,6 +28,11 @@
     <!-- end: transports -->
 
 
+    <!-- start: event store -->
+    <parameter key="gdbots_pbjx.event_store.dynamodb.class">Gdbots\Pbjx\EventStore\DynamoDbEventStore</parameter>
+    <!-- end: event store -->
+
+
     <!-- start: binders -->
     <parameter key="gdbots_pbjx.command_binder.class">Gdbots\Bundle\PbjxBundle\Binder\CommandBinder</parameter>
     <parameter key="gdbots_pbjx.event_binder.class">Gdbots\Bundle\PbjxBundle\Binder\EventBinder</parameter>
@@ -100,6 +105,16 @@
       <argument type="service" id="gdbots_pbjx.transport.kinesis_router" on-invalid="ignore"/>
     </service>
     <!-- end: transports -->
+
+
+    <!-- start: event store -->
+    <service id="gdbots_pbjx.event_store.dynamodb" class="%gdbots_pbjx.event_store.dynamodb.class%">
+      <argument type="service" id="pbjx"/>
+      <argument type="service" id="aws.dynamodb" on-invalid="ignore"/>
+      <argument type="service" id="logger" on-invalid="ignore"/>
+      <tag name="monolog.logger" channel="pbjx.event_store"/>
+    </service>
+    <!-- end: event store -->
 
 
     <!-- start: binders -->

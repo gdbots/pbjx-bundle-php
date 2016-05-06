@@ -10,6 +10,7 @@ use Gdbots\Pbjx\DefaultCommandBus;
 use Gdbots\Pbjx\DefaultEventBus;
 use Gdbots\Pbjx\DefaultRequestBus;
 use Gdbots\Pbjx\EventBus;
+use Gdbots\Pbjx\EventStore\EventStore;
 use Gdbots\Pbjx\ExceptionHandler;
 use Gdbots\Pbjx\Exception\HandlerNotFound;
 use Gdbots\Pbjx\Pbjx;
@@ -86,6 +87,15 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
     protected function doGetExceptionHandler()
     {
         return $this->container->get('gdbots_pbjx.exception_handler');
+    }
+
+    /**
+     * @return EventStore
+     */
+    protected function doGetEventStore()
+    {
+        $store = $this->container->getParameter('gdbots_pbjx.event_store');
+        return $this->container->get('gdbots_pbjx.event_store.' . $store);
     }
 
     /**

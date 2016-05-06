@@ -47,6 +47,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('transport')->defaultValue('in_memory')->treatNullLike('in_memory')->end()
                     ->end()
                 ->end()
+                ->scalarNode('event_store')->end()
             ->end()
         ;
 

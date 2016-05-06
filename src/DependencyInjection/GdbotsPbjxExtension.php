@@ -34,5 +34,9 @@ class GdbotsPbjxExtension extends Extension
         $container->setParameter('gdbots_pbjx.command_bus.transport', $config['command_bus']['transport']);
         $container->setParameter('gdbots_pbjx.event_bus.transport', $config['event_bus']['transport']);
         $container->setParameter('gdbots_pbjx.request_bus.transport', $config['request_bus']['transport']);
+
+        if (isset($config['event_store'])) {
+            $container->setParameter('gdbots_pbjx.event_store', $config['event_store']);
+        }
     }
 }
