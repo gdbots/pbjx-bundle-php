@@ -2,6 +2,7 @@
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
+use Gdbots\Pbjx\Pbjx;
 use Gdbots\Pbjx\ServiceLocator;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -13,6 +14,14 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 trait ConsumerTrait
 {
+    /**
+     * @return Pbjx
+     */
+    protected function getPbjx()
+    {
+        return $this->getContainer()->get('pbjx');
+    }
+
     /**
      * @return ServiceLocator
      */
