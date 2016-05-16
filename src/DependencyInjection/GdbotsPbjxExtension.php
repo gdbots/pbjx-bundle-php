@@ -35,8 +35,12 @@ class GdbotsPbjxExtension extends Extension
         $container->setParameter('gdbots_pbjx.event_bus.transport', $config['event_bus']['transport']);
         $container->setParameter('gdbots_pbjx.request_bus.transport', $config['request_bus']['transport']);
 
-        if (isset($config['event_store'])) {
-            $container->setParameter('gdbots_pbjx.event_store', $config['event_store']);
+        if (isset($config['event_store']['provider'])) {
+            $container->setParameter('gdbots_pbjx.event_store.provider', $config['event_store']['provider']);
+
+            if (isset($config['event_store']['dynamodb']['table_name'])) {
+                $container->setParameter('gdbots_pbjx.event_store.dynamodb.table_name', $config['event_store']['dynamodb']['table_name']);
+            }
         }
     }
 }

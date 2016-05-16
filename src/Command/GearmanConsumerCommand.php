@@ -22,7 +22,7 @@ class GearmanConsumerCommand extends ContainerAwareCommand
             ->setDescription('Creates a gearman consumer and runs up to the max-runtime.')
             ->setHelp(<<<EOF
 The <info>%command.name%</info> command will create a gearman consumer and listen for jobs on the provided channels.
-Gearman servers connections are determined by the config parameter "gdbots_pbjx.transport.gearman.servers".
+Gearman server connections are determined by the config parameter "gdbots_pbjx.transport.gearman.servers".
 
 In most cases you'll set this up as a daemon and always respawn after it shutdowns (due to max-runtime option).
 Max runtime is used so any php memory issues are cleaned up regularly.

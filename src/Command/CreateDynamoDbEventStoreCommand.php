@@ -5,8 +5,8 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 use Aws\DynamoDb\DynamoDbClient;
 use Gdbots\Pbjx\EventStore\DynamoDbEventStoreTable;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class CreateDynamoDbEventStoreCommand extends ContainerAwareCommand
@@ -20,18 +20,17 @@ class CreateDynamoDbEventStoreCommand extends ContainerAwareCommand
             ->setName('pbjx:create-dynamodb-event-store')
             ->setDescription('Creates a DynamoDb table for the event store.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will create a table for the event store.
+The <info>%command.name%</info> command will create a table for the event store using the 
+"Gdbots\Pbjx\EventStore\DynamoDbEventStoreTable" class.
 
-If the table already exists it will NOT modify it. 
+If the table already exists it will NOT modify it.
 
 EOF
             )
-            ->addOption(
+            ->addArgument(
                 'table-name',
-                null,
-                InputOption::VALUE_REQUIRED,
-                'The DynamoDb table name to create.',
-                DynamoDbEventStoreTable::DEFAULT_NAME
+                InputArgument::OPTIONAL,
+                'The DynamoDb table name to create, if not provided the "gdbots_pbjx.event_store.dynamodb.table_name" parameter will be used.'
             )
         ;
     }
@@ -47,7 +46,14 @@ EOF
         $container = $this->getContainer();
         /** @var DynamoDbClient $client */
         $client = $container->get('aws.dynamodb');
-        $name = $input->getOption('table-name');
+        $name = $input->getArgument('table-name') ?: $container->getParameter('gdbots_pbjx.event_store.dynamodb.table_name');
+        $output->writeln(
+            sprintf(
+                '<info>Creating DynamoDb table "%s" in region "%s", this might take a few minutes.</info>',
+                $name,
+                $client->getRegion()
+            )
+        );
 
         $table = new DynamoDbEventStoreTable($client, $name);
         $table->create();

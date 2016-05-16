@@ -94,8 +94,8 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
      */
     protected function doGetEventStore()
     {
-        $store = $this->container->getParameter('gdbots_pbjx.event_store');
-        return $this->container->get('gdbots_pbjx.event_store.' . $store);
+        $provider = $this->container->getParameter('gdbots_pbjx.event_store.provider');
+        return $this->container->get('gdbots_pbjx.event_store.' . $provider);
     }
 
     /**

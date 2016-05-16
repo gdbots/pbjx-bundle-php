@@ -16,16 +16,17 @@ class ValidateEventStorePass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasParameter('gdbots_pbjx.event_store')) {
+        if (!$container->hasParameter('gdbots_pbjx.event_store.provider')) {
             return;
         }
 
-        $provider = $container->getParameter('gdbots_pbjx.event_store');
+        $provider = $container->getParameter('gdbots_pbjx.event_store.provider');
         if (empty($provider)) {
             return;
         }
 
         $this->ensureProviderExists($container, $provider);
+
         switch ($provider) {
             case 'dynamodb':
                 $this->validateDynamoDbProvider($container);
@@ -48,7 +49,7 @@ class ValidateEventStorePass implements CompilerPassInterface
 
         throw new \LogicException(
             sprintf(
-                'The "gdbots_pbjx.event_store" is configured to use "%s" which requires service "%s".',
+                'The "gdbots_pbjx.event_store.provider" is configured to use "%s" which requires service "%s".',
                 $provider,
                 $serviceId
             )
@@ -67,6 +68,13 @@ class ValidateEventStorePass implements CompilerPassInterface
                 'The service "gdbots_pbjx.event_store.dynamodb" has a dependency on a non-existent ' .
                 'service "aws.dynamodb". This expects the DynamoDb Client that comes from ' .
                 'composer package "aws/aws-sdk-php-symfony": "~1.0".'
+            );
+        }
+
+        if (!$container->hasParameter('gdbots_pbjx.event_store.dynamodb.table_name')) {
+            throw new \LogicException(
+                'The service "gdbots_pbjx.event_store.dynamodb" has a dependency on a ' .
+                'non-existent parameter "gdbots_pbjx.event_store.dynamodb.table_name".'
             );
         }
     }

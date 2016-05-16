@@ -47,7 +47,12 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('transport')->defaultValue('in_memory')->treatNullLike('in_memory')->end()
                     ->end()
                 ->end()
-                ->scalarNode('event_store')->end()
+                ->arrayNode('event_store')
+                    ->children()
+                        ->scalarNode('provider')->defaultNull()->end()
+                        ->append($this->getDynamoDbEventStoreConfigTree())
+                    ->end()
+                ->end()
             ->end()
         ;
 
@@ -78,6 +83,23 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->integerNode('timeout')->defaultValue(5000)->end()
                 ->scalarNode('channel_prefix')->defaultNull()->end()
+            ->end()
+        ;
+
+        return $node;
+    }
+
+    /**
+     * @return NodeDefinition
+     */
+    protected function getDynamoDbEventStoreConfigTree()
+    {
+        $treeBuilder = new TreeBuilder();
+        $node = $treeBuilder->root('dynamodb');
+
+        $node
+            ->children()
+                ->scalarNode('table_name')->defaultNull()->end()
             ->end()
         ;
 
