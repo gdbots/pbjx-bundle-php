@@ -29,7 +29,7 @@ class ReplayEventsCommand extends ContainerAwareCommand
             ->setHelp(<<<EOF
 The <info>%command.name%</info> command will stream events from the pbjx event store for a given stream id and re-publish them.
 
-<info>php %command.full_name% --dry-run --hint='{"tenant_id":"123"}' stream-id</info>
+<info>php %command.full_name% --dry-run --hints='{"tenant_id":"123"}' stream-id</info>
 
 EOF
             )
