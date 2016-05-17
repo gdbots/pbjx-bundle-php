@@ -36,7 +36,7 @@ EOF
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Streams events and renders output but will NOT actually publish.')
             ->addOption('skip-errors', null, InputOption::VALUE_NONE, 'Skip any events that fail to replay.  Generally a bad idea.')
             ->addOption('batch-size', null, InputOption::VALUE_REQUIRED, 'Number of events to publish at a time.', 100)
-            ->addOption('batch-delay', null, InputOption::VALUE_REQUIRED, 'Number of seconds to delay between batches.', 5)
+            ->addOption('batch-delay', null, InputOption::VALUE_REQUIRED, 'Number of milliseconds (1000 = 1 second) to delay between batches.', 1000)
             ->addOption('since', null, InputOption::VALUE_REQUIRED, 'Replays events where occurred_at is greater than this time (unix timestamp or 16 digit microtime as int).')
             ->addOption('hints', null, InputOption::VALUE_REQUIRED, 'Hints to provide to the event store (json).')
         ;
@@ -52,8 +52,8 @@ EOF
     {
         $dryRun = $input->getOption('dry-run');
         $skipErrors = $input->getOption('skip-errors');
-        $batchSize = NumberUtils::bound($input->getOption('batch-size'), 1, 500);
-        $batchDelay = NumberUtils::bound($input->getOption('batch-delay'), 0, 600);
+        $batchSize = NumberUtils::bound($input->getOption('batch-size'), 1, 1000);
+        $batchDelay = NumberUtils::bound($input->getOption('batch-delay'), 100, 600000);
         $since = $input->getOption('since');
         $sinceStr = null;
         $hintsJson = $input->getOption('hints');
@@ -81,7 +81,7 @@ EOF
         $hints['skip_errors'] = $skipErrors;
 
         $io = new SymfonyStyle($input, $output);
-        $io->title(sprintf('Replaying events from ALL streams %s', $sinceStr));
+        $io->title(sprintf('Replaying events from ALL streams%s', $sinceStr));
 
         /*
          * running transports "in-memory" means the command/request handlers and event
@@ -101,30 +101,34 @@ EOF
         $batch = 1;
         $i = 0;
         $replayed = 0;
-        $io->comment(sprintf('Processing batch %d from ALL streams %s', $batch, $sinceStr));
+        $io->comment(sprintf('Processing batch %d from ALL streams%s', $batch, $sinceStr));
         $io->comment(sprintf('hints: %s', $hintsJson));
 
-        $callback = function(Event $event) {
-            echo json_encode($event).PHP_EOL;
-        };
-
-        $pbjx->getEventStore()->streamAllEvents($callback, $since, $hints);
-
-        /** @var Event $event */
-        /*
-        foreach ($pbjx->getEventStore()->streamAllEvents($callback, $since, $hints) as $event) {
-            if (!$event instanceof Event) {
-                continue;
-            }
-
+        $callback = function(Event $event, $streamId)
+            use (
+                $output,
+                $io,
+                $pbjx,
+                $dryRun,
+                $skipErrors,
+                $batchSize,
+                $batchDelay,
+                $hintsJson,
+                $sinceStr,
+                &$batch,
+                &$replayed,
+                &$i
+            )
+        {
             ++$i;
 
             try {
                 $output->writeln(
                     sprintf(
-                        '<info>%d.</info> <comment>occurred_at:</comment>%s, <comment>curie:</comment>%s, ' .
-                        '<comment>event_id:</comment>%s',
+                        '<info>%d.</info> <comment>stream:</comment>%s, <comment>occurred_at:</comment>%s, ' .
+                        '<comment>curie:</comment>%s, <comment>event_id:</comment>%s',
                         $i,
+                        $streamId,
                         $event->get('occurred_at'),
                         $event::schema()->getCurie()->toString(),
                         $event->get('event_id')
@@ -147,7 +151,7 @@ EOF
                 $io->newLine(2);
 
                 if (!$skipErrors) {
-                    break;
+                    throw $e;
                 }
             }
 
@@ -155,17 +159,17 @@ EOF
                 ++$batch;
 
                 if ($batchDelay > 0) {
-                    $io->note(sprintf('Pausing for %d seconds', $batchDelay));
-                    sleep($batchDelay);
+                    $io->note(sprintf('Pausing for %d milliseconds', $batchDelay));
+                    usleep($batchDelay * 1000);
                 }
 
-                $io->comment(sprintf('Processing batch %d from ALL streams %s', $batch, $sinceStr));
+                $io->comment(sprintf('Processing batch %d from ALL streams%s', $batch, $sinceStr));
                 $io->comment(sprintf('hints: %s', $hintsJson));
             }
-        }
-        */
+        };
 
+        $pbjx->getEventStore()->streamAllEvents($callback, $since, $hints);
         $io->newLine();
-        $io->success(sprintf('Replayed %s events from ALL streams %s.', number_format($replayed), $sinceStr));
+        $io->success(sprintf('Replayed %s events from ALL streams%s.', number_format($replayed), $sinceStr));
     }
 }
