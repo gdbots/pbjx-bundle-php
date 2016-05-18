@@ -2,7 +2,6 @@
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
-use Gdbots\Bundle\PbjxBundle\ContainerAwareServiceLocator;
 use Gdbots\Common\Microtime;
 use Gdbots\Common\Util\DateUtils;
 use Gdbots\Common\Util\NumberUtils;
@@ -56,8 +55,8 @@ EOF
         $batchDelay = NumberUtils::bound($input->getOption('batch-delay'), 100, 600000);
         $since = $input->getOption('since');
         $sinceStr = null;
-        $hintsJson = $input->getOption('hints');
-        $hints = [];
+        $hints = json_decode($input->getOption('hints') ?: '{}', true);
+        $hints['skip_errors'] = $skipErrors;
 
         if (!empty($since)) {
             $since = Microtime::fromString(str_pad($since, 16, '0'));
@@ -68,32 +67,11 @@ EOF
             );
         }
 
-        if (!empty($hintsJson)) {
-            $hints = json_decode($hintsJson, true);
-            if (JSON_ERROR_NONE !== json_last_error()) {
-                throw new \InvalidArgumentException(sprintf(
-                    'The hints option [%s] provided is not valid json.  Error: %s',
-                    $hintsJson,
-                    json_last_error_msg()
-                ));
-            }
-        }
-        $hints['skip_errors'] = $skipErrors;
-
         $io = new SymfonyStyle($input, $output);
         $io->title(sprintf('Replaying events from ALL streams%s', $sinceStr));
-
-        /*
-         * running transports "in-memory" means the command/request handlers and event
-         * subscribers to pbjx messages will happen in this process and not run through
-         * kinesis, gearman, sqs, etc.  Generally used for debugging.
-         */
-        if ($input->getOption('in-memory')) {
-            $locator = $this->getContainer()->get('gdbots_pbjx.service_locator');
-            if ($locator instanceof ContainerAwareServiceLocator) {
-                $locator->forceTransportsToInMemory();
-                $io->note('Using in_memory transports.');
-            }
+        $this->useInMemoryTransports($input, $io);
+        if (!$this->readyForReplayTraffic($io)) {
+            return;
         }
 
         $this->createConsoleRequest();
@@ -102,7 +80,7 @@ EOF
         $i = 0;
         $replayed = 0;
         $io->comment(sprintf('Processing batch %d from ALL streams%s', $batch, $sinceStr));
-        $io->comment(sprintf('hints: %s', $hintsJson));
+        $io->comment(sprintf('hints: %s', json_encode($hints)));
 
         $callback = function(Event $event, $streamId)
             use (
@@ -113,7 +91,6 @@ EOF
                 $skipErrors,
                 $batchSize,
                 $batchDelay,
-                $hintsJson,
                 $sinceStr,
                 &$batch,
                 &$replayed,
@@ -164,7 +141,6 @@ EOF
                 }
 
                 $io->comment(sprintf('Processing batch %d from ALL streams%s', $batch, $sinceStr));
-                $io->comment(sprintf('hints: %s', $hintsJson));
             }
         };
 

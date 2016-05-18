@@ -2,9 +2,14 @@
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
+use Gdbots\Bundle\PbjxBundle\ContainerAwareServiceLocator;
 use Gdbots\Pbjx\Pbjx;
 use Gdbots\Pbjx\ServiceLocator;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -58,5 +63,43 @@ trait ConsumerTrait
 
         $request->attributes->set('pbjx_console', true);
         $request->attributes->set('pbjx_bind_unrestricted', true);
+    }
+
+    /**
+     * Running transports "in-memory" means the command/request handlers and event
+     * subscribers to pbjx messages will happen in this process and not run through
+     * kinesis, gearman, sqs, etc.  Generally used for debugging.
+     *
+     * @param InputInterface $input
+     * @param SymfonyStyle $io
+     */
+    protected function useInMemoryTransports(InputInterface $input, SymfonyStyle $io)
+    {
+        if ($input->getOption('in-memory')) {
+            $locator = $this->getContainer()->get('gdbots_pbjx.service_locator');
+            if ($locator instanceof ContainerAwareServiceLocator) {
+                $locator->forceTransportsToInMemory();
+                $io->note('Using in_memory transports.');
+            }
+        }
+    }
+
+    /**
+     * @param SymfonyStyle $io
+     * @return bool
+     */
+    protected function readyForReplayTraffic(SymfonyStyle $io)
+    {
+        $question = sprintf(
+            'Have you prepared your event store [%s] and your devops team for the added traffic? ',
+            $this->getContainer()->getParameter('gdbots_pbjx.event_store.provider')
+        );
+
+        if (!$io->confirm($question)) {
+            $io->note('Aborting replay of ALL events.');
+            return false;
+        }
+
+        return true;
     }
 }

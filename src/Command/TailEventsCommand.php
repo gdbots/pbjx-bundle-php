@@ -31,7 +31,7 @@ value of the event on one line (json newline delimited) to STDOUT.
 
 EOF
             )
-            ->addOption('interval', null, InputOption::VALUE_REQUIRED, 'Number of seconds to wait between updates.', 2)
+            ->addOption('interval', null, InputOption::VALUE_REQUIRED, 'Number of seconds to wait between updates.', 3)
             ->addOption('hints', null, InputOption::VALUE_REQUIRED, 'Hints to provide to the event store (json).')
             ->addArgument('stream-id', InputArgument::REQUIRED, 'The stream to tail messages from.')
         ;
@@ -51,19 +51,7 @@ EOF
 
         $streamId = $input->getArgument('stream-id');
         $interval = NumberUtils::bound($input->getOption('interval'), 1, 60);
-        $hintsJson = $input->getOption('hints');
-        $hints = [];
-
-        if (!empty($hintsJson)) {
-            $hints = json_decode($hintsJson, true);
-            if (JSON_ERROR_NONE !== json_last_error()) {
-                throw new \InvalidArgumentException(sprintf(
-                    'The hints option [%s] provided is not valid json.  Error: %s',
-                    $hintsJson,
-                    json_last_error_msg()
-                ));
-            }
-        }
+        $hints = json_decode($input->getOption('hints') ?: '{}', true);
 
         /** @var Pbjx $pbjx */
         $pbjx = $this->getContainer()->get('pbjx');
