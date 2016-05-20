@@ -6,6 +6,7 @@ use Gdbots\Common\Microtime;
 use Gdbots\Common\Util\NumberUtils;
 use Gdbots\Pbjx\Pbjx;
 use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
+use Gdbots\Schemas\Pbjx\StreamId;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -49,7 +50,7 @@ EOF
         $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
         $errOutput->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
 
-        $streamId = $input->getArgument('stream-id');
+        $streamId = StreamId::fromString($input->getArgument('stream-id'));
         $interval = NumberUtils::bound($input->getOption('interval'), 1, 60);
         $hints = json_decode($input->getOption('hints') ?: '{}', true);
 

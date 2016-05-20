@@ -6,6 +6,7 @@ use Gdbots\Common\Microtime;
 use Gdbots\Common\Util\DateUtils;
 use Gdbots\Common\Util\NumberUtils;
 use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
+use Gdbots\Schemas\Pbjx\StreamId;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -82,7 +83,7 @@ EOF
         $io->comment(sprintf('Processing batch %d from ALL streams%s', $batch, $sinceStr));
         $io->comment(sprintf('hints: %s', json_encode($hints)));
 
-        $callback = function(Event $event, $streamId)
+        $callback = function(Event $event, StreamId $streamId)
             use (
                 $output,
                 $io,

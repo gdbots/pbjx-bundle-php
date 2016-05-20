@@ -2,11 +2,11 @@
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
-use Gdbots\Bundle\PbjxBundle\ContainerAwareServiceLocator;
 use Gdbots\Common\Microtime;
 use Gdbots\Common\Util\DateUtils;
 use Gdbots\Common\Util\NumberUtils;
 use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
+use Gdbots\Schemas\Pbjx\StreamId;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -52,7 +52,7 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $streamId = $input->getArgument('stream-id');
+        $streamId = StreamId::fromString($input->getArgument('stream-id'));
         $dryRun = $input->getOption('dry-run');
         $skipErrors = $input->getOption('skip-errors');
         $batchSize = NumberUtils::bound($input->getOption('batch-size'), 1, 1000);
