@@ -34,7 +34,7 @@ EOF
             )
             ->addOption('interval', null, InputOption::VALUE_REQUIRED, 'Number of seconds to wait between updates.', 3)
             ->addOption('hints', null, InputOption::VALUE_REQUIRED, 'Hints to provide to the event store (json).')
-            ->addArgument('stream-id', InputArgument::REQUIRED, 'The stream to tail messages from.')
+            ->addArgument('stream-id', InputArgument::REQUIRED, 'The stream to tail messages from.  See Gdbots\Schemas\Pbjx\StreamId for details.')
         ;
     }
 

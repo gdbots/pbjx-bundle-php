@@ -40,7 +40,7 @@ EOF
             ->addOption('batch-delay', null, InputOption::VALUE_REQUIRED, 'Number of milliseconds (1000 = 1 second) to delay between batches.', 1000)
             ->addOption('since', null, InputOption::VALUE_REQUIRED, 'Replays events where occurred_at is greater than this time (unix timestamp or 16 digit microtime as int).')
             ->addOption('hints', null, InputOption::VALUE_REQUIRED, 'Hints to provide to the event store (json).')
-            ->addArgument('stream-id', InputArgument::REQUIRED, 'The stream to replay messages from.')
+            ->addArgument('stream-id', InputArgument::REQUIRED, 'The stream to replay messages from.  See Gdbots\Schemas\Pbjx\StreamId for details.')
         ;
     }
 
