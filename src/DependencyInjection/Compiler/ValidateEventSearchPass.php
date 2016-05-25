@@ -6,21 +6,21 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
 /**
- * Checks the container to ensure that the event store has the provider defined
+ * Checks the container to ensure that the event search has the provider defined
  * and that it's valid.
  */
-class ValidateEventStorePass implements CompilerPassInterface
+class ValidateEventSearchPass implements CompilerPassInterface
 {
     /**
      * @param ContainerBuilder $container
      */
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasParameter('gdbots_pbjx.event_store.provider')) {
+        if (!$container->hasParameter('gdbots_pbjx.event_search.provider')) {
             return;
         }
 
-        $provider = $container->getParameter('gdbots_pbjx.event_store.provider');
+        $provider = $container->getParameter('gdbots_pbjx.event_search.provider');
         if (empty($provider)) {
             return;
         }
@@ -28,8 +28,8 @@ class ValidateEventStorePass implements CompilerPassInterface
         $this->ensureProviderExists($container, $provider);
 
         switch ($provider) {
-            case 'dynamodb':
-                $this->validateDynamoDbProvider($container);
+            case 'elastica':
+                $this->validateElasticaProvider($container);
                 break;
         }
     }
@@ -42,14 +42,14 @@ class ValidateEventStorePass implements CompilerPassInterface
      */
     private function ensureProviderExists(ContainerBuilder $container, $provider)
     {
-        $serviceId = 'gdbots_pbjx.event_store.'.$provider;
+        $serviceId = 'gdbots_pbjx.event_search.'.$provider;
         if ($container->hasDefinition($serviceId)) {
             return;
         }
 
         throw new \LogicException(
             sprintf(
-                'The "gdbots_pbjx.event_store.provider" is configured to use "%s" which requires service "%s".',
+                'The "gdbots_pbjx.event_search.provider" is configured to use "%s" which requires service "%s".',
                 $provider,
                 $serviceId
             )
@@ -61,14 +61,8 @@ class ValidateEventStorePass implements CompilerPassInterface
      *
      * @throws \LogicException
      */
-    private function validateDynamoDbProvider(ContainerBuilder $container)
+    private function validateElasticaProvider(ContainerBuilder $container)
     {
-        if (!$container->hasDefinition('aws.dynamodb')) {
-            throw new \LogicException(
-                'The service "gdbots_pbjx.event_store.dynamodb" has a dependency on a non-existent ' .
-                'service "aws.dynamodb". This expects the DynamoDb Client that comes from ' .
-                'composer package "aws/aws-sdk-php-symfony": "~1.0".'
-            );
-        }
+        // validate here
     }
 }

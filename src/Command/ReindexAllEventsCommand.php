@@ -4,6 +4,7 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 
 use Gdbots\Common\Microtime;
 use Gdbots\Common\Util\NumberUtils;
+use Gdbots\Pbjx\Pbjx;
 use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
 use Gdbots\Schemas\Pbjx\StreamId;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -12,7 +13,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class ReplayAllEventsCommand extends ContainerAwareCommand
+class ReindexAllEventsCommand extends ContainerAwareCommand
 {
     use ConsumerTrait;
 
@@ -22,22 +23,21 @@ class ReplayAllEventsCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('pbjx:replay-all-events')
-            ->setDescription('Streams ALL events from the event store and replays them through pbjx->publish.')
+            ->setName('pbjx:reindex-all-events')
+            ->setDescription('Reindexes ALL events from the event store.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will stream ALL events from the pbjx event store and re-publish them.
+The <info>%command.name%</info> command will read ALL events from the pbjx event store and reindex them.
 
 <info>php %command.full_name% --dry-run --hint='{"tenant_id":"123"}'</info>
 
 EOF
             )
-            ->addOption('in-memory', null, InputOption::VALUE_NONE, 'Forces all transports to be "in_memory".  Useful for debugging.')
-            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Streams events and renders output but will NOT actually publish.')
-            ->addOption('skip-errors', null, InputOption::VALUE_NONE, 'Skip any events that fail to replay.  Generally a bad idea.')
-            ->addOption('batch-size', null, InputOption::VALUE_REQUIRED, 'Number of events to publish at a time.', 100)
+            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Streams events and renders output but will NOT actually reindex.')
+            ->addOption('skip-errors', null, InputOption::VALUE_NONE, 'Skip any batches that fail to reindex.')
+            ->addOption('batch-size', null, InputOption::VALUE_REQUIRED, 'Number of events to reindex at a time.', 100)
             ->addOption('batch-delay', null, InputOption::VALUE_REQUIRED, 'Number of milliseconds (1000 = 1 second) to delay between batches.', 1000)
-            ->addOption('since', null, InputOption::VALUE_REQUIRED, 'Replays events where occurred_at is greater than this time (unix timestamp or 16 digit microtime as int).')
-            ->addOption('until', null, InputOption::VALUE_REQUIRED, 'Replays events where occurred_at is less than this time (unix timestamp or 16 digit microtime as int).')
+            ->addOption('since', null, InputOption::VALUE_REQUIRED, 'Reindex events where occurred_at is greater than this time (unix timestamp or 16 digit microtime as int).')
+            ->addOption('until', null, InputOption::VALUE_REQUIRED, 'Reindex events where occurred_at is less than this time (unix timestamp or 16 digit microtime as int).')
             ->addOption('hints', null, InputOption::VALUE_REQUIRED, 'Hints to provide to the event store (json).')
         ;
     }
@@ -58,6 +58,7 @@ EOF
         $until = $input->getOption('until');
         $hints = json_decode($input->getOption('hints') ?: '{}', true);
         $hints['skip_errors'] = $skipErrors;
+        //$hints['reindexing'] = true;
 
         if (!empty($since)) {
             $since = Microtime::fromString(str_pad($since, 16, '0'));
@@ -68,8 +69,7 @@ EOF
         }
 
         $io = new SymfonyStyle($input, $output);
-        $io->title('Replaying events from ALL streams');
-        $this->useInMemoryTransports($input, $io);
+        $io->title('Reindexing events from ALL streams');
         if (!$this->readyForReplayTraffic($io)) {
             return;
         }
@@ -78,7 +78,8 @@ EOF
         $pbjx = $this->getPbjx();
         $batch = 1;
         $i = 0;
-        $replayed = 0;
+        $reindexed = 0;
+        $queue = [];
         $io->comment(sprintf('Processing batch %d from ALL streams.', $batch));
         $io->comment(sprintf('hints: %s', json_encode($hints)));
         $io->newLine();
@@ -93,46 +94,27 @@ EOF
                 $batchSize,
                 $batchDelay,
                 &$batch,
-                &$replayed,
-                &$i
+                &$reindexed,
+                &$i,
+                &$queue
             )
         {
             ++$i;
-
-            try {
-                $output->writeln(
-                    sprintf(
-                        '<info>%d.</info> <comment>stream:</comment>%s, <comment>occurred_at:</comment>%s, ' .
-                        '<comment>curie:</comment>%s, <comment>event_id:</comment>%s',
-                        $i,
-                        $streamId,
-                        $event->get('occurred_at'),
-                        $event::schema()->getCurie()->toString(),
-                        $event->get('event_id')
-                    )
-                );
-
-                if ($dryRun) {
-                    $io->note(sprintf('DRY RUN - Would publish event "%s" here.', $event->get('event_id')));
-                } else {
-                    $event->isReplay(true);
-                    $pbjx->publish($event);
-                }
-
-                ++$replayed;
-
-            } catch (\Exception $e) {
-                $io->error($e->getMessage());
-                $io->note(sprintf('Failed event "%s" json below:', $event->get('event_id')));
-                $io->text(json_encode($event));
-                $io->newLine(2);
-
-                if (!$skipErrors) {
-                    throw $e;
-                }
-            }
+            $output->writeln(
+                sprintf(
+                    '<info>%d.</info> <comment>stream:</comment>%s, <comment>occurred_at:</comment>%s, ' .
+                    '<comment>curie:</comment>%s, <comment>event_id:</comment>%s',
+                    $i,
+                    $streamId,
+                    $event->get('occurred_at'),
+                    $event::schema()->getCurie()->toString(),
+                    $event->get('event_id')
+                )
+            );
+            $queue[] = $event->freeze();
 
             if (0 === $i % $batchSize) {
+                $this->reindex($queue, $reindexed, $pbjx, $io, $batch, $dryRun, $skipErrors);
                 ++$batch;
 
                 if ($batchDelay > 0) {
@@ -147,7 +129,48 @@ EOF
         };
 
         $pbjx->getEventStore()->streamAllEvents($callback, $since, $until, $hints);
+        $this->reindex($queue, $reindexed, $pbjx, $io, $batch, $dryRun, $skipErrors);
         $io->newLine();
-        $io->success(sprintf('Replayed %s events from ALL streams.', number_format($replayed)));
+        $io->success(sprintf('Reindexed %s events from ALL streams.', number_format($reindexed)));
+    }
+
+    /**
+     * @param array $queue
+     * @param int $reindexed
+     * @param Pbjx $pbjx
+     * @param SymfonyStyle $io
+     * @param int $batch
+     * @param bool $dryRun
+     * @param bool $skipErrors
+     *
+     * @throws \Exception
+     */
+    protected function reindex(
+        array &$queue,
+        &$reindexed,
+        Pbjx $pbjx,
+        SymfonyStyle $io,
+        $batch,
+        $dryRun = false,
+        $skipErrors = false
+    ) {
+        if ($dryRun) {
+            $io->note(sprintf('DRY RUN - Would reindex event batch %d here.', $batch));
+        } else {
+            try {
+                $pbjx->getEventSearch()->index($queue);
+            } catch (\Exception $e) {
+                $io->error($e->getMessage());
+                $io->note(sprintf('Failed to index batch %d.', $batch));
+                $io->newLine(2);
+
+                if (!$skipErrors) {
+                    throw $e;
+                }
+            }
+        }
+
+        $reindexed += count($queue);
+        $queue = [];
     }
 }

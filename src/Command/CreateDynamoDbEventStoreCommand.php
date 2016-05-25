@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class CreateDynamoDbEventStoreCommand extends ContainerAwareCommand
 {
@@ -23,7 +24,7 @@ class CreateDynamoDbEventStoreCommand extends ContainerAwareCommand
 The <info>%command.name%</info> command will create a table for the event store using the 
 "Gdbots\Pbjx\EventStore\DynamoDbEventStoreTable" class.
 
-If the table already exists it will NOT modify it.
+<info>If the table already exists it will NOT modify it.</info>
 
 EOF
             )
@@ -47,16 +48,18 @@ EOF
         /** @var DynamoDbClient $client */
         $client = $container->get('aws.dynamodb');
         $name = $input->getArgument('table-name') ?: $container->getParameter('gdbots_pbjx.event_store.dynamodb.table_name');
-        $output->writeln(
-            sprintf(
-                '<info>Creating DynamoDb table "%s" in region "%s", this might take a few minutes.</info>',
-                $name,
-                $client->getRegion()
-            )
-        );
+
+        $io = new SymfonyStyle($input, $output);
+        $io->title('DynamoDb Event Store Creator ' . DynamoDbEventStoreTable::SCHEMA_VERSION);
+
+        $io->text(sprintf(
+            'Creating DynamoDb table "%s" in region "%s", this might take a few minutes.', $name, $client->getRegion()
+        ));
 
         $table = new DynamoDbEventStoreTable($client, $name);
         $table->create();
-        $output->writeln($table->describe());
+        $io->success(sprintf('DynamoDb table "%s" in region "%s" created.', $name, $client->getRegion()));
+        $io->comment('json output of DynamoDbClient::describeTable');
+        $io->text($table->describe());
     }
 }

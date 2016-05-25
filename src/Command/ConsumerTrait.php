@@ -94,7 +94,7 @@ trait ConsumerTrait
         );
 
         if (!$io->confirm($question)) {
-            $io->note('Aborting replay of ALL events.');
+            $io->note('Aborting replay of events.');
             return false;
         }
 

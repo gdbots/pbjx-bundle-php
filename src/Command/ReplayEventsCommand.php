@@ -3,7 +3,6 @@
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
 use Gdbots\Common\Microtime;
-use Gdbots\Common\Util\DateUtils;
 use Gdbots\Common\Util\NumberUtils;
 use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
 use Gdbots\Schemas\Pbjx\StreamId;
@@ -58,20 +57,14 @@ EOF
         $batchSize = NumberUtils::bound($input->getOption('batch-size'), 1, 1000);
         $batchDelay = NumberUtils::bound($input->getOption('batch-delay'), 100, 600000);
         $since = $input->getOption('since');
-        $sinceStr = null;
         $hints = json_decode($input->getOption('hints') ?: '{}', true);
 
         if (!empty($since)) {
             $since = Microtime::fromString(str_pad($since, 16, '0'));
-            $sinceStr = sprintf(
-                ' where occurred_at > %s (%s)',
-                $since->toString(),
-                $since->toDateTime()->format(DateUtils::ISO8601_ZULU)
-            );
         }
 
         $io = new SymfonyStyle($input, $output);
-        $io->title(sprintf('Replaying events from stream "%s"%s', $streamId, $sinceStr));
+        $io->title(sprintf('Replaying events from stream "%s"', $streamId));
         $this->useInMemoryTransports($input, $io);
         if (!$this->readyForReplayTraffic($io)) {
             return;
@@ -82,8 +75,9 @@ EOF
         $batch = 1;
         $i = 0;
         $replayed = 0;
-        $io->comment(sprintf('Processing batch %d from stream "%s"%s', $batch, $streamId, $sinceStr));
+        $io->comment(sprintf('Processing batch %d from stream "%s".', $batch, $streamId));
         $io->comment(sprintf('hints: %s', json_encode($hints)));
+        $io->newLine();
 
         /** @var Event $event */
         foreach ($pbjx->getEventStore()->streamEvents($streamId, $since, $hints) as $event) {
@@ -125,15 +119,17 @@ EOF
                 ++$batch;
 
                 if ($batchDelay > 0) {
-                    $io->note(sprintf('Pausing for %d milliseconds', $batchDelay));
+                    $io->newLine();
+                    $io->note(sprintf('Pausing for %d milliseconds.', $batchDelay));
                     usleep($batchDelay * 1000);
                 }
 
-                $io->comment(sprintf('Processing batch %d from stream "%s"%s', $batch, $streamId, $sinceStr));
+                $io->comment(sprintf('Processing batch %d from stream "%s".', $batch, $streamId));
+                $io->newLine();
             }
         }
 
         $io->newLine();
-        $io->success(sprintf('Replayed %s events from stream "%s"%s.', number_format($replayed), $streamId, $sinceStr));
+        $io->success(sprintf('Replayed %s events from stream "%s".', number_format($replayed), $streamId));
     }
 }
