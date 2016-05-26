@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class UpdateElasticaEventSearchTemplateCommand extends ContainerAwareCommand
+class UpdateElasticaEventSearchIndexCommand extends ContainerAwareCommand
 {
     /**
      * {@inheritdoc}
@@ -19,8 +19,8 @@ class UpdateElasticaEventSearchTemplateCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('pbjx:update-elastica-event-search-template')
-            ->setDescription('Updates the event search index templates in elastic search.')
+            ->setName('pbjx:update-elastica-event-search-indices')
+            ->setDescription('Updates event search indices in elastic search.')
             ->setHelp(<<<EOF
 The <info>%command.name%</info> command will update (or create if it doesn't exist) an index template 
 in elastic search using the "elastica" library.  The index template contains the settings and mappings 
@@ -29,10 +29,7 @@ for all indexed events, which means this should be run whenever an event schema 
 <comment>If you need to update existing indices that have already been created using an old template or no
 template at all... run this command "pbjx:update-elastica-event-search-indices".</comment>
 
-The template pattern will be the name wrapped with wildcards "*prod-events*".  This allows for interval 
-suffix to match and any potential prefixes added for multi-tenant apps, e.g. <comment>client1-dev-events-2015q1</comment> 
-
-<info>php %command.full_name% --cluster=client123</info>
+<info>php %command.full_name% --cluster=client123 index1 index2 index3</info>
 
 EOF
             )
@@ -40,7 +37,7 @@ EOF
                 'cluster',
                 null,
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
-                'The clusters to create the template in.  If not supplied, the template is created in all clusters.'
+                'The clusters to '
             )
             ->addArgument(
                 'template',
