@@ -4,12 +4,11 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 
 use Gdbots\Pbjx\Consumer\GearmanConsumer;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class GearmanConsumerCommand extends ContainerAwareCommand
+class RunGearmanConsumerCommand extends ContainerAwareCommand
 {
     use ConsumerTrait;
 
@@ -19,8 +18,8 @@ class GearmanConsumerCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('pbjx:gearman-consumer')
-            ->setDescription('Creates a gearman consumer and runs up to the max-runtime.')
+            ->setName('pbjx:run-gearman-consumer')
+            ->setDescription('Runs gearman consumer up to the max-runtime.')
             ->setHelp(<<<EOF
 The <info>%command.name%</info> command will create a gearman consumer and listen for jobs on the provided channels.
 Gearman server connections are determined by the config parameter "gdbots_pbjx.transport.gearman.servers".

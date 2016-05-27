@@ -19,7 +19,7 @@ class UpdateElasticaEventSearchIndexCommand extends ContainerAwareCommand
     {
         $this
             ->setName('pbjx:update-elastica-event-search-index')
-            ->setDescription('Updates event search indices in elastic search.')
+            ->setDescription('Updates an event search index in elastic search.')
             ->setHelp(<<<EOF
 The <info>%command.name%</info> command will update all of the mappings and settings for the indices
 provided.  This process is handled by the ElasticaIndexManager and will include all events with 

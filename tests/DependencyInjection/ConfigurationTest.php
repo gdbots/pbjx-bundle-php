@@ -58,6 +58,12 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
             ],
             'request_bus' => [
                 'transport' => 'in_memory'
+            ],
+            'event_store' => [
+                'provider' => null
+            ],
+            'event_search' => [
+                'provider' => null
             ]
         ];
     }

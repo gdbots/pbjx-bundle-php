@@ -24,9 +24,9 @@ class ReindexAllEventsCommand extends ContainerAwareCommand
     {
         $this
             ->setName('pbjx:reindex-all-events')
-            ->setDescription('Reindexes ALL events from the event store.')
+            ->setDescription('Streams ALL events from the event store and reindexes them.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will read ALL events from the pbjx event store and reindex them.
+The <info>%command.name%</info> command will stream ALL events from the pbjx event store and reindex them.
 
 <info>php %command.full_name% --dry-run --hint='{"tenant_id":"123"}'</info>
 
