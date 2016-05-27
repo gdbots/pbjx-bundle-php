@@ -40,12 +40,12 @@ EOF
                 'cluster',
                 null,
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
-                'The clusters to create the template in.  If not supplied, the template is created in all clusters.'
+                'The clusters to put the template into.  If not supplied, the template is put into all clusters.'
             )
             ->addArgument(
                 'template',
                 InputArgument::OPTIONAL,
-                'The template name to create, if not provided the "gdbots_pbjx.event_search.elastica.index_manager.index_prefix" parameter will be used.'
+                'The template name to use, if not provided the "gdbots_pbjx.event_search.elastica.index_manager.index_prefix" parameter will be used.'
             )
         ;
     }
@@ -65,20 +65,15 @@ EOF
         $indexManager = $container->get('gdbots_pbjx.event_search.elastica.index_manager');
 
         $io = new SymfonyStyle($input, $output);
-        $io->title('Elastica Event Search Index Template Creator');
+        $io->title('Elastica Event Search Index Template Updater');
 
         $template = $input->getArgument('template') ?: $container->getParameter('gdbots_pbjx.event_search.elastica.index_manager.index_prefix');
-        $clusters = $input->getOption('cluster') ? (array)$input->getOption('cluster') : $clientManager->getAvailableClusters();
+        $clusters = $input->getOption('cluster') ?: $clientManager->getAvailableClusters();
 
         foreach ($clusters as $cluster) {
-            $io->text(sprintf(
-                'Creating Elastic Search index template "%s" in cluster "%s", this might take a few minutes.',
-                $template,
-                $cluster
-            ));
-
+            $io->text(sprintf('Putting Elastic Search index template "%s" into cluster "%s".', $template, $cluster));
             $indexManager->updateTemplate($clientManager->getClient($cluster), $template);
-            $io->success(sprintf('Created Elastic Search index template "%s" in cluster "%s"', $template, $cluster));
+            $io->success(sprintf('Updated Elastic Search index template "%s" in cluster "%s"', $template, $cluster));
         }
     }
 }

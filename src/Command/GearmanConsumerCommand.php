@@ -4,6 +4,7 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 
 use Gdbots\Pbjx\Consumer\GearmanConsumer;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -27,16 +28,16 @@ Gearman server connections are determined by the config parameter "gdbots_pbjx.t
 In most cases you'll set this up as a daemon and always respawn after it shutdowns (due to max-runtime option).
 Max runtime is used so any php memory issues are cleaned up regularly.
 
-<info>php %command.full_name% --channels=pbjx_commands,pbjx_events --max-runtime=300 --id=pbjx-worker1</info>
+<info>php %command.full_name% --channel=pbjx_commands --channel=pbjx_events --max-runtime=300 --id=pbjx-worker1</info>
 
 EOF
             )
             ->addOption(
-                'channels',
+                'channel',
                 null,
-                InputOption::VALUE_REQUIRED,
-                'A comma delimited list of gearman channels (aka functions) this process will handle.',
-                'pbjx_commands,pbjx_events'
+                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+                'The gearman channel (aka function) this process will handle.',
+                ['pbjx_commands', 'pbjx_events']
             )
             ->addOption(
                 'max-runtime',
@@ -62,7 +63,7 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $channels = explode(',', $input->getOption('channels'));
+        $channels = $input->getOption('channel');
         $maxRuntime = (int) $input->getOption('max-runtime');
         $id = $input->getOption('id');
 

@@ -7,7 +7,6 @@ use Gdbots\Pbjx\EventSearch\ElasticaIndexManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -19,30 +18,25 @@ class UpdateElasticaEventSearchIndexCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('pbjx:update-elastica-event-search-indices')
+            ->setName('pbjx:update-elastica-event-search-index')
             ->setDescription('Updates event search indices in elastic search.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will update (or create if it doesn't exist) an index template 
-in elastic search using the "elastica" library.  The index template contains the settings and mappings 
-for all indexed events, which means this should be run whenever an event schema changes.
+The <info>%command.name%</info> command will update all of the mappings and settings for the indices
+provided.  This process is handled by the ElasticaIndexManager and will include all events with 
+the "gdbots:pbjx:mixin:indexed" mixin.
 
-<comment>If you need to update existing indices that have already been created using an old template or no
-template at all... run this command "pbjx:update-elastica-event-search-indices".</comment>
+<error>If any index settings need to be changed, for example analyzers, the index will be closed,</error> 
+<error>updated and then reopened by this process, which may take a few minutes. (generally rare)</error>
 
-<info>php %command.full_name% --cluster=client123 index1 index2 index3</info>
+<info>php %command.full_name% cluster index-2016* index-2015q4</info>
 
 EOF
             )
-            ->addOption(
-                'cluster',
-                null,
-                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
-                'The clusters to '
-            )
+            ->addArgument('cluster', InputArgument::REQUIRED, 'The cluster to use for the updates.')
             ->addArgument(
-                'template',
-                InputArgument::OPTIONAL,
-                'The template name to create, if not provided the "gdbots_pbjx.event_search.elastica.index_manager.index_prefix" parameter will be used.'
+                'index',
+                InputArgument::REQUIRED | InputArgument::IS_ARRAY,
+                'The name of the index to update.  Wildcards are supported, i.e. events-2015*'
             )
         ;
     }
@@ -62,20 +56,21 @@ EOF
         $indexManager = $container->get('gdbots_pbjx.event_search.elastica.index_manager');
 
         $io = new SymfonyStyle($input, $output);
-        $io->title('Elastica Event Search Index Template Creator');
+        $io->title('Elastica Event Search Index Updater');
 
-        $template = $input->getArgument('template') ?: $container->getParameter('gdbots_pbjx.event_search.elastica.index_manager.index_prefix');
-        $clusters = $input->getOption('cluster') ? (array)$input->getOption('cluster') : $clientManager->getAvailableClusters();
+        $cluster = $input->getArgument('cluster');
+        $indices = $input->getArgument('index');
+        $client = $clientManager->getClient($cluster);
 
-        foreach ($clusters as $cluster) {
+        foreach ($indices as $index) {
             $io->text(sprintf(
-                'Creating Elastic Search index template "%s" in cluster "%s", this might take a few minutes.',
-                $template,
+                'Updating Elastic Search index "%s" in cluster "%s", this might take a few minutes.',
+                $index,
                 $cluster
             ));
 
-            $indexManager->updateTemplate($clientManager->getClient($cluster), $template);
-            $io->success(sprintf('Created Elastic Search index template "%s" in cluster "%s"', $template, $cluster));
+            $indexManager->updateIndex($client, $index);
+            $io->success(sprintf('Updated Elastic Search index "%s" in cluster "%s"', $index, $cluster));
         }
     }
 }
