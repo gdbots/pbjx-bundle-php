@@ -125,6 +125,7 @@ class GdbotsPbjxExtension extends Extension
                 $config['event_search']['elastica']['index_manager']['index_prefix']
             );
         }
+        $container->setParameter('gdbots_pbjx.event_search.elastica.query_timeout', $config['event_search']['elastica']['query_timeout']);
         $container->setParameter('gdbots_pbjx.event_search.elastica.clusters', $config['event_search']['elastica']['clusters']);
     }
 }

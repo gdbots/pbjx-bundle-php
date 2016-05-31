@@ -20,7 +20,7 @@ class UpdateElasticaEventSearchTemplateCommand extends ContainerAwareCommand
     {
         $this
             ->setName('pbjx:update-elastica-event-search-template')
-            ->setDescription('Updates the event search index templates in elastic search.')
+            ->setDescription('Updates the event search index template in elastic search.')
             ->setHelp(<<<EOF
 The <info>%command.name%</info> command will update (or create if it doesn't exist) an index template 
 in elastic search using the "elastica" library.  The index template contains the settings and mappings 

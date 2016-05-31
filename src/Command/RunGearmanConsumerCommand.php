@@ -19,7 +19,7 @@ class RunGearmanConsumerCommand extends ContainerAwareCommand
     {
         $this
             ->setName('pbjx:run-gearman-consumer')
-            ->setDescription('Runs gearman consumer up to the max-runtime.')
+            ->setDescription('Runs a gearman consumer up to the max-runtime.')
             ->setHelp(<<<EOF
 The <info>%command.name%</info> command will create a gearman consumer and listen for jobs on the provided channels.
 Gearman server connections are determined by the config parameter "gdbots_pbjx.transport.gearman.servers".

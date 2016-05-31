@@ -86,6 +86,7 @@
       <argument type="service" id="gdbots_pbjx.event_search.elastica.client_manager"/>
       <argument type="service" id="gdbots_pbjx.event_search.elastica.index_manager"/>
       <argument type="service" id="logger" on-invalid="ignore"/>
+      <argument>%gdbots_pbjx.event_search.elastica.query_timeout%</argument>
       <tag name="monolog.logger" channel="pbjx.event_search"/>
     </service>
 
