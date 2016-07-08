@@ -28,6 +28,11 @@
       <tag name="monolog.logger" channel="pbjx"/>
       <tag name="pbjx.event_subscriber"/>
     </service>
+
+    <service id="gdbots_pbjx.twig.pbjx_extension" class="Gdbots\Bundle\PbjxBundle\Twig\PbjxExtension" public="false">
+      <argument type="service" id="service_container"/>
+      <tag name="twig.extension"/>
+    </service>
     <!-- end: core services -->
 
 
