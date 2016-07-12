@@ -75,11 +75,19 @@ class EnvelopeListener
             $array['error_message'] = $this->redactErrorMessage($envelope, $request);
         }
 
-        $event->setResponse(new JsonResponse($array, $httpCode, [
+        $response = new JsonResponse($array, $httpCode, [
             'Content-Type' => 'application/json',
             'ETag' => $envelope->get('etag'),
             'x-pbjx-envelope-id' => $envelope->get('envelope_id'),
-        ]));
+        ]);
+
+        if ($request->attributes->getBoolean('_jsonp_enabled') && $request->query->has('callback')) {
+            // this may throw an exception but at this point someone
+            // trying to break jsonp can get a malformed error.
+            $response->setCallback($request->query->get('callback'));
+        }
+
+        $event->setResponse($response);
     }
 
     /**
