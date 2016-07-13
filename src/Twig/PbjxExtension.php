@@ -23,16 +23,16 @@ class PbjxExtension extends \Twig_Extension
      * template can be device view specific. (card.smartphone.html.twig)
      *
      * Example:
-     *  {% include pbj_template(pbj, 'card', device_view) with {'pbj': pbj} %}
+     *  {% include pbj_template(pbj, 'card', 'html', device_view) with {'pbj': pbj} %}
      *
      * @param Message $pbj
      * @param string $template
-     * @param string $deviceView
      * @param string $format
+     * @param string $deviceView
      *
      * @return string|string[]  A single template reference or array if device view is not null
      */
-    public function pbjTemplate(Message $pbj, $template, $deviceView = null, $format = 'html')
+    public function pbjTemplate(Message $pbj, $template, $format = 'html', $deviceView = null)
     {
         // todo: memoize?
         $curieStr = $pbj::schema()->getCurie()->toString();
