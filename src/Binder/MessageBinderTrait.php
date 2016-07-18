@@ -4,6 +4,7 @@ namespace Gdbots\Bundle\PbjxBundle\Binder;
 
 use Gdbots\Pbj\Field;
 use Gdbots\Pbj\Message;
+use Gdbots\Pbjx\Event\PbjxEvent;
 use Gdbots\Schemas\Contexts\AppV1;
 use Gdbots\Schemas\Contexts\CloudV1;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -19,11 +20,12 @@ trait MessageBinderTrait
     protected $requestStack;
 
     /**
+     * @param PbjxEvent $pbjxEvent
      * @param Message $message
      * @param Field[] $fields
      * @param array $input
      */
-    protected function restrictBindFromInput(Message $message, array $fields, array $input)
+    protected function restrictBindFromInput(PbjxEvent $pbjxEvent, Message $message, array $fields, array $input)
     {
         foreach ($fields as $field) {
             $fieldName = $field->getName();
@@ -46,10 +48,11 @@ trait MessageBinderTrait
     }
 
     /**
+     * @param PbjxEvent $pbjxEvent
      * @param Message $message
      * @param Request $request
      */
-    protected function bindConsoleApp(Message $message, Request $request)
+    protected function bindConsoleApp(PbjxEvent $pbjxEvent, Message $message, Request $request)
     {
         if ($message->has('ctx_app')
             || !$request->attributes->getBoolean('pbjx_console')
@@ -68,9 +71,11 @@ trait MessageBinderTrait
     }
 
     /**
+     * @param PbjxEvent $pbjxEvent
      * @param Message $message
+     * @param Request $request
      */
-    protected function bindCloud(Message $message)
+    protected function bindCloud(PbjxEvent $pbjxEvent, Message $message, Request $request)
     {
         if ($message->has('ctx_cloud') || !$this->container->hasParameter('cloud_provider')) {
             return;
@@ -87,10 +92,11 @@ trait MessageBinderTrait
     }
 
     /**
+     * @param PbjxEvent $pbjxEvent
      * @param Message $message
      * @param Request $request
      */
-    protected function bindIp(Message $message, Request $request)
+    protected function bindIp(PbjxEvent $pbjxEvent, Message $message, Request $request)
     {
         if ($message->has('ctx_ip')) {
             return;
@@ -100,10 +106,11 @@ trait MessageBinderTrait
     }
 
     /**
+     * @param PbjxEvent $pbjxEvent
      * @param Message $message
      * @param Request $request
      */
-    protected function bindUserAgent(Message $message, Request $request)
+    protected function bindUserAgent(PbjxEvent $pbjxEvent, Message $message, Request $request)
     {
         if ($message->has('ctx_ua')) {
             return;

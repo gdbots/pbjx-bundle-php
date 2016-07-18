@@ -25,8 +25,8 @@ class RequestBinder implements EventSubscriber
      */
     public function bind(PbjxEvent $pbjxEvent)
     {
-        /** @var PbjxRequest $pbjxRequest */
-        $pbjxRequest = $pbjxEvent->getMessage();
+        /** @var PbjxRequest $message */
+        $message = $pbjxEvent->getMessage();
         $request = $this->getCurrentRequest();
 
         $restricted = !$request->attributes->getBoolean('pbjx_bind_unrestricted');
@@ -34,20 +34,20 @@ class RequestBinder implements EventSubscriber
 
         if ($restricted) {
             $fields = array_filter(
-                $pbjxRequest::schema()->getMixin('gdbots:pbjx:mixin:request')->getFields(),
+                $message::schema()->getMixin('gdbots:pbjx:mixin:request')->getFields(),
                 function(Field $field) {
                     // we allow the client to set ctx_app
                     return 'ctx_app' !== $field->getName();
                 }
             );
 
-            $this->restrictBindFromInput($pbjxRequest, $fields, $input);
+            $this->restrictBindFromInput($pbjxEvent, $message, $fields, $input);
         }
 
-        $this->bindConsoleApp($pbjxRequest, $request);
-        $this->bindCloud($pbjxRequest);
-        $this->bindIp($pbjxRequest, $request);
-        $this->bindUserAgent($pbjxRequest, $request);
+        $this->bindConsoleApp($pbjxEvent, $message, $request);
+        $this->bindCloud($pbjxEvent, $message, $request);
+        $this->bindIp($pbjxEvent, $message, $request);
+        $this->bindUserAgent($pbjxEvent, $message, $request);
     }
 
     /**

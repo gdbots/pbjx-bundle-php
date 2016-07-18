@@ -25,8 +25,8 @@ class EventBinder implements EventSubscriber
      */
     public function bind(PbjxEvent $pbjxEvent)
     {
-        /** @var Event $event */
-        $event = $pbjxEvent->getMessage();
+        /** @var Event $message */
+        $message = $pbjxEvent->getMessage();
         $request = $this->getCurrentRequest();
 
         $restricted = !$request->attributes->getBoolean('pbjx_bind_unrestricted');
@@ -34,19 +34,19 @@ class EventBinder implements EventSubscriber
 
         if ($restricted) {
             $fields = array_filter(
-                $event::schema()->getMixin('gdbots:pbjx:mixin:event')->getFields(),
+                $message::schema()->getMixin('gdbots:pbjx:mixin:event')->getFields(),
                 function(Field $field) {
                     // we allow the client to set ctx_app
                     return 'ctx_app' !== $field->getName();
                 }
             );
 
-            $this->restrictBindFromInput($event, $fields, $input);
+            $this->restrictBindFromInput($pbjxEvent, $message, $fields, $input);
         }
 
-        $this->bindConsoleApp($event, $request);
-        $this->bindIp($event, $request);
-        $this->bindUserAgent($event, $request);
+        $this->bindConsoleApp($pbjxEvent, $message, $request);
+        $this->bindIp($pbjxEvent, $message, $request);
+        $this->bindUserAgent($pbjxEvent, $message, $request);
     }
 
     /**
