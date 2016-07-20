@@ -58,7 +58,7 @@ EOF
         $until = $input->getOption('until');
         $hints = json_decode($input->getOption('hints') ?: '{}', true);
         $hints['skip_errors'] = $skipErrors;
-        //$hints['reindexing'] = true;
+        $hints['reindexing'] = true;
 
         if (!empty($since)) {
             $since = Microtime::fromString(str_pad($since, 16, '0'));

@@ -129,6 +129,12 @@
       <tag name="pbjx.event_subscriber"/>
     </service>
     <!-- end: binders -->
+
+
+    <!-- start: request handlers -->
+    <service id="gdbots_pbjx.echo_request_handler" class="Gdbots\Bundle\PbjxBundle\EchoRequestHandler"/>
+    <!-- end: request handlers -->
+
   </services>
 
 </container>
