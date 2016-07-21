@@ -43,8 +43,8 @@ EOF
             ->addOption('skip-errors', null, InputOption::VALUE_NONE, 'Skip any lines that fail to deserialize.')
             ->addOption('batch-size', null, InputOption::VALUE_REQUIRED, 'Number of lines to read at a time.', 100)
             ->addOption('batch-delay', null, InputOption::VALUE_REQUIRED, 'Number of milliseconds (1000 = 1 second) to delay between batches.', 1000)
-            ->addOption('start-line', null, InputOption::VALUE_REQUIRED, 'Start processing at this line number.', 1)
-            ->addOption('end-line', null, InputOption::VALUE_REQUIRED, 'Stop processing at this line number.')
+            ->addOption('start-line', null, InputOption::VALUE_REQUIRED, 'Start processing AT this line number.', 1)
+            ->addOption('end-line', null, InputOption::VALUE_REQUIRED, 'Stop processing AFTER this line number.', PHP_INT_MAX)
             ->addArgument('file', InputArgument::REQUIRED, 'The full path to a json line delimited file with pbj messages.')
         ;
     }
@@ -66,10 +66,10 @@ EOF
         $file = $input->getArgument('file');
 
         $io = new SymfonyStyle($input, $output);
-        $io->title(sprintf('Reading messages from [%s]', $file));
+        $io->title(sprintf('Reading messages from "%s"', $file));
         $this->useInMemoryTransports($input, $io);
         $question = sprintf(
-            'Have you prepared your event store [%s] and transports [%s,%s] and your devops team for the added traffic? ',
+            'Have you prepared your event store [%s], transports [%s,%s] and your devops team for the added traffic? ',
             $this->getContainer()->getParameter('gdbots_pbjx.event_store.provider'),
             $this->getContainer()->getParameter('gdbots_pbjx.command_bus.transport'),
             $this->getContainer()->getParameter('gdbots_pbjx.event_bus.transport')
@@ -81,7 +81,7 @@ EOF
         }
 
         if (!file_exists($file) || !is_readable($file)) {
-            $io->error(sprintf('File [%s] must exist and be readable.', $file));
+            $io->error(sprintf('File "%s" must exist and be readable.', $file));
             return;
         }
 
@@ -103,7 +103,7 @@ EOF
 
         $handle = @fopen($file, 'r');
         if (!$handle) {
-            $io->error(sprintf('Unable to open file [%s].', $file));
+            $io->error(sprintf('Unable to open file "%s".', $file));
             return;
         }
 
@@ -114,7 +114,7 @@ EOF
         $batch = 1;
         $i = 0;
         $processed = 0;
-        $io->comment(sprintf('Processing batch %d from file [%s].', $batch, $file));
+        $io->comment(sprintf('Processing batch %d from file "%s".', $batch, $file));
         $io->newLine();
 
         while (($line = fgets($handle)) !== false) {
@@ -129,7 +129,7 @@ EOF
             }
 
             if ($i > $endLine) {
-                $io->note(sprintf('#%d. End line reached, stopping process.', $endLine));
+                $io->note(sprintf('%d. End line reached, stopping process.', $endLine));
                 break;
             }
 
@@ -171,26 +171,26 @@ EOF
 
                 $requestStack->pop();
                 $requestStack->push($request);
+                ++$processed;
 
                 if ($dryRun) {
-                    $io->note(sprintf('#%d. DRY RUN - %s', $ref));
+                    $io->text(sprintf('<info>%d.</info> DRY RUN - %s', $i, $ref));
                 } else {
                     if ($message instanceof Command) {
-                        $io->note(sprintf('#%d. Sending [%s]', $ref));
+                        $io->text(sprintf('<info>%d.</info> Sending "%s"', $i, $ref));
                         $pbjx->send($message);
-                        ++$processed;
                     } elseif ($message instanceof Event) {
-                        $io->note(sprintf('#%d. Publishing [%s]', $ref));
+                        $io->text(sprintf('<info>%d.</info> Publishing "%s"', $i, $ref));
                         $pbjx->publish($message);
-                        ++$processed;
                     } else {
-                        $io->warning(sprintf('#%d. Ignoring [%s] since it\'s not a command or event.', $i, $ref));
+                        $io->warning(sprintf('%d. Ignoring "%s" since it\'s not a command or event.', $i, $ref));
+                        --$processed;
                     }
                 }
 
             } catch (DeserializeMessageFailed $de) {
-                $io->error(sprintf('#%d. %s', $i, $de->getMessage()));
-                $io->note(sprintf('#%d. Failed to deserialize json line below:', $i));
+                $io->error(sprintf('%d. %s', $i, $de->getMessage()));
+                $io->note(sprintf('%d. Failed to deserialize json line below:', $i));
                 $io->text($line);
                 $io->newLine(2);
 
@@ -199,7 +199,7 @@ EOF
                 }
 
             } catch (\Exception $e) {
-                $io->error(sprintf('#%d. %s', $i, $e->getMessage()));
+                $io->error(sprintf('%d. %s', $i, $e->getMessage()));
                 break;
             }
 
@@ -212,7 +212,7 @@ EOF
                     usleep($batchDelay * 1000);
                 }
 
-                $io->comment(sprintf('Processing batch %d from file [%s].', $batch, $file));
+                $io->comment(sprintf('Processing batch %d from file "%s".', $batch, $file));
                 $io->newLine();
             }
         }
@@ -220,6 +220,6 @@ EOF
         @fclose($handle);
 
         $io->newLine();
-        $io->success(sprintf('Processed %s messages from [%s].', number_format($processed), $file));
+        $io->success(sprintf('Processed %s messages from "%s".', number_format($processed), $file));
     }
 }

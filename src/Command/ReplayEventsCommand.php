@@ -84,7 +84,7 @@ EOF
             ++$i;
 
             try {
-                $output->writeln(
+                $io->text(
                     sprintf(
                         '<info>%d.</info> <comment>occurred_at:</comment>%s, <comment>curie:</comment>%s, ' .
                         '<comment>event_id:</comment>%s',
@@ -96,7 +96,7 @@ EOF
                 );
 
                 if ($dryRun) {
-                    $io->note(sprintf('DRY RUN - Would publish event "%s" here.', $event->get('event_id')));
+                    $io->comment(sprintf('DRY RUN - Would publish event "%s" here.', $event->get('event_id')));
                 } else {
                     $event->isReplay(true);
                     $pbjx->publish($event);
@@ -105,9 +105,9 @@ EOF
                 ++$replayed;
 
             } catch (\Exception $e) {
-                $io->error($e->getMessage());
-                $io->note(sprintf('Failed event "%s" json below:', $event->get('event_id')));
-                $io->text(json_encode($event));
+                $io->error(sprintf('%d. %s', $i, $e->getMessage()));
+                $io->note(sprintf('%d. Failed event "%s" json below:', $i, $event->get('event_id')));
+                $io->text(json_encode($event, JSON_PRETTY_PRINT));
                 $io->newLine(2);
 
                 if (!$skipErrors) {
