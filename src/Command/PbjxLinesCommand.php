@@ -64,15 +64,16 @@ EOF
         $startLine = $input->getOption('start-line');
         $endLine = $input->getOption('end-line');
         $file = $input->getArgument('file');
+        $container = $this->getContainer();
 
         $io = new SymfonyStyle($input, $output);
         $io->title(sprintf('Reading messages from "%s"', $file));
         $this->useInMemoryTransports($input, $io);
         $question = sprintf(
             'Have you prepared your event store [%s], transports [%s,%s] and your devops team for the added traffic? ',
-            $this->getContainer()->getParameter('gdbots_pbjx.event_store.provider'),
-            $this->getContainer()->getParameter('gdbots_pbjx.command_bus.transport'),
-            $this->getContainer()->getParameter('gdbots_pbjx.event_bus.transport')
+            $container->getParameter('gdbots_pbjx.event_store.provider'),
+            $container->getParameter('gdbots_pbjx.command_bus.transport'),
+            $container->getParameter('gdbots_pbjx.event_bus.transport')
         );
 
         if (!$io->confirm($question)) {
@@ -108,7 +109,7 @@ EOF
         }
 
         /** @var RequestStack $requestStack */
-        $requestStack = $this->getContainer()->get('request_stack');
+        $requestStack = $container->get('request_stack');
         $pbjx = $this->getPbjx();
         $serializer = new JsonSerializer();
         $batch = 1;
@@ -172,6 +173,7 @@ EOF
                 $requestStack->pop();
                 $requestStack->push($request);
                 ++$processed;
+
 
                 if ($dryRun) {
                     $io->text(sprintf('<info>%d.</info> DRY RUN - %s', $i, $ref));
