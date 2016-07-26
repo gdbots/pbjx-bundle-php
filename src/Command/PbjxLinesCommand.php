@@ -121,6 +121,7 @@ EOF
         while (($line = fgets($handle)) !== false) {
             ++$i;
 
+            $line = trim($line);
             if (empty($line)) {
                 continue;
             }
