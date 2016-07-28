@@ -175,15 +175,29 @@ EOF
                 $requestStack->push($request);
                 ++$processed;
 
-
                 if ($dryRun) {
-                    $io->text(sprintf('<info>%d.</info> DRY RUN - %s', $i, $ref));
+                    $io->text(sprintf(
+                        '<info>%d.</info> DRY RUN <comment>ref:</comment>%s, <comment>occurred_at:</comment>%s',
+                        $i,
+                        $ref,
+                        $message->get('occurred_at')
+                    ));
                 } else {
                     if ($message instanceof Command) {
-                        $io->text(sprintf('<info>%d.</info> Sending "%s"', $i, $ref));
+                        $io->text(sprintf(
+                            '<info>%d.</info> Sending <comment>ref:</comment>%s, <comment>occurred_at:</comment>%s',
+                            $i,
+                            $ref,
+                            $message->get('occurred_at')
+                        ));
                         $pbjx->send($message);
                     } elseif ($message instanceof Event) {
-                        $io->text(sprintf('<info>%d.</info> Publishing "%s"', $i, $ref));
+                        $io->text(sprintf(
+                            '<info>%d.</info> Publishing <comment>ref:</comment>%s, <comment>occurred_at:</comment>%s',
+                            $i,
+                            $ref,
+                            $message->get('occurred_at')
+                        ));
                         $pbjx->publish($message);
                     } else {
                         $io->warning(sprintf('%d. Ignoring "%s" since it\'s not a command or event.', $i, $ref));
