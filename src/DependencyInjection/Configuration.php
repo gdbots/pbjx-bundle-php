@@ -114,6 +114,7 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->integerNode('timeout')
                     ->defaultValue(5000)
+                    ->treatNullLike(5000)
                 ->end()
                 ->scalarNode('channel_prefix')
                     ->defaultNull()
@@ -180,6 +181,7 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->scalarNode('query_timeout')
                     ->defaultValue('100ms')
+                    ->treatNullLike('100ms')
                 ->end()
                 ->arrayNode('clusters')
                     ->useAttributeAsKey('name')
@@ -199,6 +201,7 @@ class Configuration implements ConfigurationInterface
                                     'If using indexing of file large value necessary.'
                                 )
                                 ->defaultValue(300)
+                                ->treatNullLike(300)
                             ->end()
                             ->booleanNode('debug')
                                 ->defaultFalse()
