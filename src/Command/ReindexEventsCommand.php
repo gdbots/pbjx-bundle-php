@@ -2,8 +2,8 @@
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
-use Gdbots\Common\Microtime;
 use Gdbots\Common\Util\NumberUtils;
+use Gdbots\Pbj\WellKnown\Microtime;
 use Gdbots\Pbjx\Pbjx;
 use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
 use Gdbots\Schemas\Pbjx\StreamId;
