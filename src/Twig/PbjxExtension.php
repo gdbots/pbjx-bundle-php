@@ -35,7 +35,7 @@ class PbjxExtension extends \Twig_Extension
     public function pbjTemplate(Message $pbj, $template, $format = 'html', $deviceView = null)
     {
         // todo: memoize?
-        $curieStr = $pbj::schema()->getCurie()->toString();
+        $curieStr = str_replace('::', ':_:', $pbj::schema()->getCurie()->toString());
         $default = sprintf('@%s/%s.%s.twig', str_replace(':', '/', $curieStr), $template, $format);
 
         if (null === $deviceView) {

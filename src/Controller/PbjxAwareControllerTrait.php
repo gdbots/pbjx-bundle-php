@@ -32,6 +32,7 @@ trait PbjxAwareControllerTrait
      */
     public function pbjTemplate(Message $pbj, $template, $format = 'html')
     {
-        return sprintf('@%s/%s.%s.twig', str_replace(':', '/', $pbj::schema()->getCurie()), $template, $format);
+        $curieStr = str_replace('::', ':_:', $pbj::schema()->getCurie()->toString());
+        return sprintf('@%s/%s.%s.twig', str_replace(':', '/', $curieStr), $template, $format);
     }
 }

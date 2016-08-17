@@ -174,11 +174,16 @@ class PbjxController
             return $this->handleException($envelope, $request, $command, $e);
         }
 
-        return $envelope
+        $envelope
             ->set('code', Code::OK)
             ->set('http_code', HttpCode::HTTP_ACCEPTED())
             ->set('message_ref', $command->generateMessageRef());
-            //->set('message', $command);
+
+        if ($request->attributes->getBoolean('pbjx_console')) {
+            $envelope->set('message', $command);
+        }
+
+        return $envelope;
     }
 
     /**
@@ -196,10 +201,16 @@ class PbjxController
             return $this->handleException($envelope, $request, $event, $e);
         }
 
-        return $envelope
+        $envelope
             ->set('code', Code::OK)
             ->set('http_code', HttpCode::HTTP_ACCEPTED())
             ->set('message_ref', $event->generateMessageRef());
+
+        if ($request->attributes->getBoolean('pbjx_console')) {
+            $envelope->set('message', $event);
+        }
+
+        return $envelope;
     }
 
     /**
