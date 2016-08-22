@@ -31,6 +31,8 @@
 
     <service id="gdbots_pbjx.twig.pbjx_extension" class="Gdbots\Bundle\PbjxBundle\Twig\PbjxExtension" public="false">
       <argument type="service" id="service_container"/>
+      <argument type="service" id="logger" on-invalid="ignore"/>
+      <tag name="monolog.logger" channel="pbjx"/>
       <tag name="twig.extension"/>
     </service>
     <!-- end: core services -->
