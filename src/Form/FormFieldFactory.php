@@ -35,26 +35,26 @@ final class FormFieldFactory
      * @var array
      */
     protected $types = [
-        'big-int'           => 'todo',
-        'binary'            => 'todo',
-        'blob'              => 'todo',
+        //'big-int'           => 'todo',
+        //'binary'            => 'todo',
+        //'blob'              => 'todo',
         'boolean'           => CheckboxType::class,
         'date'              => DateType::class,
         'date-time'         => DateTimeType::class, // ensure DateUtils::ISO8601_ZULU format
         'decimal'           => NumberType::class,
-        'dynamic-field'     => 'todo',
+        //'dynamic-field'     => 'todo',
         'float'             => NumberType::class,
-        'geo-point'         => 'todo',
+        //'geo-point'         => 'todo',
         'identifier'        => TextType::class, //'todo',
         'int'               => IntegerType::class,
         'int-enum'          => ChoiceType::class,
-        'medium-blob'       => 'todo',
+        //'medium-blob'       => 'todo',
         'medium-int'        => IntegerType::class,
         'medium-text'       => TextareaType::class,
-        'message'           => 'todo', // this likely has to be configured manually
+        //'message'           => 'todo', // this likely has to be configured manually
         'message-ref'       => TextType::class, //'todo',
-        'microtime'         => 'todo',
-        'signed-big-int'    => 'todo',
+        //'microtime'         => 'todo',
+        //'signed-big-int'    => 'todo',
         'signed-int'        => IntegerType::class,
         'signed-medium-int' => IntegerType::class,
         'signed-small-int'  => IntegerType::class,
@@ -63,29 +63,38 @@ final class FormFieldFactory
         'string'            => TextType::class,
         'string-enum'       => ChoiceType::class,
         'text'              => TextareaType::class,
-        'time-uuid'         => 'todo',
+        //'time-uuid'         => 'todo',
         'timestamp'         => TimeType::class,
         'tiny-int'          => IntegerType::class,
-        'uuid'              => 'todo',
+        //'uuid'              => 'todo',
     ];
 
     /**
-     * @param Field $field
+     * @param Field $pbjField
+     *
+     * @return bool
+     */
+    public function supports(Field $pbjField)
+    {
+        return isset($this->types[$pbjField->getType()->getTypeValue()]);
+    }
+
+    /**
+     * @param Field $pbjField
      *
      * @return FormField
      */
-    public function create(Field $field)
+    public function create(Field $pbjField)
     {
-        $symfonyType = $this->getSymfonyType($field);
-        $options = $this->getOptions($field);
+        $symfonyType = $this->getSymfonyType($pbjField);
+        $options = $this->getOptions($pbjField);
 
-        if ($field->isASingleValue()) {
-            if (Schema::PBJ_FIELD_NAME === $field->getName()) {
+        if ($pbjField->isASingleValue()) {
+            if (Schema::PBJ_FIELD_NAME === $pbjField->getName()) {
                 $symfonyType = HiddenType::class;
-                $options['disabled'] = true;
             }
 
-            return new FormField($field, $symfonyType, $options);
+            return new FormField($pbjField, $symfonyType, $options);
         }
 
         $collectionOptions = [
@@ -93,15 +102,20 @@ final class FormFieldFactory
             'entry_options' => $options
         ];
 
-        return new FormField($field, CollectionType::class, $collectionOptions);
+        return new FormField($pbjField, CollectionType::class, $collectionOptions);
     }
 
-    private function getSymfonyType(Field $field)
+    /**
+     * @param Field $pbjField
+     *
+     * @return string
+     */
+    private function getSymfonyType(Field $pbjField)
     {
-        $type = $field->getType();
+        $pbjType = $pbjField->getType();
 
-        if ($type->getTypeName()->equals(TypeName::STRING()) && !$field->getFormat()->equals(Format::UNKNOWN())) {
-            switch ($field->getFormat()->getValue()) {
+        if ($pbjType->getTypeName()->equals(TypeName::STRING()) && !$pbjField->getFormat()->equals(Format::UNKNOWN())) {
+            switch ($pbjField->getFormat()->getValue()) {
                 case Format::DATE:
                     return $this->types['date'];
 
@@ -116,43 +130,43 @@ final class FormFieldFactory
             }
         }
 
-        return $this->types[$type->getTypeValue()];
+        return $this->types[$pbjType->getTypeValue()];
     }
 
     /**
-     * @param Field $field
+     * @param Field $pbjField
      *
      * @return array
      */
-    private function getOptions(Field $field)
+    private function getOptions(Field $pbjField)
     {
         $options = [
-            'required' => $field->isRequired(),
+            'required' => $pbjField->isRequired(),
             'constraints' => [],
-            'data' => $field->getDefault(),
-            'mapped' => false
+            'data' => $pbjField->getDefault(),
+            //'mapped' => false
         ];
 
         //$options['empty_data'] = $options['data'];
 
-        if ($field->isRequired()) {
+        if ($pbjField->isRequired()) {
             $options['constraints'][] = new NotBlank();
             $options['constraints'][] = new NotNull();
         }
 
-        switch ($field->getType()->getTypeValue()) {
+        switch ($pbjField->getType()->getTypeValue()) {
             case TypeName::STRING:
                 $options['constraints'][] = new Length([
-                    'min' => $field->getMinLength(),
-                    'max' => $field->getMaxLength()
+                    'min' => $pbjField->getMinLength(),
+                    'max' => $pbjField->getMaxLength()
                 ]);
                 break;
 
             case TypeName::TEXT:
             case TypeName::MEDIUM_TEXT:
                 $options['constraints'][] = new Length([
-                    'min' => $field->getMinLength(),
-                    'max' => $field->getMaxLength()
+                    'min' => $pbjField->getMinLength(),
+                    'max' => $pbjField->getMaxLength()
                 ]);
                 break;
 
@@ -165,6 +179,7 @@ final class FormFieldFactory
 
             case TypeName::DATE_TIME:
                 //$options['format'] = 'yyyy-MM-dd'; //todo: DateUtils::ISO8601_ZULU format?
+                //$options['date_widget'] = 'single_text';
                 break;
 
             case TypeName::INT:
@@ -176,15 +191,16 @@ final class FormFieldFactory
             case TypeName::SMALL_INT:
             case TypeName::TINY_INT:
                 $options['constraints'][] = new Range([
-                    'min' => $field->getMin(),
-                    'max' => $field->getMax()
+                    'min' => $pbjField->getMin(),
+                    'max' => $pbjField->getMax()
                 ]);
                 break;
 
             case TypeName::INT_ENUM:
             case TypeName::STRING_ENUM:
                 /** @var Enum $className */
-                $className = $field->getClassName();
+                $className = $pbjField->getClassName();
+                $options['data'] = (string)$pbjField->getDefault();
                 $options['choices'] = $className::values();
                 break;
 

@@ -7,7 +7,7 @@ use Gdbots\Pbj\Field;
 class FormField
 {
     /** @var Field */
-    private $field;
+    private $pbjField;
 
     /** @var string */
     private $type;
@@ -16,13 +16,13 @@ class FormField
     private $options;
 
     /**
-     * @param Field $field
+     * @param Field $pbjField
      * @param string $type
      * @param array $options
      */
-    public function __construct(Field $field, $type, array $options = [])
+    public function __construct(Field $pbjField, $type, array $options = [])
     {
-        $this->field = $field;
+        $this->pbjField = $pbjField;
         $this->type = $type;
         $this->options = $options;
     }
@@ -30,9 +30,9 @@ class FormField
     /**
      * @return Field
      */
-    public function getField()
+    public function getPbjField()
     {
-        return $this->field;
+        return $this->pbjField;
     }
 
     /**
@@ -40,7 +40,7 @@ class FormField
      */
     public function getName()
     {
-        return $this->field->getName();
+        return $this->pbjField->getName();
     }
 
     /**

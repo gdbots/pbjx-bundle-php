@@ -8,7 +8,9 @@ use Symfony\Component\Form\FormTypeInterface;
 interface PbjFormType extends FormTypeInterface
 {
     /**
+     * Returns the underlying schema this Symfony FormType is for.
+     *
      * @return Schema
      */
-    public static function schema();
+    public static function pbjSchema();
 }

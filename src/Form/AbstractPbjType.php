@@ -3,16 +3,14 @@
 namespace Gdbots\Bundle\PbjxBundle\Form;
 
 use Gdbots\Pbj\Field;
+use Gdbots\Pbj\Schema;
 use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1Mixin;
 use Gdbots\Schemas\Pbjx\Mixin\Event\EventV1Mixin;
 use Gdbots\Schemas\Pbjx\Mixin\Request\RequestV1Mixin;
 use Gdbots\Schemas\Pbjx\Mixin\Response\ResponseV1Mixin;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\DataMapperInterface;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
-abstract class AbstractPbjType extends AbstractType implements PbjFormType, DataMapperInterface
+abstract class AbstractPbjType extends AbstractType implements PbjFormType
 {
     /** @var FormFieldFactory */
     private $formFieldFactory;
@@ -27,59 +25,24 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
     private static $ignoredFields;
 
     /**
-     * {@inheritdoc}
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'data_class' => $this->schema()->getClassName(),
-            'empty_data' => function (FormInterface $form) {
-                $data = [];
-                foreach ($form->all() as $f) {
-                    $data[$f->getName()] = $f->getData();
-                }
-
-                return $this->schema()->createMessage($data);
-            },
-        ]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function mapDataToForms($data, $forms)
-    {
-        /** @var FormInterface $form */
-        foreach ($forms as $form) {
-            echo $form->getName().' => '.$form->getData().PHP_EOL;
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function mapFormsToData($forms, &$data)
-    {
-        /** @var FormInterface $form */
-        foreach ($forms as $form) {
-            echo $form->getName().' => '.$form->getData().PHP_EOL;
-        }
-    }
-
-    /**
+     * @param Schema $schema
      * @param array $ignoredFields
      *
      * @return FormField[]
      */
-    final protected function createFormFields(array $ignoredFields = [])
+    final protected function createFormFields(Schema $schema, array $ignoredFields = [])
     {
         $ignoredFields = array_merge(array_flip($ignoredFields), self::getIgnoredFields());
         $formFields = [];
         $factory = $this->getFormFieldFactory();
 
-        foreach ($this->schema()->getFields() as $field) {
+        foreach ($schema->getFields() as $field) {
             $fieldName = $field->getName();
             if (isset($ignoredFields[$fieldName])) {
+                continue;
+            }
+
+            if (!$factory->supports($field)) {
                 continue;
             }
 
