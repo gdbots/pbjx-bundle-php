@@ -8,10 +8,11 @@ use Gdbots\Schemas\Pbjx\Mixin\Event\EventV1Mixin;
 use Gdbots\Schemas\Pbjx\Mixin\Request\RequestV1Mixin;
 use Gdbots\Schemas\Pbjx\Mixin\Response\ResponseV1Mixin;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\DataMapperInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-abstract class AbstractPbjType extends AbstractType implements PbjFormType
+abstract class AbstractPbjType extends AbstractType implements PbjFormType, DataMapperInterface
 {
     /** @var FormFieldFactory */
     private $formFieldFactory;
@@ -31,11 +32,38 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            //'data_class' => $this->getSchema()->getClassName(),
-            'xxempty_data' => function (FormInterface $form) {
-                return $this->schema()->createMessage($form->getData() ?: [])->toArray();
+            'data_class' => $this->schema()->getClassName(),
+            'empty_data' => function (FormInterface $form) {
+                $data = [];
+                foreach ($form->all() as $f) {
+                    $data[$f->getName()] = $f->getData();
+                }
+
+                return $this->schema()->createMessage($data);
             },
         ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function mapDataToForms($data, $forms)
+    {
+        /** @var FormInterface $form */
+        foreach ($forms as $form) {
+            echo $form->getName().' => '.$form->getData().PHP_EOL;
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function mapFormsToData($forms, &$data)
+    {
+        /** @var FormInterface $form */
+        foreach ($forms as $form) {
+            echo $form->getName().' => '.$form->getData().PHP_EOL;
+        }
     }
 
     /**

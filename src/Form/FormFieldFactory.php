@@ -130,6 +130,7 @@ final class FormFieldFactory
             'required' => $field->isRequired(),
             'constraints' => [],
             'data' => $field->getDefault(),
+            'mapped' => false
         ];
 
         //$options['empty_data'] = $options['data'];
