@@ -9,8 +9,11 @@ use Gdbots\Schemas\Pbjx\Mixin\Event\EventV1Mixin;
 use Gdbots\Schemas\Pbjx\Mixin\Request\RequestV1Mixin;
 use Gdbots\Schemas\Pbjx\Mixin\Response\ResponseV1Mixin;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\DataMapperInterface;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
 
-abstract class AbstractPbjType extends AbstractType implements PbjFormType
+abstract class AbstractPbjType extends AbstractType implements PbjFormType, DataMapperInterface
 {
     /** @var FormFieldFactory */
     private $formFieldFactory;
@@ -25,31 +28,120 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType
     private static $ignoredFields;
 
     /**
-     * @param Schema $schema
-     * @param array $ignoredFields
+     * Maps properties of some data to a list of forms.
      *
-     * @return FormField[]
+     * @param mixed           $data  Structured data.
+     * @param FormInterface[] $forms A list of {@link FormInterface} instances.
      */
-    final protected function createFormFields(Schema $schema, array $ignoredFields = [])
+    public function mapDataToForms($data, $forms)
     {
+        return;
+
+        $schema = static::pbjSchema();
+        $forms = iterator_to_array($forms);
+
+        foreach ((array)$data as $k => $v) {
+            if (!isset($forms[$k])) {
+                continue;
+            }
+
+            $forms[$k]->setData($v);
+        }
+
+        foreach ($forms as $form) {
+            if (!$form instanceof FormInterface || $form->isSubmitted() || $form->getConfig()->getDataLocked()) {
+                continue;
+            }
+
+            if (null !== $form->getData()) {
+                continue;
+            }
+
+            if (!$schema->hasField($form->getName())) {
+                continue;
+            }
+
+            $pbjField = $schema->getField($form->getName());
+            $form->setData($pbjField->getDefault());
+        }
+    }
+
+    /**
+     * Maps the data of a list of forms into the properties of some data.
+     *
+     * @param FormInterface[] $forms A list of {@link FormInterface} instances.
+     * @param mixed           $data  Structured data.
+     */
+    public function mapFormsToData($forms, &$data)
+    {
+        $schema = static::pbjSchema();
+
+        /*
+         * if the only not null value is the "_schema" field then
+         * we don't need this object.
+         */
+        $emptyCheck = array_filter($data, function ($item) use ($schema) {
+            if (null === $item) {
+                return false;
+            }
+
+            if ($item === $schema->getId()->toString()) {
+                return false;
+            }
+
+            return true;
+        });
+
+        if (empty($emptyCheck)) {
+            $data = [];
+            return;
+        }
+
+        foreach ($forms as $form) {
+            if (!$schema->hasField($form->getName())) {
+                continue;
+            }
+
+            $pbjField = $schema->getField($form->getName());
+            // fixme: need proper type encoding to array so this can be used to create the message
+            $data[$pbjField->getName()] = $form->getData() ?: $pbjField->getDefault();
+        }
+    }
+
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array $options
+     * @param array $ignoredFields
+     */
+    final protected function buildPbjForm(FormBuilderInterface $builder, array $options, array $ignoredFields = [])
+    {
+        $schema = static::pbjSchema();
+        $builder->setDataMapper($this);
         $ignoredFields = array_merge(array_flip($ignoredFields), self::getIgnoredFields());
-        $formFields = [];
         $factory = $this->getFormFieldFactory();
 
-        foreach ($schema->getFields() as $field) {
-            $fieldName = $field->getName();
+        foreach ($schema->getFields() as $pbjField) {
+            $fieldName = $pbjField->getName();
             if (isset($ignoredFields[$fieldName])) {
                 continue;
             }
 
-            if (!$factory->supports($field)) {
+            if (!$factory->supports($pbjField)) {
                 continue;
             }
 
-            $formFields[$fieldName] = $factory->create($field);
-        }
+            $formField = $factory->create($pbjField);
+            $child = $builder->create($formField->getName(), $formField->getType(), $formField->getOptions());
 
-        return $formFields;
+            if (isset($options['data'][$fieldName])) {
+                $child->setData($options['data'][$fieldName]);
+            } else {
+                // fixme: type encoding here
+                $child->setData($pbjField->getDefault());
+            }
+
+            $builder->add($child);
+        }
     }
 
     /**

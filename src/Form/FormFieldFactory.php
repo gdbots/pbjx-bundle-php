@@ -92,6 +92,7 @@ final class FormFieldFactory
         if ($pbjField->isASingleValue()) {
             if (Schema::PBJ_FIELD_NAME === $pbjField->getName()) {
                 $symfonyType = HiddenType::class;
+                $options['data'] = $pbjField->getDefault();
             }
 
             return new FormField($pbjField, $symfonyType, $options);
@@ -143,11 +144,7 @@ final class FormFieldFactory
         $options = [
             'required' => $pbjField->isRequired(),
             'constraints' => [],
-            'data' => $pbjField->getDefault(),
-            //'mapped' => false
         ];
-
-        //$options['empty_data'] = $options['data'];
 
         if ($pbjField->isRequired()) {
             $options['constraints'][] = new NotBlank();
@@ -200,8 +197,9 @@ final class FormFieldFactory
             case TypeName::STRING_ENUM:
                 /** @var Enum $className */
                 $className = $pbjField->getClassName();
-                $options['data'] = (string)$pbjField->getDefault();
-                $options['choices'] = $className::values();
+                $options['choices'] = array_filter($className::values(), function ($v) {
+                    return 'unknown' !== $v;
+                });
                 break;
 
             default:
