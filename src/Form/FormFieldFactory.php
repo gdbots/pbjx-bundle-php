@@ -36,8 +36,8 @@ final class FormFieldFactory
      */
     protected $types = [
         //'big-int'           => 'todo',
-        //'binary'            => 'todo',
-        //'blob'              => 'todo',
+        //'binary'            => 'todo', // todo: handle as file or textarea?
+        //'blob'              => 'todo', // todo: ref binary
         'boolean'           => CheckboxType::class,
         'date'              => DateType::class,
         'date-time'         => DateTimeType::class, // ensure DateUtils::ISO8601_ZULU format
@@ -46,7 +46,7 @@ final class FormFieldFactory
         'float'             => NumberType::class,
         //'geo-point'         => 'todo',
         'identifier'        => TextType::class, //'todo',
-        'int'               => IntegerType::class,
+        'int'               => IntegerType::class, //set divisor (for all ints)
         'int-enum'          => ChoiceType::class,
         //'medium-blob'       => 'todo',
         'medium-int'        => IntegerType::class,
@@ -60,9 +60,9 @@ final class FormFieldFactory
         'signed-small-int'  => IntegerType::class,
         'signed-tiny-int'   => IntegerType::class,
         'small-int'         => IntegerType::class,
-        'string'            => TextType::class,
+        'string'            => TextType::class, // handle patterns (as html5 validations) and known formats
         'string-enum'       => ChoiceType::class,
-        'text'              => TextareaType::class,
+        'text'              => TextareaType::class, // todo: set max
         //'time-uuid'         => 'todo',
         'timestamp'         => TimeType::class,
         'tiny-int'          => IntegerType::class,
@@ -98,6 +98,7 @@ final class FormFieldFactory
             return new FormField($pbjField, $symfonyType, $options);
         }
 
+        // todo: handle maps (assoc array vs array)
         $collectionOptions = [
             'entry_type' => $symfonyType,
             'entry_options' => $options
@@ -153,6 +154,7 @@ final class FormFieldFactory
 
         switch ($pbjField->getType()->getTypeValue()) {
             case TypeName::STRING:
+                // todo: handle patterns
                 $options['constraints'][] = new Length([
                     'min' => $pbjField->getMinLength(),
                     'max' => $pbjField->getMaxLength()

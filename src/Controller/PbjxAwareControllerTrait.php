@@ -4,21 +4,15 @@ namespace Gdbots\Bundle\PbjxBundle\Controller;
 
 use Gdbots\Pbj\Message;
 use Gdbots\Pbjx\Pbjx;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 trait PbjxAwareControllerTrait
 {
     /**
-     * @return Pbjx
-     */
-    public function getPbjx()
-    {
-        return $this->container->get('pbjx');
-    }
-
-    /**
      * Returns a reference to a twig template based on the schema of the provided message (pbj schema).
      * This allows for component style development for pbj messages.  You are asking for a template that
-     * can render your message (e.g. Article) as a "card", "modal", "page".
+     * can render your message (e.g. Article) as a "card", "modal", "page", etc.
      *
      * This can be combined with "DeviceViewRendererTrait::renderUsingDeviceView".
      *
@@ -30,9 +24,36 @@ trait PbjxAwareControllerTrait
      *
      * @return string
      */
-    public function pbjTemplate(Message $pbj, $template, $format = 'html')
+    protected function pbjTemplate(Message $pbj, $template, $format = 'html')
     {
         $curieStr = str_replace('::', ':_:', $pbj::schema()->getCurie()->toString());
         return sprintf('@%s/%s.%s.twig', str_replace(':', '/', $curieStr), $template, $format);
+    }
+
+    /**
+     * Creates a pbj form, handles it and returns the form instance.
+     *
+     * @param Request $request  The request instance to pass to {@see Form::handleRequest}
+     * @param string  $type     The fully qualified class name of the pbj form type
+     * @param array   $input    The initial data for the form
+     * @param array   $options  Options for the form
+     *
+     * @return FormInterface
+     */
+    protected function handlePbjForm(Request $request, $type, array $input = [], array $options = [])
+    {
+        /** @var FormInterface $form */
+        $form = $this->container->get('form.factory')->create($type, $input, $options);
+        $form->handleRequest($request);
+        $request->attributes->set('pbjx_input', $form->getData() ?: []);
+        return $form;
+    }
+
+    /**
+     * @return Pbjx
+     */
+    protected function getPbjx()
+    {
+        return $this->container->get('pbjx');
     }
 }

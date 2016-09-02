@@ -35,15 +35,7 @@ trait PermissionValidatorTrait
             return;
         }
 
-        $message = $pbjxEvent->getMessage();
-        $schema = $message::schema();
-
-        if ($request->attributes->has('pbjx_curie') && $schema->getCurie()->toString() !== $request->attributes->get('pbjx_curie')) {
-            // this means the current message is a sub request and is okay to process.
-            return;
-        }
-
-        $this->checkPermission($pbjxEvent, $message, $request);
+        $this->checkPermission($pbjxEvent, $pbjxEvent->getMessage(), $request);
     }
 
     /**
