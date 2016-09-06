@@ -8,6 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Length;
 
 class GeoPointType extends AbstractType
 {
@@ -18,10 +19,27 @@ class GeoPointType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $builder->addViewTransformer(new GeoPointToStringTransformer());
+
         $builder
-            ->add('latitude', NumberType::class)
-            ->add('longitude', NumberType::class)
-            ->addViewTransformer(new GeoPointToStringTransformer())
+            ->add('latitude', NumberType::class, [
+                'required' => $options['required'],
+                'constraints' => [
+                    new Length([
+                        'min' => -90,
+                        'max' => 90
+                    ])
+                ]
+            ])
+            ->add('longitude', NumberType::class, [
+                'required' => $options['required'],
+                'constraints' => [
+                    new Length([
+                        'min' => -180,
+                        'max' => 180
+                    ])
+                ]
+            ])
         ;
     }
 

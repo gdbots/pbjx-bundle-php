@@ -12,7 +12,7 @@ class GeoPointToStringTransformer implements DataTransformerInterface
      */
     public function transform($value)
     {
-        return $value ? $value->toString() : null;
+        return (array) $value;
     }
 
     /**
