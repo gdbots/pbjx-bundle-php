@@ -29,6 +29,7 @@ use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Range;
+use Symfony\Component\Validator\Constraints\Regex;
 
 final class FormFieldFactory
 {
@@ -38,7 +39,7 @@ final class FormFieldFactory
      * @var array
      */
     protected $types = [
-        //'big-int'           => 'todo',
+        'big-int'           => TextType::class,
         //'binary'            => 'todo', // todo: handle as file or textarea?
         //'blob'              => 'todo', // todo: ref binary
         'boolean'           => CheckboxType::class,
@@ -48,7 +49,7 @@ final class FormFieldFactory
         //'dynamic-field'     => 'todo',
         'float'             => NumberType::class,
         'geo-point'         => GeoPointType::class,
-        'identifier'        => TextType::class, //'todo',
+        'identifier'        => TextType::class,
         'int'               => IntegerType::class, //set divisor (for all ints)
         'int-enum'          => ChoiceType::class,
         //'medium-blob'       => 'todo',
@@ -56,8 +57,8 @@ final class FormFieldFactory
         'medium-text'       => TextareaType::class,
         //'message'           => 'todo', // this likely has to be configured manually
         'message-ref'       => TextType::class, //'todo',
-        //'microtime'         => 'todo',
-        //'signed-big-int'    => 'todo',
+        'microtime'         => TextType::class,
+        'signed-big-int'    => TextType::class,
         'signed-int'        => IntegerType::class,
         'signed-medium-int' => IntegerType::class,
         'signed-small-int'  => IntegerType::class,
@@ -66,10 +67,10 @@ final class FormFieldFactory
         'string'            => TextType::class, // handle patterns (as html5 validations) and known formats
         'string-enum'       => ChoiceType::class,
         'text'              => TextareaType::class, // todo: set max
-        //'time-uuid'         => 'todo',
+        'time-uuid'         => TextType::class,
         'timestamp'         => TimeType::class,
         'tiny-int'          => IntegerType::class,
-        //'uuid'              => 'todo',
+        'uuid'              => TextType::class,
     ];
 
     /**
@@ -157,10 +158,40 @@ final class FormFieldFactory
 
         switch ($pbjField->getType()->getTypeValue()) {
             case TypeName::STRING:
-                // todo: handle patterns
                 $options['constraints'][] = new Length([
                     'min' => $pbjField->getMinLength(),
                     'max' => $pbjField->getMaxLength()
+                ]);
+                if ($pattern = $pbjField->getPattern()) {
+                   $options['constraints'][] = new Regex([
+                        'pattern' => $pattern
+                    ]);
+                }
+                break;
+
+            case TypeName::UUID:
+            case TypeName::TIME_UUID:
+                $options['constraints'][] = new Regex([
+                    'pattern' => '/^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/'
+                ]);
+                break;
+
+            case TypeName::IDENTIFIER:
+                $options['constraints'][] = new Regex([
+                    'pattern' => '/^[\\w\\.-_]+$/'
+                ]);
+                break;
+
+            case TypeName::MICROTIME:
+                $options['constraints'][] = new Regex([
+                    'pattern' => '/^[1-9]{1}[0-9]{12,15}$/'
+                ]);
+                break;
+
+            case TypeName::BIG_INT:
+            case TypeName::SIGNED_BIG_INT:
+                $options['constraints'][] = new Regex([
+                    'pattern' => '/^\-?\d+$/'
                 ]);
                 break;
 
@@ -172,15 +203,12 @@ final class FormFieldFactory
                 ]);
                 break;
 
-            case TypeName::BOOLEAN:
-                break;
-
             case TypeName::DATE:
+                //$options['format'] = 'yyyy-MM-dd'; //todo: DateUtils::ISO8601_ZULU format?
                 $options['format'] = 'yyyy-MM-dd';
                 break;
 
             case TypeName::DATE_TIME:
-                //$options['format'] = 'yyyy-MM-dd'; //todo: DateUtils::ISO8601_ZULU format?
                 $options['widget'] = 'single_text';
                 break;
 
