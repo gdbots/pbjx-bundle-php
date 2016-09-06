@@ -35,6 +35,15 @@ trait PermissionValidatorTrait
             return;
         }
 
+        if ($pbjxEvent->getMessage()->has('ctx_causator_ref')) {
+            /*
+             * if the "ctx_causator_ref" is present it was populated by
+             * the server and means this message is a sub request which
+             * doesn't require a permission check.
+             */
+            return;
+        }
+
         $this->checkPermission($pbjxEvent, $pbjxEvent->getMessage(), $request);
     }
 

@@ -58,4 +58,27 @@ class FormField
     {
         return $this->options;
     }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return self
+     */
+    public function setOption($name, $value)
+    {
+        $this->options[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return self
+     */
+    public function removeOption($name)
+    {
+        unset($this->options[$name]);
+        return $this;
+    }
 }

@@ -12,6 +12,7 @@ use Gdbots\Schemas\Pbjx\Mixin\Response\Response;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Form\FormView;
 
 class PbjxExtension extends \Twig_Extension
 {
@@ -44,6 +45,7 @@ class PbjxExtension extends \Twig_Extension
     public function getFunctions()
     {
         return [
+            new \Twig_SimpleFunction('pbj_form_view', [$this, 'pbjFormView']),
             new \Twig_SimpleFunction('pbj_template', [$this, 'pbjTemplate']),
             new \Twig_SimpleFunction('pbjx_request', [$this, 'pbjxRequest'])
         ];
@@ -55,6 +57,29 @@ class PbjxExtension extends \Twig_Extension
     public function getName()
     {
         return 'gdbots_pbjx_extension';
+    }
+
+    /**
+     * Creates a form view and returns it.  Typically used in pbj templates that require
+     * a form but may not have one provided in all scenarios so this is used as a default.
+     *
+     * DO NOT use this function with the "some_var|default(...)" option as this will run
+     * even when "some_var" is defined.
+     *
+     * Example:
+     *  {% if pbj_form is not defined %}
+     *      {% set pbj_form = pbj_form_view('AppBundle\\Form\\SomeType') %}
+     *  {% endif %}
+     *
+     * @param string  $type     The fully qualified class name of the pbj form type
+     * @param array   $input    The initial data for the form
+     * @param array   $options  Options for the form
+     *
+     * @return FormView
+     */
+    public function pbjFormView($type, array $input = [], array $options = [])
+    {
+        return $this->container->get('form.factory')->create($type, $input, $options)->createView();
     }
 
     /**

@@ -178,7 +178,7 @@ final class FormFieldFactory
 
             case TypeName::DATE_TIME:
                 //$options['format'] = 'yyyy-MM-dd'; //todo: DateUtils::ISO8601_ZULU format?
-                //$options['date_widget'] = 'single_text';
+                $options['widget'] = 'single_text';
                 break;
 
             case TypeName::INT:
