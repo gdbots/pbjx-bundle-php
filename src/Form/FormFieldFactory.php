@@ -9,6 +9,9 @@ use Gdbots\Pbj\Enum\TypeName;
 use Gdbots\Pbj\Field;
 use Gdbots\Pbj\Schema;
 use Gdbots\Pbj\Type\Type;
+use Gdbots\Bundle\PbjxBundle\Form\Type\DatePickerType;
+use Gdbots\Bundle\PbjxBundle\Form\Type\DateTimePickerType;
+use Gdbots\Bundle\PbjxBundle\Form\Type\GeoPointType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -39,12 +42,12 @@ final class FormFieldFactory
         //'binary'            => 'todo', // todo: handle as file or textarea?
         //'blob'              => 'todo', // todo: ref binary
         'boolean'           => CheckboxType::class,
-        'date'              => DateType::class,
-        'date-time'         => DateTimeType::class, // ensure DateUtils::ISO8601_ZULU format
+        'date'              => DatePickerType::class,
+        'date-time'         => DateTimePickerType::class, // ensure DateUtils::ISO8601_ZULU format
         'decimal'           => NumberType::class,
         //'dynamic-field'     => 'todo',
         'float'             => NumberType::class,
-        //'geo-point'         => 'todo',
+        'geo-point'         => GeoPointType::class,
         'identifier'        => TextType::class, //'todo',
         'int'               => IntegerType::class, //set divisor (for all ints)
         'int-enum'          => ChoiceType::class,

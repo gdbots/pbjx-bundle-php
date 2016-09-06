@@ -1,0 +1,128 @@
+{% use 'bootstrap_3_layout.html.twig' %}
+
+{% block gdbots_pbjx_geo_point_row -%}
+  <div class="form-group{% if force_error|default(false) and not valid %} has-error{% endif %}">
+    {{- form_label(form) -}}
+    <div class="col-md-6">
+      {{- form_widget(form.latitude, {'attr': {
+        'class': 'input-sm',
+        'placeholder': 'Latitude'
+      }}) -}}
+    </div>
+    <div class="col-md-6">
+      {{- form_widget(form.longitude, {'attr': {
+        'class': 'input-sm',
+        'placeholder': 'Longitude'
+      }}) -}}
+    </div>
+    {{- form_errors(form) -}}
+  </div>
+{%- endblock gdbots_pbjx_geo_point_row %}
+
+{% block gdbots_pbjx_date_picker_row -%}
+  {% if widget == 'single_text' %}
+    <div class="form-group{% if force_error|default(false) and not valid %} has-error{% endif %}">
+      {{- form_label(form) -}}
+      <div class="input-group">
+        <div class="input-group-addon"><i class="icon-calendar22"></i></div>
+        {{- form_widget(form) -}}
+        <div class="input-group-btn">
+          <button type="button" class="btn btn-default js-clear-btn" data-target="#{{ form.vars.id }}" title="Clear Date"><i class="icon-cross2"></i></button>
+        </div>
+      </div>
+      {{- form_errors(form) -}}
+    </div>
+  {% else %}
+    {{ block('date_row') }}
+  {% endif %}
+{%- endblock gdbots_pbjx_date_picker_row %}
+
+{% block gdbots_pbjx_datetime_picker_row -%}
+  {% if widget == 'single_text' %}
+    <div class="form-group{% if force_error|default(false) and not valid %} has-error{% endif %}">
+      {{- form_label(form) -}}
+      <div class="input-group">
+        <div class="input-group-addon"><i class="icon-calendar22"></i></div>
+        {{- form_widget(form) -}}
+        <div class="input-group-btn">
+          <button type="button" class="btn btn-default js-clear-btn" data-target="#{{ form.vars.id }}" title="Clear Date"><i class="icon-cross2"></i></button>
+        </div>
+      </div>
+      {{- form_errors(form) -}}
+    </div>
+  {% else %}
+    {{ block('datetime_row') }}
+  {% endif %}
+{%- endblock gdbots_pbjx_datetime_picker_row %}
+
+{% block gdbots_pbjx_date_picker_widget -%}
+  {% if widget == 'single_text' %}
+    {%- set attr = attr|merge({
+      'class': (attr.class|default('') ~ ' js-datepicker')|trim,
+      'placeholder': attr.placeholder|default('Click to select a date.'),
+      'readonly': attr.readonly|default(true),
+    }) -%}
+
+    {{ block('gdbots_pbjx_daterangepicker_js') }}
+  {% endif %}
+
+  {{ block('date_widget') }}
+{%- endblock gdbots_pbjx_date_picker_widget %}
+
+{% block gdbots_pbjx_datetime_picker_widget -%}
+  {% if widget == 'single_text' %}
+    {%- set attr = attr|merge({
+      'class': (attr.class|default('') ~ ' js-datepicker')|trim,
+      'placeholder': attr.placeholder|default('Click to select a date.'),
+      'readonly': attr.readonly|default(true)
+    }) -%}
+
+    {{ block('gdbots_pbjx_daterangepicker_js') }}
+  {% endif %}
+
+  {{ block('datetime_widget') }}
+{%- endblock gdbots_pbjx_datetime_picker_widget %}
+
+{% block gdbots_pbjx_daterangepicker_js -%}
+  <script type="text/javascript">
+    var wbq = wbq || [];
+    wbq.push(function initDateRangePicker_{{ id }}() {
+      require(['jquery', 'moment', 'daterangepicker'], function ($, moment) {
+        'use strict';
+
+        var $datepicker = $('#{{ id }}');
+
+        $datepicker.change(function () {
+          var $picker = $(this);
+          if (!$picker.data('daterangepicker') || '' === $picker.val()) {
+            return;
+          }
+
+          {% if form.vars.type|default('datetime') == 'date' %}
+            $picker.val(moment($picker.data('daterangepicker').startDate).utc().format('YYYY-MM-DD'));
+          {% else %}
+            $picker.val(moment($picker.data('daterangepicker').startDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSS') + 'Z');
+          {% endif %}
+        });
+
+        $datepicker.click(function () {
+          var $picker = $(this);
+          if ($picker.data('daterangepicker')) {
+            return;
+          }
+
+          $picker.daterangepicker(
+            $.extend(true, {{ js_options|default('{}')|json_encode|raw }}, {
+              'startDate': '' !== $picker.val() ? moment.utc($picker.val()).local() : moment()
+            })
+            {% if js_callback is defined %}
+              , {{ js_callback|raw }}
+            {% endif %}
+          );
+
+          $picker.click();
+        });
+      });
+    });
+  </script>
+{%- endblock gdbots_pbjx_daterangepicker_js %}
