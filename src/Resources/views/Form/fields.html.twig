@@ -3,17 +3,19 @@
 {% block gdbots_pbjx_geo_point_row -%}
   <div class="form-group{% if force_error|default(false) and not valid %} has-error{% endif %}">
     {{- form_label(form) -}}
-    <div class="col-md-6">
-      {{- form_widget(form.latitude, {'attr': {
-        'class': 'input-sm',
-        'placeholder': 'Latitude'
-      }}) -}}
-    </div>
-    <div class="col-md-6">
-      {{- form_widget(form.longitude, {'attr': {
-        'class': 'input-sm',
-        'placeholder': 'Longitude'
-      }}) -}}
+    <div class="row">
+      <div class="col-md-6">
+        {{- form_widget(form.latitude, {'attr': {
+          'class': 'input-sm',
+          'placeholder': 'Latitude'
+        }}) -}}
+      </div>
+      <div class="col-md-6">
+        {{- form_widget(form.longitude, {'attr': {
+          'class': 'input-sm',
+          'placeholder': 'Longitude'
+        }}) -}}
+      </div>
     </div>
     {{- form_errors(form) -}}
   </div>
