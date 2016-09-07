@@ -15,7 +15,7 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            FormEvents::PRE_SUBMIT  => 'preSubmit'
+            FormEvents::PRE_SUBMIT => 'preSubmit'
         );
     }
 
@@ -47,7 +47,7 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Check if value is empty
+     * Check if value is empty.
      *
      * @param array $array
      *

@@ -260,7 +260,7 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
     }
 
     /**
-     * Check if value is empty
+     * Check if value is empty.
      *
      * @param array $array
      *
