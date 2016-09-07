@@ -42,7 +42,7 @@
 
 {% block gdbots_pbjx_collection_widget -%}
   {% if prototype is defined %}
-    {% set prototype_html = _self.gdbots_pbjx_collection_item_prototype(form) %}
+    {% set prototype_html = _self.collection_item_prototype(form) %}
   {% endif %}
 
   {% set id = id ~ '_collection' %}
@@ -59,7 +59,7 @@
     >
       {% if form.children|length %}
         {% for child in form.children %}
-          {{ _self.gdbots_pbjx_collection_item_prototype(child) }}
+          {{ _self.collection_item_prototype(child) }}
         {% endfor %}
       {% elseif show_form_when_empty and prototype_html is defined %}
         {% for i in 0..(form.vars.row_count_initial - 1) %}
@@ -69,9 +69,11 @@
     </div>
 
     {% if allow_add %}
-      <button class="btn btn-action js-btn-add-collection-item" type="button">+ Add</button>
+      <button class="btn btn-action js-btn-add-collection-item-btn" type="button">+ Add</button>
     {% endif %}
   </div>
+
+  {{ _self.collection_js(id) }}
 {% endblock gdbots_pbjx_collection_widget -%}
 
 {% block gdbots_pbjx_dynamic_field_widget -%}
@@ -141,7 +143,7 @@
 
 {# Macro #}
 
-{% macro gdbots_pbjx_collection_item_prototype(widget) %}
+{% macro collection_item_prototype(widget) %}
   {% if 'collection' in widget.vars.block_prefixes %}
     {% set form = widget.vars.prototype %}
     {% set name = widget.vars.prototype.vars.name %}
@@ -165,12 +167,25 @@
 
       {% if allow_delete %}
         <div class="col-md-1">
-          <button class="btn btn-action btn-link js-btn-remove-collection-item" type="button" data-related="{{ name }}">×</button>
+          <button class="btn btn-action btn-link js-btn-remove-collection-item-btn" type="button" data-related="{{ name }}">×</button>
         </div>
       {% endif %}
     </div>
   </div>
-{% endmacro gdbots_pbjx_collection_item_prototype %}
+{% endmacro collection_item_prototype %}
+
+{# JS #}
+
+{% macro collection_js(id) -%}
+  <script type="text/javascript">
+    var wbq = wbq || [];
+    wbq.push(function initCollection_{{ id }}() {
+      require(['bundles/gdbotspbjx/js/behaviors/collection'], function(collection) {
+        collection('{{ id }}');
+      });
+    });
+  </script>
+{%- endmacro collection_js %}
 
 {% macro daterangepicker_js(widget) -%}
   <script type="text/javascript">
