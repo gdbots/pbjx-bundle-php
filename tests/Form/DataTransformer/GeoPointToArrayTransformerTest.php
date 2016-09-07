@@ -21,7 +21,7 @@ class GeoPointToArrayTransformerTest extends \PHPUnit_Framework_TestCase
 
     public function transformDataProvider()
     {
-        return array(
+        return [
             'default' => [
                 ['coordinates' => [1, 2]],
                 GeoPoint::fromArray(['coordinates' => [1, 2]])
@@ -30,7 +30,7 @@ class GeoPointToArrayTransformerTest extends \PHPUnit_Framework_TestCase
                 null,
                 null
             ],
-        );
+        ];
     }
 
     /**
@@ -57,7 +57,7 @@ class GeoPointToArrayTransformerTest extends \PHPUnit_Framework_TestCase
 
     public function reverseTransformDataProvider()
     {
-        return array(
+        return [
             'default' => [
                 ['latitude' => 1, 'longitude' => 2],
                 ['coordinates' => [2, 1]]
@@ -66,11 +66,11 @@ class GeoPointToArrayTransformerTest extends \PHPUnit_Framework_TestCase
                 null,
                 null
             ],
-            'empty' => array(
+            'empty' => [
                 [],
                 null
-            ),
-        );
+            ],
+        ];
     }
 
     /**

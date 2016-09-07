@@ -22,7 +22,7 @@ class DynamicFieldToArrayTransformerTest extends \PHPUnit_Framework_TestCase
 
     public function transformDataProvider()
     {
-        return array(
+        return [
             'default' => [
                 ['name' => 'foo', 'bool_val' => true],
                 DynamicField::fromArray(['name' => 'foo', 'bool_val' => true])
@@ -31,7 +31,7 @@ class DynamicFieldToArrayTransformerTest extends \PHPUnit_Framework_TestCase
                 null,
                 null
             ],
-        );
+        ];
     }
 
     /**
@@ -58,7 +58,7 @@ class DynamicFieldToArrayTransformerTest extends \PHPUnit_Framework_TestCase
 
     public function reverseTransformDataProvider()
     {
-        return array(
+        return [
             'default' => [
                 ['name' => 'foo', 'kind' => 'bool_val', 'value' => true],
                 ['name' => 'foo', 'bool_val' => true]
@@ -67,11 +67,11 @@ class DynamicFieldToArrayTransformerTest extends \PHPUnit_Framework_TestCase
                 null,
                 null
             ],
-            'empty' => array(
+            'empty' => [
                 [],
                 null
-            ),
-        );
+            ],
+        ];
     }
 
     /**

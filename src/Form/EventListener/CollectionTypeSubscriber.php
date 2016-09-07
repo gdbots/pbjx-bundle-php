@@ -14,9 +14,9 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             FormEvents::PRE_SUBMIT => 'preSubmit'
-        );
+        ];
     }
 
     /**
@@ -32,7 +32,7 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $notEmptyItems = array();
+        $notEmptyItems = [];
 
         // remove empty items
         foreach ($items as $index => $item) {
