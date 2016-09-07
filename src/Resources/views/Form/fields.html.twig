@@ -40,9 +40,9 @@
 
 {# Widgets #}
 
-{% block gdbots_pbjx_dynamic_field_collection_widget -%}
+{% block gdbots_pbjx_collection_widget -%}
   {% if prototype is defined %}
-    {% set prototype_html = _self.gdbots_pbjx_dynamic_field_collection_item_prototype(form) %}
+    {% set prototype_html = _self.gdbots_pbjx_collection_item_prototype(form) %}
   {% endif %}
 
   {% set id = id ~ '_collection' %}
@@ -59,7 +59,7 @@
     >
       {% if form.children|length %}
         {% for child in form.children %}
-          {{ _self.gdbots_pbjx_dynamic_field_collection_item_prototype(child) }}
+          {{ _self.gdbots_pbjx_collection_item_prototype(child) }}
         {% endfor %}
       {% elseif show_form_when_empty and prototype_html is defined %}
         {% for i in 0..(form.vars.row_count_initial - 1) %}
@@ -69,10 +69,10 @@
     </div>
 
     {% if allow_add %}
-      <button class="btn btn-action js-btn-add-dynamic-field" type="button">+ Add</button>
+      <button class="btn btn-action js-btn-add-collection-item" type="button">+ Add</button>
     {% endif %}
   </div>
-{% endblock gdbots_pbjx_dynamic_field_collection_widget -%}
+{% endblock gdbots_pbjx_collection_widget -%}
 
 {% block gdbots_pbjx_dynamic_field_widget -%}
   <div class="row">
@@ -143,7 +143,7 @@
 
 {# Macro #}
 
-{% macro gdbots_pbjx_dynamic_field_collection_item_prototype(widget) %}
+{% macro gdbots_pbjx_collection_item_prototype(widget) %}
   {% if 'collection' in widget.vars.block_prefixes %}
     {% set form = widget.vars.prototype %}
     {% set name = widget.vars.prototype.vars.name %}
@@ -167,12 +167,12 @@
 
       {% if allow_delete %}
         <div class="col-md-1">
-          <button class="btn btn-action btn-link js-btn-remove-dynamic-field" type="button" data-related="{{ name }}">×</button>
+          <button class="btn btn-action btn-link js-btn-remove-collection-item" type="button" data-related="{{ name }}">×</button>
         </div>
       {% endif %}
     </div>
   </div>
-{% endmacro gdbots_pbjx_dynamic_field_collection_item_prototype %}
+{% endmacro gdbots_pbjx_collection_item_prototype %}
 
 {% macro daterangepicker_js(widget) -%}
   <script type="text/javascript">
