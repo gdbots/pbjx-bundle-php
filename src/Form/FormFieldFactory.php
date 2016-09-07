@@ -11,10 +11,11 @@ use Gdbots\Pbj\Schema;
 use Gdbots\Pbj\Type\Type;
 use Gdbots\Bundle\PbjxBundle\Form\Type\DatePickerType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\DateTimePickerType;
+use Gdbots\Bundle\PbjxBundle\Form\Type\CollectionType;
+use Gdbots\Bundle\PbjxBundle\Form\Type\DynamicFieldType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\GeoPointType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -46,7 +47,7 @@ final class FormFieldFactory
         'date'              => DatePickerType::class,
         'date-time'         => DateTimePickerType::class, // ensure DateUtils::ISO8601_ZULU format
         'decimal'           => NumberType::class,
-        //'dynamic-field'     => 'todo',
+        'dynamic-field'     => DynamicFieldType::class,
         'float'             => NumberType::class,
         'geo-point'         => GeoPointType::class,
         'identifier'        => TextType::class,
