@@ -4,6 +4,8 @@ namespace Gdbots\Bundle\PbjxBundle\Form\DataTransformer;
 
 use Gdbots\Pbj\WellKnown\GeoPoint;
 use Symfony\Component\Form\DataTransformerInterface;
+use Symfony\Component\Form\Exception\TransformationFailedException;
+use Symfony\Component\Form\Exception\UnexpectedTypeException;
 
 class GeoPointToArrayTransformer implements DataTransformerInterface
 {
@@ -12,11 +14,15 @@ class GeoPointToArrayTransformer implements DataTransformerInterface
      */
     public function transform($value)
     {
-        if (!empty($value)) {
-            return GeoPoint::fromArray($value);
+        if (empty($value)) {
+            return null;
         }
 
-        return null;
+        if (!is_array($value)) {
+            throw new UnexpectedTypeException($value, 'array');
+        }
+
+        return GeoPoint::fromArray($value);
     }
 
     /**
@@ -24,13 +30,23 @@ class GeoPointToArrayTransformer implements DataTransformerInterface
      */
     public function reverseTransform($value)
     {
-        if (count($value) != 2) {
+        if (empty($value)) {
             return null;
         }
 
+        if (!is_array($value)) {
+            throw new UnexpectedTypeException($value, 'array');
+        }
+
+        if (['latitude', 'longitude'] != array_keys($value)) {
+            throw new TransformationFailedException();
+        }
+
         return [
-            'type' => 'Point',
-            'coordinates' => array_reverse(array_values($value))
+            'coordinates' => [
+                $value['longitude'],
+                $value['latitude']
+            ]
         ];
     }
 }
