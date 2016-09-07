@@ -2,8 +2,9 @@
 
 namespace Gdbots\Bundle\PbjxBundle\Form\Type;
 
-use Gdbots\Bundle\PbjxBundle\Form\DataTransformer\GeoPointToStringTransformer;
+use Gdbots\Bundle\PbjxBundle\Form\DataTransformer\GeoPointToArrayTransformer;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -19,7 +20,7 @@ class GeoPointType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->addViewTransformer(new GeoPointToStringTransformer());
+        $builder->addViewTransformer(new GeoPointToArrayTransformer());
 
         $builder
             ->add('latitude', NumberType::class, [
@@ -51,8 +52,17 @@ class GeoPointType extends AbstractType
         parent::configureOptions($resolver);
 
         $resolver->setDefaults([
-            'compound' => true
+            'compound' => true,
+            'required' => false
         ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getParent()
+    {
+        return FormType::class;
     }
 
     /**

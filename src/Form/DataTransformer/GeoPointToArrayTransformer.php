@@ -5,14 +5,18 @@ namespace Gdbots\Bundle\PbjxBundle\Form\DataTransformer;
 use Gdbots\Pbj\WellKnown\GeoPoint;
 use Symfony\Component\Form\DataTransformerInterface;
 
-class GeoPointToStringTransformer implements DataTransformerInterface
+class GeoPointToArrayTransformer implements DataTransformerInterface
 {
     /**
      * {@inheritdoc}
      */
     public function transform($value)
     {
-        return (array) $value;
+        if ($value instanceof GeoPoint) {
+            return $value->toArray();
+        }
+
+        return [];
     }
 
     /**
