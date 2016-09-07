@@ -2,11 +2,10 @@
 
 namespace Gdbots\Bundle\PbjxBundle\Form\Type;
 
+use Gdbots\Bundle\PbjxBundle\Form\EventListener\CollectionTypeSubscriber;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType as BaseCollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\Options;
@@ -14,7 +13,15 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CollectionType extends AbstractType
 {
-    const NAME = 'gdbots_pbjx_collection';
+    /**
+     * {@inheritdoc}
+     */
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        $builder->addEventSubscriber(
+            new CollectionTypeSubscriber()
+        );
+    }
 
     /**
      * {@inheritdoc}
@@ -65,16 +72,8 @@ class CollectionType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getName()
-    {
-        return $this->getBlockPrefix();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getBlockPrefix()
     {
-        return self::NAME;
+        return 'gdbots_pbjx_collection';
     }
 }

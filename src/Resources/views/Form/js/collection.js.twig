@@ -27,15 +27,15 @@
         return collectionInfo.prototypeHtml.replace(new RegExp(collectionInfo.prototypeName, 'g'), collectionInfo.nextIndex);
       };
 
+      var rowCountAdd = $listContainer.data('row-count-add') || 1;
+      var collectionInfo = getCollectionInfo($listContainer);
+
       $('.js-btn-add-collection-item-btn', $container).click(function(e) {
         e.preventDefault();
 
         if ($(this).attr('disabled')) {
           return;
         }
-
-        var rowCountAdd = $listContainer.data('row-count-add') || 1;
-        var collectionInfo = getCollectionInfo($listContainer);
 
         for (var i = 1; i <= rowCountAdd; i++) {
           var nextItemHtml = getCollectionNextItemHtml(collectionInfo);

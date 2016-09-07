@@ -13,8 +13,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class DatePickerType extends AbstractType
 {
-    const NAME = 'gdbots_pbjx_date_picker';
-
     /**
      * {@inheritdoc}
      */
@@ -61,16 +59,8 @@ class DatePickerType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getName()
-    {
-        return $this->getBlockPrefix();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getBlockPrefix()
     {
-        return self::NAME;
+        return 'gdbots_pbjx_date_picker';
     }
 }

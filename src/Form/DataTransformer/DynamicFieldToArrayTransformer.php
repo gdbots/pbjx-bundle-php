@@ -13,15 +13,11 @@ class DynamicFieldToArrayTransformer implements DataTransformerInterface
      */
     public function transform($value)
     {
-        if ($value instanceof DynamicField) {
-            return [
-                'name' => $value->getName(),
-                'kind' => $value->getKind(),
-                'value' => $value->getValue()
-            ];
+        if (!empty($value)) {
+            return DynamicField::fromArray($value);
         }
 
-        return [];
+        return null;
     }
 
     /**
@@ -29,23 +25,17 @@ class DynamicFieldToArrayTransformer implements DataTransformerInterface
      */
     public function reverseTransform($value)
     {
-        $dynamicFields = [];
-
-        foreach ($value as $data) {
-            if (['name', 'kind', 'value'] != array_keys($data)) {
-                throw new TransformationFailedException();
-            }
-
-            if (array_key_exists($data['name'], $dynamicFields)) {
-                throw new TransformationFailedException('Duplicate name detected');
-            }
-
-            $dynamicFields[$data['name']] = DynamicField::fromArray([
-                'name' => $data['name'],
-                $data['kind'] => $data['value']
-            ]);
+        if (['name', 'kind', 'value'] != array_keys($value)) {
+            throw new TransformationFailedException();
         }
 
-        return $dynamicFields;
+        if (empty($value['name'])) {
+            return null;
+        }
+
+        return [
+            'name' => $value['name'],
+            $value['kind'] => $value['value']
+        ];
     }
 }

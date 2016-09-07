@@ -8,8 +8,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DateTimePickerType extends DatePickerType
 {
-    const NAME = 'gdbots_pbjx_datetime_picker';
-
     /**
      * {@inheritdoc}
      */
@@ -37,16 +35,8 @@ class DateTimePickerType extends DatePickerType
     /**
      * {@inheritdoc}
      */
-    public function getName()
-    {
-        return $this->getBlockPrefix();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getBlockPrefix()
     {
-        return self::NAME;
+        return 'gdbots_pbjx_datetime_picker';
     }
 }

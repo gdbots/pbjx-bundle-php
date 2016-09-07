@@ -85,6 +85,10 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
             $pbjField = $schema->getField($fieldName);
             $value = $form->getData();
 
+            if ($this->isEmpty($value) && !$pbjField->isRequired()) {
+                continue;
+            }
+
             if (null !== $value) {
                 $data[$fieldName] = $value;
                 continue;
@@ -253,5 +257,29 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
         }
 
         return self::$ignoredFields;
+    }
+
+    /**
+     * Check if value is empty
+     *
+     * @param array $array
+     *
+     * @return bool
+     */
+    private function isEmpty($value)
+    {
+        if (!is_array($value)) {
+            $value = [$value];
+        }
+        foreach ($value as $val) {
+            if (is_array($val)) {
+                if (!$this->isEmpty($val)) {
+                    return false;
+                }
+            } elseif (!empty($val)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

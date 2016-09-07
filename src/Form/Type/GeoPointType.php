@@ -13,8 +13,6 @@ use Symfony\Component\Validator\Constraints\Length;
 
 class GeoPointType extends AbstractType
 {
-    const NAME = 'gdbots_pbjx_geo_point';
-
     /**
      * {@inheritdoc}
      */
@@ -68,16 +66,8 @@ class GeoPointType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getName()
-    {
-        return $this->getBlockPrefix();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getBlockPrefix()
     {
-        return self::NAME;
+        return 'gdbots_pbjx_geo_point';
     }
 }

@@ -12,11 +12,11 @@ class GeoPointToArrayTransformer implements DataTransformerInterface
      */
     public function transform($value)
     {
-        if ($value instanceof GeoPoint) {
-            return $value->toArray();
+        if (!empty($value)) {
+            return GeoPoint::fromArray($value);
         }
 
-        return [];
+        return null;
     }
 
     /**
@@ -24,11 +24,13 @@ class GeoPointToArrayTransformer implements DataTransformerInterface
      */
     public function reverseTransform($value)
     {
-        return GeoPoint::fromArray([
-            'coordinates' => [
-                $value['longitude'],
-                $value['latitude']
-            ]
-        ]);
+        if (count($value) != 2) {
+            return null;
+        }
+
+        return [
+            'type' => 'Point',
+            'coordinates' => array_reverse(array_values($value))
+        ];
     }
 }
