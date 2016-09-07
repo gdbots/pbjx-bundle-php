@@ -73,7 +73,9 @@
     {% endif %}
   </div>
 
-  {{ _self.collection_js(id) }}
+  {% include 'GdbotsPbjxBundle:Form/js:collection.js.twig' with {
+    'containerId': id
+  } %}
 {% endblock gdbots_pbjx_collection_widget -%}
 
 {% block gdbots_pbjx_dynamic_field_widget -%}
@@ -122,7 +124,12 @@
       'readonly': attr.readonly|default(true)
     }) -%}
 
-    {{ _self.daterangepicker_js(form) }}
+    {% include 'GdbotsPbjxBundle:Form/js:date-range-picker.js.twig' with {
+      'widgetId': widget.vars.id,
+      'widgetType': widget.vars.type,
+      'options': widget.vars.js_options,
+      'callback': widget.vars.js_callback
+    } %}
   {% endif %}
 
   {{ block('date_widget') }}
@@ -135,7 +142,12 @@
       'readonly': attr.readonly|default(true)
     }) -%}
 
-    {{ _self.daterangepicker_js(form) }}
+    {% include 'GdbotsPbjxBundle:Form/js:date-range-picker.js.twig' with {
+      'widgetId': widget.vars.id,
+      'widgetType': widget.vars.type,
+      'options': widget.vars.js_options,
+      'callback': widget.vars.js_callback
+    } %}
   {% endif %}
 
   {{ block('datetime_widget') }}
@@ -173,32 +185,3 @@
     </div>
   </div>
 {% endmacro collection_item_prototype %}
-
-{# JS #}
-
-{% macro collection_js(id) -%}
-  <script type="text/javascript">
-    var wbq = wbq || [];
-    wbq.push(function initCollection_{{ id }}() {
-      require(['bundles/gdbotspbjx/js/behaviors/collection'], function(collection) {
-        collection('{{ id }}');
-      });
-    });
-  </script>
-{%- endmacro collection_js %}
-
-{% macro daterangepicker_js(widget) -%}
-  <script type="text/javascript">
-    var wbq = wbq || [];
-    wbq.push(function initDateRangePicker_{{ widget.vars.id }}() {
-      require(['bundles/gdbotspbjx/js/behaviors/date-range-picker'], function(dateRangePicker) {
-        dateRangePicker(
-          '{{ widget.vars.id }}',
-          '{{ widget.vars.type }}',
-          {{ widget.vars.js_options|default('{}')|json_encode|raw }},
-          {{ widget.vars.js_callback|default('function(){}')|raw }}
-        );
-      });
-    });
-  </script>
-{%- endmacro daterangepicker_js %}
