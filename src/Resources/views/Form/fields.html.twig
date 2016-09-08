@@ -79,38 +79,57 @@
 {% endblock gdbots_pbjx_collection_widget -%}
 
 {% block gdbots_pbjx_dynamic_field_widget -%}
-  <div class="row">
+  <div class="row" data-dynamic-field="{{ id }}">
     <div class="col-md-5">
       {{- form_widget(form.name, {'attr': {
-        'class': 'input-sm',
         'placeholder': 'Name'
       }}) -}}
     </div>
     <div class="col-md-2">
       {{- form_widget(form.kind, {'attr': {
-        'class': 'input-sm'
+        'class': 'js-dynamic-field-kind'
       }}) -}}
     </div>
-    <div class="col-md-5">
+    <div class="col-md-5 js-dynamic-field-value-options">
       {{- form_widget(form.value, {'attr': {
-        'class': 'input-sm',
-        'placeholder': 'Value'
+        'class': 'js-dynamic-field-value'
+      }}) -}}
+      {{- form_widget(form.bool_val, {'attr': {
+        'style': 'display:none'
+      }}) -}}
+      {{- form_widget(form.date_val, {'attr': {
+        'style': 'display:none'
+      }}) -}}
+      {{- form_widget(form.float_val, {'attr': {
+        'style': 'display:none'
+      }}) -}}
+      {{- form_widget(form.int_val, {'attr': {
+        'style': 'display:none'
+      }}) -}}
+      {{- form_widget(form.string_val, {'attr': {
+        'style': 'display:none'
+      }}) -}}
+      {{- form_widget(form.text_val, {'attr': {
+        'style': 'display:none'
       }}) -}}
     </div>
   </div>
+
+    {% include 'GdbotsPbjxBundle:Form/js:dynamic-field.js.twig' with {
+      'widgetId': id,
+      'valueFieldId': form.value.vars.id
+    } %}
 {%- endblock gdbots_pbjx_dynamic_field_widget %}
 
 {% block gdbots_pbjx_geo_point_widget -%}
   <div class="row">
     <div class="col-md-6">
       {{- form_widget(form.latitude, {'attr': {
-        'class': 'input-sm',
         'placeholder': 'Latitude'
       }}) -}}
     </div>
     <div class="col-md-6">
       {{- form_widget(form.longitude, {'attr': {
-        'class': 'input-sm',
         'placeholder': 'Longitude'
       }}) -}}
     </div>
