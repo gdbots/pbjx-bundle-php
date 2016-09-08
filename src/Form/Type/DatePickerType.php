@@ -35,6 +35,8 @@ class DatePickerType extends AbstractType
         parent::configureOptions($resolver);
 
         $resolver->setDefaults([
+            'model_timezone' => 'UTC',
+            'view_timezone' => 'UTC',
             'widget' => 'single_text',
             'js_options' => [
                 'singleDatePicker' => true,
