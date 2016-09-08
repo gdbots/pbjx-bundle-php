@@ -3,7 +3,6 @@
   if (isDynamicFieldLoaded) {
       $('[data-dynamic-field={{ widgetId }}] .js-dynamic-field-kind').change();
   } else {
-    isDynamicFieldLoaded = true;
     var wbq = wbq || [];
     wbq.push(function initDynamicField() {
       require(
@@ -12,6 +11,13 @@
       ],
       function ($) {
         'use strict';
+
+        // ignore loading twice
+        if (isDynamicFieldLoaded) {
+          return;
+        }
+
+        isDynamicFieldLoaded = true;
 
         $(document).on('change', '.js-dynamic-field-kind', function() {
           $(this).closest('.row').find('.js-dynamic-field-value-options :input:not(.js-dynamic-field-value)').hide();
