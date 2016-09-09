@@ -36,6 +36,9 @@ class DateTimePickerTypeTest extends TypeTestCase
             'model_timezone' => 'UTC',
             'view_timezone' => 'UTC',
             'widget' => 'single_text',
+            'group_icon' => null,
+            'clear_label' => null,
+            'clear_icon' => null,
             'js_options' => [
                 'singleDatePicker' => true,
                 'autoApply' => true,

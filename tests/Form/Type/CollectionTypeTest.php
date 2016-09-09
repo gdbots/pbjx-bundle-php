@@ -57,12 +57,20 @@ class CollectionTypeTest extends \PHPUnit_Framework_TestCase
                     'show_form_when_empty' => false,
                     'prototype_name' => '__name__',
                     'row_count_add' => 1,
-                    'row_count_initial' => 1
+                    'row_count_initial' => 1,
+                    'add_label' => 'Add',
+                    'add_icon' => 'icon-plus',
+                    'remove_label' => 'Remove',
+                    'remove_icon' => 'icon-minus'
                 ],
                 'expectedVars' => [
                     'show_form_when_empty' => false,
                     'prototype_name' => '__name__',
-                    'row_count_initial' => 1
+                    'row_count_initial' => 1,
+                    'add_label' => 'Add',
+                    'add_icon' => 'icon-plus',
+                    'remove_label' => 'Remove',
+                    'remove_icon' => 'icon-minus'
                 ]
             ],
             [
@@ -70,12 +78,20 @@ class CollectionTypeTest extends \PHPUnit_Framework_TestCase
                     'show_form_when_empty' => true,
                     'prototype_name' => '__custom_name__',
                     'row_count_add' => 1,
-                    'row_count_initial' => 5
+                    'row_count_initial' => 5,
+                    'add_label' => 'Add',
+                    'add_icon' => 'icon-plus',
+                    'remove_label' => 'Remove',
+                    'remove_icon' => 'icon-minus'
                 ],
                 'expectedVars' => [
                     'show_form_when_empty' => true,
                     'prototype_name' => '__custom_name__',
-                    'row_count_initial' => 5
+                    'row_count_initial' => 5,
+                    'add_label' => 'Add',
+                    'add_icon' => 'icon-plus',
+                    'remove_label' => 'Remove',
+                    'remove_icon' => 'icon-minus'
                 ]
             ]
         ];
@@ -110,7 +126,11 @@ class CollectionTypeTest extends \PHPUnit_Framework_TestCase
                 'prototype_name' => '__name__',
                 'show_form_when_empty' => true,
                 'row_count_add' => 1,
-                'row_count_initial' => 1
+                'row_count_initial' => 1,
+                'add_label' => null,
+                'add_icon' => null,
+                'remove_label' => null,
+                'remove_icon' => null
             ],
             $resolvedOptions
         );
@@ -135,7 +155,11 @@ class CollectionTypeTest extends \PHPUnit_Framework_TestCase
                 'prototype_name' => '__name__',
                 'show_form_when_empty' => false,
                 'row_count_add' => 1,
-                'row_count_initial' => 1
+                'row_count_initial' => 1,
+                'add_label' => null,
+                'add_icon' => null,
+                'remove_label' => null,
+                'remove_icon' => null
             ],
             $resolvedOptions
         );
@@ -160,7 +184,11 @@ class CollectionTypeTest extends \PHPUnit_Framework_TestCase
                 'prototype_name' => '__name__',
                 'show_form_when_empty' => false,
                 'row_count_add' => 1,
-                'row_count_initial' => 1
+                'row_count_initial' => 1,
+                'add_label' => null,
+                'add_icon' => null,
+                'remove_label' => null,
+                'remove_icon' => null
             ],
             $resolvedOptions
         );

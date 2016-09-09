@@ -19,19 +19,17 @@ class DatePickerType extends AbstractType
     public function finishView(FormView $view, FormInterface $form, array $options)
     {
         $view->vars = array_replace($view->vars, [
-            'group_icon' => $options['group_icon'],
-            'clear_label' => $options['clear_label'],
-            'clear_icon' => $options['clear_icon'],
+            'group_icon' => null,
+            'clear_label' => null,
+            'clear_icon' => null,
             'js_options' => null,
             'js_callback' => null
         ]);
 
-        if (!empty($options['js_options'])) {
-            $view->vars['js_options'] = $options['js_options'];
-        }
-
-        if (!empty($options['js_callback'])) {
-            $view->vars['js_callback'] = $options['js_callback'];
+        foreach (array_keys($view->vars) as $key) {
+            if (isset($options[$key]) && !empty($options[$key])) {
+                $view->vars[$key] = $options[$key];
+            }
         }
     }
 
