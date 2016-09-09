@@ -13,7 +13,8 @@ use Gdbots\Bundle\PbjxBundle\Form\Type\DateTimePickerType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\CollectionType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\DynamicFieldType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\GeoPointType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Gdbots\Bundle\PbjxBundle\Form\Type\SwitcheryType;
+use Gdbots\Bundle\PbjxBundle\Form\Type\TrinaryType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -40,7 +41,7 @@ final class FormFieldFactory
         'big-int'           => TextType::class,
         //'binary'            => 'todo', // todo: handle as file or textarea?
         //'blob'              => 'todo', // todo: ref binary
-        'boolean'           => CheckboxType::class,
+        'boolean'           => SwitcheryType::class,
         'date'              => DatePickerType::class,
         'date-time'         => DateTimePickerType::class, // ensure DateUtils::ISO8601_ZULU format
         'decimal'           => NumberType::class,
@@ -68,6 +69,7 @@ final class FormFieldFactory
         'time-uuid'         => TextType::class,
         'timestamp'         => TimeType::class,
         'tiny-int'          => IntegerType::class,
+        'trinary'           => TrinaryType::class,
         'uuid'              => TextType::class
     ];
 
