@@ -1,3 +1,9 @@
+{#
+  Require libraries:
+    - http://momentjs.com/
+    - http://www.daterangepicker.com/
+#}
+
 <script type="text/javascript">
   var wbq = wbq || [];
   wbq.push(function initDateRangePicker_{{ widgetId }}() {
@@ -32,7 +38,7 @@
         }
 
         $picker.daterangepicker(
-          $.extend(true, {{ options|default('{}')|json_encode|raw }}, {
+          $.extend(true, {{ options|default([])|json_encode|raw }}, {
             'startDate': '' !== $picker.val() ? moment.utc($picker.val()).local() : moment()
           }),
           {{ callback|default('function(){}')|raw }}
