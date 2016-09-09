@@ -33,6 +33,10 @@ class CollectionType extends AbstractType
             'prototype_name' => $options['prototype_name'],
             'row_count_add' => $options['row_count_add'],
             'row_count_initial' => $options['row_count_initial'],
+            'add_label' => $options['add_label'],
+            'add_icon' => $options['add_icon'],
+            'remove_label' => $options['remove_label'],
+            'remove_icon' => $options['remove_icon']
         ]);
     }
 
@@ -51,6 +55,10 @@ class CollectionType extends AbstractType
             'show_form_when_empty' => true,
             'row_count_add' => 1,
             'row_count_initial' => 1,
+            'add_label' => null,
+            'add_icon' => null,
+            'remove_label' => null,
+            'remove_icon' => null
         ]);
 
         $resolver->setRequired(['entry_type']);

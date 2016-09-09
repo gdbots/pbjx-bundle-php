@@ -14,8 +14,13 @@ class TrinaryType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
+        $values = [];
+        foreach (Trinary::values() as $key => $value) {
+            $values[sprintf('gdbots_pbjx.form.trinary.%s', strtolower($key))] = $value;
+        }
+
         $resolver->setDefaults([
-            'choices' => Trinary::values()
+            'choices' => $values
         ]);
     }
 

@@ -7,10 +7,10 @@
     <div class="form-group{% if force_error|default(false) and not valid %} has-error{% endif %}">
       {{- form_label(form) -}}
       <div class="input-group">
-        <div class="input-group-addon"><i class="icon-calendar22"></i></div>
+        <div class="input-group-addon"><i class="{{ group_icon|default('icon-calendar22') }}"></i></div>
         {{- form_widget(form) -}}
         <div class="input-group-btn">
-          <button type="button" class="btn btn-default js-clear-btn" data-target="#{{ form.vars.id }}" title="Clear Date"><i class="icon-cross2"></i></button>
+          <button type="button" class="btn btn-default js-clear-btn" data-target="#{{ form.vars.id }}" title="{{ form.vars.clear_label|default('gdbots_pbjx.form.date_picker.clear')|trans }}"><i class="{{ clear_icon|default('icon-cross2') }}"></i></button>
         </div>
       </div>
       {{- form_errors(form) -}}
@@ -25,10 +25,10 @@
     <div class="form-group{% if force_error|default(false) and not valid %} has-error{% endif %}">
       {{- form_label(form) -}}
       <div class="input-group">
-        <div class="input-group-addon"><i class="icon-calendar22"></i></div>
+        <div class="input-group-addon"><i class="{{ group_icon|default('icon-calendar22') }}"></i></div>
         {{- form_widget(form) -}}
         <div class="input-group-btn">
-          <button type="button" class="btn btn-default js-clear-btn" data-target="#{{ form.vars.id }}" title="Clear Date"><i class="icon-cross2"></i></button>
+          <button type="button" class="btn btn-default js-clear-btn" data-target="#{{ form.vars.id }}" title="{{ form.vars.clear_label|default('gdbots_pbjx.form.date_picker.clear')|trans }}"><i class="{{ clear_icon|default('icon-cross2') }}"></i></button>
         </div>
       </div>
       {{- form_errors(form) -}}
@@ -69,7 +69,9 @@
     </div>
 
     {% if allow_add %}
-      <button class="btn btn-action js-btn-add-collection-item-btn" type="button">+ Add</button>
+      <button class="btn btn-action js-btn-add-collection-item-btn" type="button">
+        <i class="{{ form.vars.add_icon|defaut('icon-plus2') }}"></i> {{ form.vars.add_label|default('gdbots_pbjx.form.collection.add')|trans }}
+      </button>
     {% endif %}
   </div>
 
@@ -82,7 +84,7 @@
   <div class="row" data-dynamic-field="{{ id }}">
     <div class="col-md-5">
       {{- form_widget(form.name, {'attr': {
-        'placeholder': 'Name'
+        'placeholder': 'Field Name'|trans
       }}) -}}
     </div>
     <div class="col-md-2">
@@ -125,12 +127,12 @@
   <div class="row">
     <div class="col-md-6">
       {{- form_widget(form.latitude, {'attr': {
-        'placeholder': 'Latitude'
+        'placeholder': 'Latitude'|trans
       }}) -}}
     </div>
     <div class="col-md-6">
       {{- form_widget(form.longitude, {'attr': {
-        'placeholder': 'Longitude'
+        'placeholder': 'Longitude'|trans
       }}) -}}
     </div>
   </div>
@@ -139,7 +141,7 @@
 {% block gdbots_pbjx_date_picker_widget -%}
   {% if widget == 'single_text' %}
     {%- set attr = attr|merge({
-      'placeholder': attr.placeholder|default('Click to select a date.'),
+      'placeholder': attr.placeholder|default('gdbots_pbjx.form.choose_date')|trans,
       'readonly': attr.readonly|default(true)
     }) -%}
 
@@ -157,7 +159,7 @@
 {% block gdbots_pbjx_datetime_picker_widget -%}
   {% if widget == 'single_text' %}
     {%- set attr = attr|merge({
-      'placeholder': attr.placeholder|default('Click to select a date.'),
+      'placeholder': attr.placeholder|default('gdbots_pbjx.form.choose_date')|trans,
       'readonly': attr.readonly|default(true)
     }) -%}
 
@@ -211,7 +213,9 @@
 
       {% if allow_delete %}
         <div class="col-md-1">
-          <button class="btn btn-action btn-link js-btn-remove-collection-item-btn" type="button" data-related="{{ name }}">×</button>
+          <button class="btn btn-action btn-link js-btn-remove-collection-item-btn" type="button" data-related="{{ name }}">
+            <i class="{{ form.vars.remove_icon|defaut('icon-minus2') }}"></i> {{ form.vars.remove_label|default('gdbots_pbjx.form.collection.remove')|trans }}
+          </button>
         </div>
       {% endif %}
     </div>
