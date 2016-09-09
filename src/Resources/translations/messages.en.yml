@@ -12,5 +12,5 @@ gdbots_pbjx:
       clear: Clear Date
     trinary:
       unknown: Unknown
-      true_val: True
-      false_val: False
+      true_val: "True"
+      false_val: "False"
