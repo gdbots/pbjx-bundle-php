@@ -38,7 +38,7 @@ class DynamicFieldToArrayTransformer implements DataTransformerInterface
             throw new UnexpectedTypeException($value, 'array');
         }
 
-        if (['name', 'kind', 'value'] != array_keys($value)) {
+        if (count(array_intersect(['name', 'kind', 'value'], array_keys($value))) !== 3) {
             throw new TransformationFailedException();
         }
 
