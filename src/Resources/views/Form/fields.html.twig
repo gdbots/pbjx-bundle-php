@@ -70,7 +70,7 @@
 
     {% if allow_add %}
       <button class="btn btn-action js-btn-add-collection-item-btn" type="button">
-        <i class="{{ form.vars.add_icon|defaut('icon-plus2') }}"></i> {{ form.vars.add_label|default('gdbots_pbjx.form.collection.add')|trans }}
+        <i class="{{ form.vars.add_icon|default('icon-plus2') }}"></i> {{ form.vars.add_label|default('gdbots_pbjx.form.collection.add')|trans }}
       </button>
     {% endif %}
   </div>
@@ -214,7 +214,7 @@
       {% if allow_delete %}
         <div class="col-md-1">
           <button class="btn btn-action btn-link js-btn-remove-collection-item-btn" type="button" data-related="{{ name }}">
-            <i class="{{ form.vars.remove_icon|defaut('icon-minus2') }}"></i> {{ form.vars.remove_label|default('gdbots_pbjx.form.collection.remove')|trans }}
+            <i class="{{ form.vars.remove_icon|default('icon-minus2') }}"></i> {{ form.vars.remove_label|default('gdbots_pbjx.form.collection.remove')|trans }}
           </button>
         </div>
       {% endif %}
