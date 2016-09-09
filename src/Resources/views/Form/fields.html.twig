@@ -172,6 +172,19 @@
   {{ block('datetime_widget') }}
 {%- endblock gdbots_pbjx_datetime_picker_widget %}
 
+{% block gdbots_pbjx_switchery_widget -%}
+  {{ block('checkbox_widget') }}
+
+  {% if js_options.className is defined and 'switchery' not in js_options.className %}
+    {%- set js_options = js_options|merge({className: (js_options.className|default('') ~ ' switchery')|trim}) -%}
+  {% endif %}
+
+  {% include 'GdbotsPbjxBundle:Form/js:switchery.js.twig' with {
+    'widgetId': id,
+    'options': js_options
+  } %}
+{%- endblock gdbots_pbjx_switchery_widget %}
+
 {# Macro #}
 
 {% macro collection_item_prototype(widget) %}
