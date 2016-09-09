@@ -36,7 +36,6 @@ class CollectionType extends AbstractType
         ]);
     }
 
-
     /**
      * {@inheritdoc}
      */

@@ -144,8 +144,8 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
 
     /**
      * @param FormBuilderInterface $builder
-     * @param array $options
-     * @param array $ignoredFields
+     * @param array                $options
+     * @param array                $ignoredFields
      */
     final protected function buildPbjForm(FormBuilderInterface $builder, array $options, array $ignoredFields = [])
     {
@@ -192,7 +192,7 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
 
     /**
      * @param FormInterface|FormBuilderInterface $form
-     * @param Field $pbjField
+     * @param Field                              $pbjField
      */
     private function setFormDefault($form, Field $pbjField)
     {
@@ -280,6 +280,7 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
                 return false;
             }
         }
+
         return true;
     }
 }

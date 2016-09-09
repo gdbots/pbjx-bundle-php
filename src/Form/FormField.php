@@ -16,9 +16,9 @@ class FormField
     private $options;
 
     /**
-     * @param Field $pbjField
+     * @param Field  $pbjField
      * @param string $type
-     * @param array $options
+     * @param array  $options
      */
     public function __construct(Field $pbjField, $type, array $options = [])
     {
@@ -61,13 +61,14 @@ class FormField
 
     /**
      * @param string $name
-     * @param mixed $value
+     * @param mixed  $value
      *
      * @return self
      */
     public function setOption($name, $value)
     {
         $this->options[$name] = $value;
+
         return $this;
     }
 
@@ -79,6 +80,7 @@ class FormField
     public function removeOption($name)
     {
         unset($this->options[$name]);
+
         return $this;
     }
 }

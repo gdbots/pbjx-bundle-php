@@ -3,7 +3,6 @@
 namespace Gdbots\Bundle\PbjxBundle\Form;
 
 use Gdbots\Common\Enum;
-use Gdbots\Pbj\Enum\FieldRule;
 use Gdbots\Pbj\Enum\Format;
 use Gdbots\Pbj\Enum\TypeName;
 use Gdbots\Pbj\Field;
@@ -16,8 +15,6 @@ use Gdbots\Bundle\PbjxBundle\Form\Type\DynamicFieldType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\GeoPointType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -35,7 +32,7 @@ use Symfony\Component\Validator\Constraints\Regex;
 final class FormFieldFactory
 {
     /**
-     * Map of pbj type -> symfony form type
+     * Map of pbj type -> symfony form type.
      *
      * @var array
      */
@@ -71,7 +68,7 @@ final class FormFieldFactory
         'time-uuid'         => TextType::class,
         'timestamp'         => TimeType::class,
         'tiny-int'          => IntegerType::class,
-        'uuid'              => TextType::class,
+        'uuid'              => TextType::class
     ];
 
     /**
@@ -149,7 +146,7 @@ final class FormFieldFactory
     {
         $options = [
             'required' => $pbjField->isRequired(),
-            'constraints' => [],
+            'constraints' => []
         ];
 
         if ($pbjField->isRequired()) {
@@ -164,7 +161,7 @@ final class FormFieldFactory
                     'max' => $pbjField->getMaxLength()
                 ]);
                 if ($pattern = $pbjField->getPattern()) {
-                   $options['constraints'][] = new Regex([
+                    $options['constraints'][] = new Regex([
                         'pattern' => $pattern
                     ]);
                 }

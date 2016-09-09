@@ -2,7 +2,6 @@
 
 namespace Gdbots\Bundle\PbjxBundle\Form\EventListener;
 
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -67,6 +66,7 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
                 return false;
             }
         }
+
         return true;
     }
 }
