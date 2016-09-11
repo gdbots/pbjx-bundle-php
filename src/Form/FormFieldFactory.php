@@ -7,7 +7,6 @@ use Gdbots\Pbj\Enum\Format;
 use Gdbots\Pbj\Enum\TypeName;
 use Gdbots\Pbj\Field;
 use Gdbots\Pbj\Schema;
-use Gdbots\Pbj\Type\Type;
 use Gdbots\Bundle\PbjxBundle\Form\Type\DatePickerType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\DateTimePickerType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\CollectionType;
@@ -54,7 +53,7 @@ final class FormFieldFactory
         //'medium-blob'       => 'todo',
         'medium-int'        => IntegerType::class,
         'medium-text'       => TextareaType::class,
-        //'message'           => 'todo', // this likely has to be configured manually
+        //'message'           => null, // message type require its own form type
         'message-ref'       => TextType::class, //'todo',
         'microtime'         => TextType::class,
         'signed-big-int'    => TextType::class,
@@ -102,7 +101,7 @@ final class FormFieldFactory
             return new FormField($pbjField, $symfonyType, $options);
         }
 
-        // todo: handle maps (assoc array vs array)
+        // fixme: handle maps (assoc array vs array)
         $collectionOptions = [
             'entry_type' => $symfonyType,
             'entry_options' => $options
@@ -162,11 +161,14 @@ final class FormFieldFactory
                     'min' => $pbjField->getMinLength(),
                     'max' => $pbjField->getMaxLength()
                 ]);
+
                 if ($pattern = $pbjField->getPattern()) {
                     $options['constraints'][] = new Regex([
-                        'pattern' => $pattern
+                        'pattern' => '/'.trim($pattern, '/').'/'
                     ]);
                 }
+
+                // fixme: handle any "Format" options not handled in getSymfonyType, i.e. hashtag
                 break;
 
             case TypeName::UUID:
@@ -179,6 +181,10 @@ final class FormFieldFactory
             case TypeName::IDENTIFIER:
                 $options['constraints'][] = new Regex([
                     'pattern' => '/^[\\w\\.-_]+$/'
+                ]);
+                $options['constraints'][] = new Length([
+                    'min' => $pbjField->getMinLength(),
+                    'max' => $pbjField->getMaxLength()
                 ]);
                 break;
 
@@ -204,7 +210,6 @@ final class FormFieldFactory
                 break;
 
             case TypeName::DATE:
-                //$options['format'] = 'yyyy-MM-dd'; //todo: DateUtils::ISO8601_ZULU format?
                 $options['format'] = 'yyyy-MM-dd';
                 break;
 

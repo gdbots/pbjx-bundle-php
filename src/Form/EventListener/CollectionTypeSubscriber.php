@@ -48,7 +48,7 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
     /**
      * Check if value is empty.
      *
-     * @param array $array
+     * @param mixed $value
      *
      * @return bool
      */
@@ -57,6 +57,7 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
         if (!is_array($value)) {
             $value = [$value];
         }
+
         foreach ($value as $val) {
             if (is_array($val)) {
                 if (!$this->isEmpty($val)) {

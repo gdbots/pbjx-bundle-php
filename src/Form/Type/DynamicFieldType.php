@@ -25,6 +25,7 @@ class DynamicFieldType extends AbstractType
     {
         $builder->addViewTransformer(new DynamicFieldToArrayTransformer());
 
+        // fixme: sub fields need proper options
         $builder
             ->add('name', TextType::class, [
                 'constraints' => [
@@ -43,7 +44,7 @@ class DynamicFieldType extends AbstractType
                     'True' => true
                 ]
             ])
-            ->add('date_val', DatePickerType::class)
+            ->add('date_val', DatePickerType::class, ['format' => 'yyyy-MM-dd'])
             ->add('float_val', NumberType::class)
             ->add('int_val', IntegerType::class)
             ->add('string_val', TextType::class)

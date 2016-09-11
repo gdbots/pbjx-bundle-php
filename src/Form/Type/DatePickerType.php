@@ -9,7 +9,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * @see `https://github.com/dangrossman/bootstrap-daterangepicker` for documentation
+ * @link https://github.com/dangrossman/bootstrap-daterangepicker
  */
 class DatePickerType extends AbstractType
 {
@@ -50,7 +50,7 @@ class DatePickerType extends AbstractType
             'js_options' => [
                 'singleDatePicker' => true,
                 'autoApply' => true,
-                'locale' => ['format' => 'MM/DD/YYYY'],
+                'locale' => ['format' => 'YYYY-MM-DD'],
                 'opens' => 'left',
                 'applyClass' => 'bg-slate',
                 'cancelClass' => 'btn-default'

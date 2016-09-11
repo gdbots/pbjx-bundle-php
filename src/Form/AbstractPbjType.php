@@ -10,6 +10,7 @@ use Gdbots\Schemas\Pbjx\Mixin\Request\RequestV1Mixin;
 use Gdbots\Schemas\Pbjx\Mixin\Response\ResponseV1Mixin;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataMapperInterface;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 
@@ -82,40 +83,11 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
                 continue;
             }
 
-            $pbjField = $schema->getField($fieldName);
             $value = $form->getData();
-
-            if ($this->isEmpty($value) && !$pbjField->isRequired()) {
-                continue;
-            }
-
             if (null !== $value) {
+                // it might be needed to set null to know if a field was present and submitted
+                // as an empty value, for now we'll skip it.
                 $data[$fieldName] = $value;
-                continue;
-            }
-
-            switch ($pbjField->getRule()->getValue()) {
-                case FieldRule::A_SINGLE_VALUE:
-                    $data[$fieldName] = $value;
-                    break;
-
-                case FieldRule::A_SET:
-                case FieldRule::A_LIST:
-                    $data[$fieldName] = [];
-                    foreach ((array)$value as $v) {
-                        $data[$fieldName][] = $v;
-                    }
-                    break;
-
-                case FieldRule::A_MAP:
-                    $data[$fieldName] = [];
-                    foreach ((array)$value as $k => $v) {
-                        $data[$fieldName][$k] = $v;
-                    }
-                    break;
-
-                default:
-                    break;
             }
         }
 
@@ -146,12 +118,18 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
      * @param FormBuilderInterface $builder
      * @param array                $options
      * @param array                $ignoredFields
+     * @param array                $hiddenFields
      */
-    final protected function buildPbjForm(FormBuilderInterface $builder, array $options, array $ignoredFields = [])
-    {
+    final protected function buildPbjForm(
+        FormBuilderInterface $builder,
+        array $options,
+        array $ignoredFields = [],
+        array $hiddenFields = []
+    ) {
         $schema = static::pbjSchema();
         $builder->setDataMapper($this);
         $ignoredFields = array_merge(array_flip($ignoredFields), self::getIgnoredFields());
+        $hiddenFields = array_flip($hiddenFields);
         $factory = $this->getFormFieldFactory();
 
         foreach ($schema->getFields() as $pbjField) {
@@ -165,9 +143,10 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
             }
 
             $formField = $factory->create($pbjField);
-            $child = $builder->create($fieldName, $formField->getType(), $formField->getOptions());
+            $type = isset($hiddenFields[$fieldName]) ? HiddenType::class : $formField->getType();
+            $child = $builder->create($fieldName, $type, $formField->getOptions());
 
-            // todo: verify this key is correct for data provided as option
+            // fixme: verify this key is correct for data provided as option
             if (isset($options['data'][$fieldName])) {
                 $child->setData($options['data'][$fieldName]);
             } else {
@@ -257,30 +236,5 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
         }
 
         return self::$ignoredFields;
-    }
-
-    /**
-     * Check if value is empty.
-     *
-     * @param array $array
-     *
-     * @return bool
-     */
-    private function isEmpty($value)
-    {
-        if (!is_array($value)) {
-            $value = [$value];
-        }
-        foreach ($value as $val) {
-            if (is_array($val)) {
-                if (!$this->isEmpty($val)) {
-                    return false;
-                }
-            } elseif (!empty($val)) {
-                return false;
-            }
-        }
-
-        return true;
     }
 }

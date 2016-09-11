@@ -2,6 +2,9 @@
   Require libraries:
     - http://momentjs.com/
     - http://www.daterangepicker.com/
+
+  fixme: this generates a massive prototype in a div attribute, could be made simpler
+  fixme: a date doesn't need utc conversion and must always be YYYY-MM-DD
 #}
 
 <script type="text/javascript">
@@ -25,7 +28,7 @@
         }
 
         if ('{{ widgetType }}' == 'date') {
-          $picker.val(moment($picker.data('daterangepicker').startDate).utc().format('YYYY-MM-DD'));
+          $picker.val(moment($picker.data('daterangepicker').startDate).format('YYYY-MM-DD'));
         } else {
           $picker.val(moment($picker.data('daterangepicker').startDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSS') + 'Z');
         }
