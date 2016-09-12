@@ -85,6 +85,19 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
 
             $value = $form->getData();
             if (null !== $value) {
+                // handle maps (assoc array)
+                if ($schema->getField($fieldName)->isAMap()) {
+                    $tmp = [];
+                    foreach ($value as $v) {
+                        if (is_array($v)) {
+                            foreach ($v as $kk => $vv) {
+                                $tmp[$kk] = $vv;
+                            }
+                        }
+                    }
+                    $value = $tmp;
+                }
+
                 // it might be needed to set null to know if a field was present and submitted
                 // as an empty value, for now we'll skip it.
                 $data[$fieldName] = $value;

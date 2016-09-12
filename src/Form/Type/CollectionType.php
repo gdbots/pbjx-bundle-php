@@ -45,8 +45,6 @@ class CollectionType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        parent::configureOptions($resolver);
-
         $resolver->setDefaults([
             'allow_add' => true,
             'allow_delete' => true,

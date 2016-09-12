@@ -46,8 +46,6 @@ class GeoPointType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        parent::configureOptions($resolver);
-
         $resolver->setDefaults([
             'compound' => true,
             'required' => false

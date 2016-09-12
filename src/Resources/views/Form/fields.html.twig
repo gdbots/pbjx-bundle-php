@@ -124,6 +124,21 @@
   </div>
 {%- endblock gdbots_pbjx_dynamic_field_widget %}
 
+{% block gdbots_pbjx_key_value_widget -%}
+  <div class="row">
+    <div class="col-md-6">
+      {{- form_widget(form.key, {'attr': {
+        'placeholder': 'Key'|trans
+      }}) -}}
+    </div>
+    <div class="col-md-6">
+      {{- form_widget(form.value, {'attr': {
+        'placeholder': 'Value'|trans
+      }}) -}}
+    </div>
+  </div>
+{%- endblock gdbots_pbjx_key_value_widget %}
+
 {% block gdbots_pbjx_geo_point_widget -%}
   <div class="row">
     <div class="col-md-6">

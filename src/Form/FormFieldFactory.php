@@ -12,6 +12,7 @@ use Gdbots\Bundle\PbjxBundle\Form\Type\DateTimePickerType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\CollectionType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\DynamicFieldType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\GeoPointType;
+use Gdbots\Bundle\PbjxBundle\Form\Type\KeyValueType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\SwitcheryType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\TrinaryType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -101,7 +102,17 @@ final class FormFieldFactory
             return new FormField($pbjField, $symfonyType, $options);
         }
 
-        // fixme: handle maps (assoc array vs array)
+        // handle maps (assoc array)
+        if ($pbjField->isAMap()) {
+            $options = array_merge([
+                'required' => $options['required'],
+                'value_type' => $symfonyType,
+                'value_options' => $options
+            ]);
+
+            $symfonyType = KeyValueType::class;
+        }
+
         $collectionOptions = [
             'entry_type' => $symfonyType,
             'entry_options' => $options
