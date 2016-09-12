@@ -279,9 +279,9 @@ define([
    * Destroys all linked components.
    */
   ComponentManager.prototype.removeAll = function() {
-    this.components.forEach(function(item, name) {
-      this.remove(name);
-    }, this);
+    for (var name in this.components) {
+      this.remove(this.components[name]);
+    }
   };
 
   /**
@@ -303,11 +303,12 @@ define([
    */
   ComponentManager.prototype.findComponent = function(el) {
     var found = false;
-    this.components.forEach(function(item) {
+    for (var name in this.components) {
+      var item = this.components[name];
       if (item.el === el) {
         found = item;
       }
-    });
+    }
     if (found) {
       return found.component;
     }
@@ -320,9 +321,9 @@ define([
    * @param {Object} context
    */
   ComponentManager.prototype.forEachComponent = function(callback, context) {
-    this.components.forEach(function(item) {
-      callback.apply(context, [item.component]);
-    });
+    for (var name in this.components) {
+      callback.apply(context, [this.components[name].component]);
+    }
   };
 
   return ComponentManager;
