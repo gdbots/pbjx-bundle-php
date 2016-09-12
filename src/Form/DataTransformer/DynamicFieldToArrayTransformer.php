@@ -42,6 +42,10 @@ class DynamicFieldToArrayTransformer implements DataTransformerInterface
             throw new TransformationFailedException();
         }
 
+        if (empty($value['name'])) {
+            return null;
+        }
+
         return [
             'name' => $value['name'],
             $value['kind'] => $value['value']

@@ -14,7 +14,8 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            FormEvents::PRE_SUBMIT => 'preSubmit'
+            FormEvents::PRE_SUBMIT => 'preSubmit',
+            FormEvents::SUBMIT => 'submit'
         ];
     }
 
@@ -28,7 +29,7 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
         $items = $event->getData();
 
         if (!$items || !is_array($items)) {
-            return;
+            return null;
         }
 
         $notEmptyItems = [];
@@ -41,6 +42,28 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
         }
 
         $items = $notEmptyItems;
+
+        $event->setData($items);
+    }
+
+    /**
+     * Removes empty collection elements.
+     *
+     * @param FormEvent $event
+     */
+    public function submit(FormEvent $event)
+    {
+        $items = $event->getData();
+
+        if (!$items || !is_array($items)) {
+            return null;
+        }
+
+        foreach ($items as $index => $item) {
+            if ($this->isEmpty($item)) {
+                unset($items[$index]);
+            }
+        }
 
         $event->setData($items);
     }
