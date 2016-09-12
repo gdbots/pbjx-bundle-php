@@ -28,7 +28,7 @@ function ($) {
   var _bindEvent = function() {
     var self = this;
 
-    self.$el.parent('.row-collection').find('.js-btn-add-collection-item-btn').on('click', function(e) {
+    self.$el.parent('.row-collection').on('click', '.js-btn-add-collection-item-btn', function(e) {
       e.preventDefault();
 
       if ($(this).attr('disabled')) {
@@ -51,7 +51,7 @@ function ($) {
       });
     });
 
-    self.$el.find('.js-btn-remove-collection-item-btn').on('click', function(e) {
+    self.$el.parent('.row-collection').on('click', '.js-btn-remove-collection-item-btn', function(e) {
       e.preventDefault();
 
       if ($(this).attr('disabled')) {
