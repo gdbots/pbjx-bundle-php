@@ -89,9 +89,14 @@
     }|json_encode }}"
   >
     <div class="col-md-5">
-      {{- form_widget(form.name, {'attr': {
-        'placeholder': 'Field Name'|trans
-      }}) -}}
+      {{- form_row(form.name, {
+        'label_attr': {
+          'class': 'hidden'
+        },
+        'attr': {
+          'placeholder': 'Field Name'|trans
+        }
+      }) -}}
     </div>
     <div class="col-md-2">
       {{- form_widget(form.kind, {'attr': {
@@ -102,24 +107,16 @@
       {{- form_widget(form.value, {'attr': {
         'class': 'js-dynamic-field-value'
       }}) -}}
-      {{- form_widget(form.bool_val, {'attr': {
-        'style': 'display:none'
-      }}) -}}
-      {{- form_widget(form.date_val, {'attr': {
-        'style': 'display:none'
-      }}) -}}
-      {{- form_widget(form.float_val, {'attr': {
-        'style': 'display:none'
-      }}) -}}
-      {{- form_widget(form.int_val, {'attr': {
-        'style': 'display:none'
-      }}) -}}
-      {{- form_widget(form.string_val, {'attr': {
-        'style': 'display:none'
-      }}) -}}
-      {{- form_widget(form.text_val, {'attr': {
-        'style': 'display:none'
-      }}) -}}
+      {% for fieldName in ['bool_val', 'date_val', 'float_val', 'int_val', 'string_val', 'text_val'] %}
+        {{- form_widget(form[fieldName], {
+          'label_attr': {
+            'class': 'hidden'
+          },
+          'attr': {
+            'style': 'display:none'
+          }
+        }) -}}
+      {% endfor %}
     </div>
   </div>
 {%- endblock gdbots_pbjx_dynamic_field_widget %}
@@ -127,14 +124,24 @@
 {% block gdbots_pbjx_key_value_widget -%}
   <div class="row">
     <div class="col-md-6">
-      {{- form_widget(form.key, {'attr': {
-        'placeholder': 'Key'|trans
-      }}) -}}
+      {{- form_row(form.key, {
+        'label_attr': {
+          'class': 'hidden'
+        },
+        'attr': {
+          'placeholder': 'Key'|trans
+        }
+      }) -}}
     </div>
     <div class="col-md-6">
-      {{- form_widget(form.value, {'attr': {
-        'placeholder': 'Value'|trans
-      }}) -}}
+      {{- form_row(form.value, {
+        'label_attr': {
+          'class': 'hidden'
+        },
+        'attr': {
+          'placeholder': 'Value'|trans
+        }
+      }) -}}
     </div>
   </div>
 {%- endblock gdbots_pbjx_key_value_widget %}
@@ -142,14 +149,24 @@
 {% block gdbots_pbjx_geo_point_widget -%}
   <div class="row">
     <div class="col-md-6">
-      {{- form_widget(form.latitude, {'attr': {
-        'placeholder': 'Latitude'|trans
-      }}) -}}
+      {{- form_widget(form.latitude, {
+        'label_attr': {
+          'class': 'hidden'
+        },
+        'attr': {
+          'placeholder': 'Latitude'|trans
+        }
+      }) -}}
     </div>
     <div class="col-md-6">
-      {{- form_widget(form.longitude, {'attr': {
-        'placeholder': 'Longitude'|trans
-      }}) -}}
+      {{- form_widget(form.longitude, {
+        'label_attr': {
+          'class': 'hidden'
+        },
+        'attr': {
+          'placeholder': 'Longitude'|trans
+        }
+      }) -}}
     </div>
   </div>
 {%- endblock gdbots_pbjx_geo_point_widget %}
