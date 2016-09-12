@@ -56,6 +56,10 @@
       {% if prototype_html is defined %}
         data-prototype="{{ prototype_html|escape }}"
       {% endif %}
+      data-page-component-module="bundles/gdbotspbjx/js/behaviors/collection"
+      data-page-component-options="{{ {
+        'widgetId': id
+      }|json_encode }}"
     >
       {% if form.children|length %}
         {% for child in form.children %}
@@ -74,14 +78,16 @@
       </button>
     {% endif %}
   </div>
-
-  {% include 'GdbotsPbjxBundle:Form/js:collection.js.twig' with {
-    'containerId': id
-  } %}
 {% endblock gdbots_pbjx_collection_widget -%}
 
 {% block gdbots_pbjx_dynamic_field_widget -%}
-  <div class="row" data-dynamic-field="{{ id }}">
+  <div class="row"
+    data-dynamic-field="{{ id }}"
+    data-page-component-module="bundles/gdbotspbjx/js/behaviors/dynamic-field"
+    data-page-component-options="{{ {
+      'widgetId': id
+    }|json_encode }}"
+  >
     <div class="col-md-5">
       {{- form_widget(form.name, {'attr': {
         'placeholder': 'Field Name'|trans
@@ -116,11 +122,6 @@
       }}) -}}
     </div>
   </div>
-
-    {% include 'GdbotsPbjxBundle:Form/js:dynamic-field.js.twig' with {
-      'widgetId': id,
-      'valueFieldId': form.value.vars.id
-    } %}
 {%- endblock gdbots_pbjx_dynamic_field_widget %}
 
 {% block gdbots_pbjx_geo_point_widget -%}
@@ -142,15 +143,15 @@
   {% if widget == 'single_text' %}
     {%- set attr = attr|merge({
       'placeholder': attr.placeholder|default('gdbots_pbjx.form.choose_date')|trans,
-      'readonly': attr.readonly|default(true)
+      'readonly': attr.readonly|default(true),
+      'data-page-component-module': 'bundles/gdbotspbjx/js/behaviors/date-range-picker',
+      'data-page-component-options': {
+        'widgetId': id,
+        'widgetType': type|default('datetime'),
+        'widgetOptions': js_options|default([])|raw,
+        'widgetCallback': js_callback|default('function(){}')|raw
+      }|json_encode
     }) -%}
-
-    {% include 'GdbotsPbjxBundle:Form/js:date-range-picker.js.twig' with {
-      'widgetId': id,
-      'widgetType': type,
-      'options': js_options,
-      'callback': js_callback
-    } %}
   {% endif %}
 
   {{ block('date_widget') }}
@@ -160,31 +161,34 @@
   {% if widget == 'single_text' %}
     {%- set attr = attr|merge({
       'placeholder': attr.placeholder|default('gdbots_pbjx.form.choose_date')|trans,
-      'readonly': attr.readonly|default(true)
+      'readonly': attr.readonly|default(true),
+      'data-page-component-module': 'bundles/gdbotspbjx/js/behaviors/date-range-picker',
+      'data-page-component-options': {
+        'widgetId': id,
+        'widgetType': type|default('datetime'),
+        'widgetOptions': js_options|default([])|raw,
+        'widgetCallback': js_callback|default('function(){}')|raw
+      }|json_encode
     }) -%}
-
-    {% include 'GdbotsPbjxBundle:Form/js:date-range-picker.js.twig' with {
-      'widgetId': id,
-      'widgetType': type,
-      'options': js_options,
-      'callback': js_callback
-    } %}
   {% endif %}
 
   {{ block('datetime_widget') }}
 {%- endblock gdbots_pbjx_datetime_picker_widget %}
 
 {% block gdbots_pbjx_switchery_widget -%}
+  {%- set attr = attr|merge({
+    'data-page-component-module': 'bundles/gdbotspbjx/js/behaviors/switchery',
+    'data-page-component-options': {
+      'widgetId': id,
+      'widgetOptions': js_options|default([])|raw,
+    }|json_encode
+  }) -%}
+
   {{ block('checkbox_widget') }}
 
   {% if js_options.className is defined and 'switchery' not in js_options.className %}
     {%- set js_options = js_options|merge({className: (js_options.className|default('') ~ ' switchery')|trim}) -%}
   {% endif %}
-
-  {% include 'GdbotsPbjxBundle:Form/js:switchery.js.twig' with {
-    'widgetId': id,
-    'options': js_options
-  } %}
 {%- endblock gdbots_pbjx_switchery_widget %}
 
 {# Macro #}
