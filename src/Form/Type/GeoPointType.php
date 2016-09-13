@@ -22,6 +22,9 @@ class GeoPointType extends AbstractType
         $builder
             ->add('latitude', NumberType::class, [
                 'required' => $options['required'],
+                'attr' => [
+                    'pattern' => '^-?\d*(\.\d+)?$'
+                ],
                 'constraints' => [
                     new Length([
                         'min' => -90,
@@ -31,6 +34,9 @@ class GeoPointType extends AbstractType
             ])
             ->add('longitude', NumberType::class, [
                 'required' => $options['required'],
+                'attr' => [
+                    'pattern' => '^-?\d*(\.\d+)?$'
+                ],
                 'constraints' => [
                     new Length([
                         'min' => -180,

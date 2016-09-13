@@ -14,6 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\Regex;
 
 class DynamicFieldType extends AbstractType
@@ -25,9 +26,11 @@ class DynamicFieldType extends AbstractType
     {
         $builder->addViewTransformer(new DynamicFieldToArrayTransformer());
 
-        // fixme: sub fields need proper options
         $builder
             ->add('name', TextType::class, [
+                'attr' => [
+                    'pattern' => '^[a-zA-Z_]{1}[a-zA-Z0-9_-]*$'
+                ],
                 'constraints' => [
                     new Regex([
                         'pattern' => '/^[a-zA-Z_]{1}[a-zA-Z0-9_-]*$/'
@@ -44,10 +47,23 @@ class DynamicFieldType extends AbstractType
                     'True' => true
                 ]
             ])
-            ->add('date_val', DatePickerType::class, ['format' => 'yyyy-MM-dd'])
-            ->add('float_val', NumberType::class)
+            ->add('date_val', DatePickerType::class, [
+                'format' => 'yyyy-MM-dd'
+            ])
+            ->add('float_val', NumberType::class, [
+                'attr' => [
+                    'pattern' => '^-?\d*(\.\d+)?$'
+                ]
+            ])
             ->add('int_val', IntegerType::class)
-            ->add('string_val', TextType::class)
+            ->add('string_val', TextType::class, [
+                'constraints' => [
+                    new Length([
+                        'min' => 0,
+                        'max' => 255
+                    ])
+                ]
+            ])
             ->add('text_val', TextareaType::class)
         ;
     }

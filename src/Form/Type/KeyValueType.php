@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Regex;
 
 class KeyValueType extends AbstractType
 {
@@ -20,6 +21,20 @@ class KeyValueType extends AbstractType
         $builder->addViewTransformer(new KeyValueToArrayTransformer());
 
         if (null === $options['allowed_keys']) {
+            if (!isset($options['key_options']['constraints'])) {
+                $options['key_options']['constraints'] = [];
+            }
+
+            $options['key_options']['constraints'][] = new Regex([
+                'pattern' => '/^[a-zA-Z_]{1}[a-zA-Z0-9_-]*$/'
+            ]);
+
+            if (!isset($options['key_options']['attr'])) {
+                $options['key_options']['attr'] = [];
+            }
+
+            $options['key_options']['attr']['pattern'] = '^[a-zA-Z_]{1}[a-zA-Z0-9_-]*$';
+
             $builder->add('key', $options['key_type'], $options['key_options']);
         } else {
             $builder->add('key', 'choice', array_merge(
