@@ -257,7 +257,7 @@
     {% endif %}
   {% endif %}
 
-  <div data-content="{{ name }}">
+  <div data-content="{{ name }}" class="mb-10">
     <div class="row {% if not allow_delete %} not-removable{% endif %}">
       <div class="col-md-{% if allow_delete %}11{% else %}12{% endif %}">
         {{ form_widget(form, {disabled: disabled}) }}
