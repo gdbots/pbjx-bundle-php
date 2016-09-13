@@ -81,93 +81,109 @@
 {% endblock gdbots_pbjx_collection_widget -%}
 
 {% block gdbots_pbjx_dynamic_field_widget -%}
-  <div class="row"
+  <div
     data-dynamic-field="{{ id }}"
     data-page-component-module="bundles/gdbotspbjx/js/behaviors/dynamic-field"
     data-page-component-options="{{ {
       'widgetId': id
     }|json_encode }}"
   >
-    <div class="col-md-5">
+    <div class="input-group">
       {{- form_row(form.name, {
         'label_attr': {
           'class': 'hidden'
         },
         'attr': {
-          'placeholder': 'Field Name'|trans
+          'placeholder': 'Field Name'|trans,
+          'class': 'no-border-right no-border-radius-right'
         }
       }) -}}
-    </div>
-    <div class="col-md-2">
-      {{- form_widget(form.kind, {'attr': {
-        'class': 'js-dynamic-field-kind'
-      }}) -}}
-    </div>
-    <div class="col-md-5 js-dynamic-field-value-options">
+      <span class="input-group-addon">:</span>
+      {{- form_row(form.kind, {
+        'label_attr': {
+          'class': 'hidden'
+        },
+        'attr': {
+          'class': 'no-border-left no-border-right no-border-radius-right js-dynamic-field-kind'
+        }
+      }) -}}
+      <span class="input-group-addon">:</span>
       {{- form_widget(form.value, {'attr': {
         'class': 'js-dynamic-field-value'
       }}) -}}
-      {% for fieldName in ['bool_val', 'date_val', 'float_val', 'int_val', 'string_val', 'text_val'] %}
-        {{- form_widget(form[fieldName], {
-          'label_attr': {
-            'class': 'hidden'
-          },
-          'attr': {
-            'style': 'display:none'
-          }
-        }) -}}
+      {% for fieldName in ['bool_val', 'date_val', 'float_val', 'int_val', 'string_val'] %}
+        <div class="js-dynamic-field-option" style="display:none">
+          {{- form_row(form[fieldName], {
+            'label_attr': {
+              'class': 'hidden'
+            },
+            'attr': {
+              'class': 'no-border-left'
+            }
+          }) -}}
+        </div>
       {% endfor %}
+      </span>
+    </div>
+
+    <div class="js-dynamic-field-option" style="display:none">
+      {{- form_row(form.text_val, {
+        'label_attr': {
+          'class': 'hidden'
+        },
+        'attr': {
+          'class': 'no-border-top no-border-radius-top'
+        }
+      }) -}}
     </div>
   </div>
 {%- endblock gdbots_pbjx_dynamic_field_widget %}
 
 {% block gdbots_pbjx_key_value_widget -%}
-  <div class="row">
-    <div class="col-md-6">
-      {{- form_row(form.key, {
-        'label_attr': {
-          'class': 'hidden'
-        },
-        'attr': {
-          'placeholder': 'Key'|trans
-        }
-      }) -}}
-    </div>
-    <div class="col-md-6">
-      {{- form_row(form.value, {
-        'label_attr': {
-          'class': 'hidden'
-        },
-        'attr': {
-          'placeholder': 'Value'|trans
-        }
-      }) -}}
-    </div>
+  <div class="input-group">
+    {{- form_row(form.key, {
+      'label_attr': {
+        'class': 'hidden'
+      },
+      'attr': {
+        'placeholder': 'Key'|trans,
+        'class': 'no-border-right no-border-radius-right'
+      }
+    }) -}}
+    <span class="input-group-addon">:</span>
+    {{- form_row(form.value, {
+      'label_attr': {
+        'class': 'hidden'
+      },
+      'attr': {
+        'placeholder': 'Value'|trans,
+        'class': 'no-border-left'
+      }
+    }) -}}
   </div>
 {%- endblock gdbots_pbjx_key_value_widget %}
 
 {% block gdbots_pbjx_geo_point_widget -%}
-  <div class="row">
-    <div class="col-md-6">
-      {{- form_widget(form.latitude, {
-        'label_attr': {
-          'class': 'hidden'
-        },
-        'attr': {
-          'placeholder': 'Latitude'|trans
-        }
-      }) -}}
-    </div>
-    <div class="col-md-6">
-      {{- form_widget(form.longitude, {
-        'label_attr': {
-          'class': 'hidden'
-        },
-        'attr': {
-          'placeholder': 'Longitude'|trans
-        }
-      }) -}}
-    </div>
+  <div class="input-group">
+    {{- form_row(form.latitude, {
+      'label_attr': {
+        'class': 'hidden'
+      },
+      'attr': {
+        'placeholder': 'Latitude'|trans,
+        'class': 'no-border-right no-border-radius-right'
+      }
+    }) -}}
+    <span class="input-group-addon">:</span>
+    {{- form_row(form.longitude, {
+      'label_attr': {
+        'class': 'hidden'
+      },
+      'attr': {
+        'placeholder': 'Longitude'|trans,
+        'class': 'no-border-left'
+      }
+    }) -}}
   </div>
 {%- endblock gdbots_pbjx_geo_point_widget %}
 

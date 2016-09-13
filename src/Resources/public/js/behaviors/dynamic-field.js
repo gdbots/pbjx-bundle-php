@@ -26,17 +26,20 @@ function ($) {
    * @protected
    */
   var _bindEvent = function() {
-    this.$el.find('.js-dynamic-field-kind').on('change', function() {
-      $(this).closest('.row').find('.js-dynamic-field-value-options :input:not(.js-dynamic-field-value)').hide();
+    var self = this;
 
-      var $field = $(this).closest('.row').find('.js-dynamic-field-value-options :input[id$=_' + $(this).val() + ']');
+    self.$el.find('.js-dynamic-field-kind').on('change', function() {
+      self.$el.find('.js-dynamic-field-option').hide();
+      self.$el.find('.js-dynamic-field-option :input').attr('disabled', true)
+
+      var $field = $(this).closest('.row').find('.js-dynamic-field-option :input[id$=_' + $(this).val() + ']');
       $field.off('change');
       $field.on('change', function() {
-        $(this).closest('.js-dynamic-field-value-options')
-          .find('.js-dynamic-field-value')
+        self.$el.find('.js-dynamic-field-value')
           .val($(this).val());
       });
-      $field.show().change();
+      $field.attr('disabled', false).change();
+      $field.closest('.js-dynamic-field-option').show();
     })
 
     // run on load first time
