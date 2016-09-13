@@ -8,9 +8,7 @@ use Symfony\Component\Form\Test\TypeTestCase;
 
 class DateTimePickerTypeTest extends TypeTestCase
 {
-    /**
-     * @var DateTimePickerType
-     */
+    /** @var DateTimePickerType */
     private $type;
 
     protected function setUp()

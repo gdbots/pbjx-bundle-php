@@ -8,9 +8,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CollectionTypeTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @var CollectionType
-     */
+    /** @var CollectionType */
     protected $type;
 
     /**
