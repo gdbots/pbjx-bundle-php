@@ -19,7 +19,7 @@ class DateTimePickerType extends DatePickerType
             return array_merge($previousValue, [
                 'timePicker' => true,
                 'timePickerIncrement' => 15,
-                'locale' => ['format' => 'MM/DD/YYYY h:mm a']
+                'locale' => ['format' => 'YYYY-MM-DDTHH:mm:ss.SSSSSS\Z']
             ]);
         });
     }
