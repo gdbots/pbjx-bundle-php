@@ -44,7 +44,7 @@ class DateTimePickerTypeTest extends TypeTestCase
                 'autoApply' => true,
                 'timePicker' => true,
                 'timePickerIncrement' => 15,
-                'locale' => ['format' => 'MM/DD/YYYY h:mm a'],
+                'locale' => ['format' => 'YYYY-MM-DDTHH:mm:ss.SSSSSS\Z'],
                 'opens' => 'left',
                 'applyClass' => 'bg-slate',
                 'cancelClass' => 'btn-default'
