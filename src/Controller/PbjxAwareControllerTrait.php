@@ -4,6 +4,7 @@ namespace Gdbots\Bundle\PbjxBundle\Controller;
 
 use Gdbots\Pbj\Message;
 use Gdbots\Pbjx\Pbjx;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -44,7 +45,13 @@ trait PbjxAwareControllerTrait
     {
         /** @var FormInterface $form */
         $form = $this->container->get('form.factory')->create($type, $input, $options);
-        $form->handleRequest($request);
+
+        try {
+            $form->handleRequest($request);
+        } catch (\Exception $e) {
+            $form->addError(new FormError($e->getMessage()));
+        }
+
         $request->attributes->set('pbjx_input', $form->getData() ?: []);
         return $form;
     }
