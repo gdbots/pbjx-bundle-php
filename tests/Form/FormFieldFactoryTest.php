@@ -3,8 +3,13 @@
 namespace Gdbots\Tests\Bundle\PbjxBundle\Form;
 
 use Gdbots\Bundle\PbjxBundle\Form\FormFieldFactory;
+use Gdbots\Bundle\PbjxBundle\Form\FormField;
+use Gdbots\Bundle\PbjxBundle\Form\Type;
+use Gdbots\Pbj\Enum\Format;
+use Gdbots\Pbj\FieldBuilder as Fb;
 use Gdbots\Pbj\Field;
 use Gdbots\Pbj\Type as T;
+use Symfony\Component\Form\Extension\Core\Type as sfT;
 
 class FormFieldFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -27,8 +32,13 @@ class FormFieldFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testSupports($name, T\Type $type, $className = null)
     {
-        $pbjField = new Field($name, $type, null, false, null, null, null, null, null, null, 10, 2, null, true, $className);
-        $this->assertTrue($this->formFieldFactory->supports($pbjField));
+        $fb = Fb::create($name, $type);
+
+        if ($className) {
+            $fb->className($className);
+        }
+
+        $this->assertTrue($this->formFieldFactory->supports($fb->build()));
     }
 
     public function supportsDataProvider()
@@ -67,6 +77,62 @@ class FormFieldFactoryTest extends \PHPUnit_Framework_TestCase
             ['name' => 'tiny_int', 'type' => T\TinyIntType::create()],
             ['name' => 'trinary', 'type' => T\TrinaryType::create()],
             ['name' => 'uuid', 'type' => T\UuidType::create()]
+        ];
+    }
+
+    /**
+     * @dataProvider createDataProvider
+     *
+     * @param Field  $pbjField
+     * @param string $type
+     * @param array  $options
+     */
+    public function testCreate(Field $pbjField, $type, array $options = [])
+    {
+        $formField = $this->formFieldFactory->create($pbjField);
+        $formFieldOptions = $formField->getOptions();
+
+        $this->assertEquals($type, $formField->getType());
+
+        foreach ($options as $key => $value) {
+            if (is_array($value)) {
+                $this->assertTrue(isset($formFieldOptions[$key]));
+
+                foreach ($value as $k => $v) {
+                    $this->assertEquals($v, $formFieldOptions[$key][$k]);
+                }
+
+                continue;
+            }
+
+            $this->assertEquals($value, $formFieldOptions[$key]);
+        }
+    }
+
+    public function createDataProvider()
+    {
+        return [
+            [
+                'pbjField' => Fb::create('string', T\StringType::create())->build(),
+                'type' => sfT\TextType::class
+            ],
+            [
+                'pbjField' => Fb::create('boolean', T\BooleanType::create())->build(),
+                'type' => Type\SwitcheryType::class
+            ],
+            [
+                'pbjField' => Fb::create('emails', T\StringType::create())
+                                ->format(Format::EMAIL())
+                                ->asAMap()
+                                ->build(),
+                'type' => Type\CollectionType::class,
+                'options' => [
+                    'entry_type' => Type\KeyValueType::class,
+                    'entry_options' => [
+                        'value_type' => sfT\EmailType::class
+                    ]
+                ]
+            ]
         ];
     }
 }
