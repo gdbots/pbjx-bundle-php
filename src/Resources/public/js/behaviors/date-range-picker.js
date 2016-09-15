@@ -2,9 +2,6 @@
   Require libraries:
     - http://momentjs.com/
     - http://www.daterangepicker.com/
-
-  fixme: this generates a massive prototype in a div attribute, could be made simpler
-  fixme: a date doesn't need utc conversion and must always be YYYY-MM-DD
 */
 
 define(
@@ -58,9 +55,22 @@ function ($, moment) {
         return;
       }
 
+      var startDate = moment().seconds(0);
+      var minutes = startDate.minutes();
+      if (minutes < 60) startDate.minutes(45);
+      if (minutes < 45) startDate.minutes(30);
+      if (minutes < 30) startDate.minutes(15);
+      if (minutes < 15) startDate.minutes(0);
+
+      if ('' !== $picker.val()) {
+        startDate = self.options.widgetType == 'date'
+          ? $picker.val()
+          : moment.utc($picker.val()).local()
+      }
+
       $picker.daterangepicker(
         $.extend(true, self.options.widgetOptions, {
-          'startDate': '' !== $picker.val() ? moment.utc($picker.val()).local() : moment()
+          'startDate': startDate
         }),
         self.options.widgetCallback
       );
