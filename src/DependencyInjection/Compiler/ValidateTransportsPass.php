@@ -26,6 +26,10 @@ class ValidateTransportsPass implements CompilerPassInterface
                     $this->validateInMemoryTransport($container);
                     break;
 
+                case 'firehose':
+                    $this->validateFirehoseTransport($container);
+                    break;
+
                 case 'gearman':
                     $this->validateGearmanTransport($container);
                     break;
@@ -67,6 +71,30 @@ class ValidateTransportsPass implements CompilerPassInterface
     private function validateInMemoryTransport(ContainerBuilder $container)
     {
         // nothing to check
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     *
+     * @throws \LogicException
+     */
+    private function validateFirehoseTransport(ContainerBuilder $container)
+    {
+        if (!$container->hasDefinition('gdbots_pbjx.transport.firehose_router')) {
+            throw new \LogicException(
+                'The service "gdbots_pbjx.transport.firehose" has a dependency on a non-existent ' .
+                'service "gdbots_pbjx.transport.firehose_router". You must define this in your app ' .
+                'since it requires a delivery stream name which may be message specific.'
+            );
+        }
+
+        if (!$container->hasDefinition('aws.firehose')) {
+            throw new \LogicException(
+                'The service "gdbots_pbjx.transport.firehose" has a dependency on a non-existent ' .
+                'service "aws.firehose". This expects the Firehose Client that comes from ' .
+                'composer package "aws/aws-sdk-php-symfony": "~1.0".'
+            );
+        }
     }
 
     /**

@@ -44,6 +44,12 @@
       <argument>%gdbots_pbjx.pbjx_controller.allow_get_request%</argument>
     </service>
 
+    <service id="gdbots_pbjx.pbjx_receive_controller" class="Gdbots\Bundle\PbjxBundle\Controller\PbjxReceiveController">
+      <argument type="service" id="gdbots_pbjx.service_locator"/>
+      <argument>%gdbots_pbjx.pbjx_receive_controller.receive_key%</argument>
+      <argument>%gdbots_pbjx.pbjx_receive_controller.enabled%</argument>
+    </service>
+
     <service id="gdbots_pbjx.envelope_listener" class="Gdbots\Bundle\PbjxBundle\EventListener\EnvelopeListener">
       <argument type="service" id="pbjx"/>
       <argument type="service" id="logger" on-invalid="ignore"/>
@@ -63,6 +69,12 @@
       <argument>%gdbots_pbjx.transport.gearman.servers%</argument>
       <argument>%gdbots_pbjx.transport.gearman.timeout%</argument>
       <argument type="service" id="gdbots_pbjx.transport.gearman_router"/>
+    </service>
+
+    <service id="gdbots_pbjx.transport.firehose" class="Gdbots\Pbjx\Transport\FirehoseTransport">
+      <argument type="service" id="gdbots_pbjx.service_locator"/>
+      <argument type="service" id="aws.firehose" on-invalid="ignore"/>
+      <argument type="service" id="gdbots_pbjx.transport.firehose_router" on-invalid="ignore"/>
     </service>
 
     <service id="gdbots_pbjx.transport.gearman_router" class="Gdbots\Pbjx\Transport\GearmanRouter">

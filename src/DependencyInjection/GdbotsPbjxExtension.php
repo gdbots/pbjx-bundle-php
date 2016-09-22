@@ -25,6 +25,9 @@ class GdbotsPbjxExtension extends Extension
 
         $container->setParameter('gdbots_pbjx.pbjx_controller.allow_get_request', $config['pbjx_controller']['allow_get_request']);
 
+        $container->setParameter('gdbots_pbjx.pbjx_receive_controller.enabled', $config['pbjx_receive_controller']['enabled']);
+        $container->setParameter('gdbots_pbjx.pbjx_receive_controller.receive_key', $config['pbjx_receive_controller']['receive_key']);
+
         $container->setParameter('gdbots_pbjx.command_bus.transport', $config['command_bus']['transport']);
         $container->setParameter('gdbots_pbjx.event_bus.transport', $config['event_bus']['transport']);
         $container->setParameter('gdbots_pbjx.request_bus.transport', $config['request_bus']['transport']);
