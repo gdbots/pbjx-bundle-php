@@ -25,8 +25,8 @@ use Symfony\Component\Intl\Exception\NotImplementedException;
  * An endpoint to receive a transport envelope.  This is typically not used externally as it
  * would be a security hole to allow unauthorized clients to submit their own messages.
  *
- * The 'gdbots_pbjx.receive_key' is used to authorize this endpoint.  The key should be
- * provided as header "x-pbjx-receieve-key: YOUR_KEY".
+ * The 'gdbots_pbjx.pbjx_receive_controller.receive_key' container parameter is used to authorize this endpoint.
+ * The key should be provided as header "x-pbjx-receive-key: YOUR_KEY".
  *
  * However, it is still highly recommended to limit the access to this endpoint.
  *
