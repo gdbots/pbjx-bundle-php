@@ -18,7 +18,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
-use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 use Symfony\Component\Intl\Exception\NotImplementedException;
 
 /**
@@ -66,19 +65,8 @@ class PbjxReceiveController
             throw new AccessDeniedHttpException('The receive endpoint is not enabled.', null, Code::PERMISSION_DENIED);
         }
 
-        if (empty($this->receiveKey) || $this->receiveKey !== $request->headers->get('x-pbjx-receieve-key')) {
+        if (empty($this->receiveKey) || $this->receiveKey !== $request->headers->get('x-pbjx-receive-key')) {
             throw new AccessDeniedHttpException('Receive key is not valid.', null, Code::UNAUTHENTICATED);
-        }
-
-        if (0 !== strpos($request->headers->get('Content-Type'), 'application/x-www-form-urlencoded')) {
-            throw new NotAcceptableHttpException(
-                sprintf(
-                    'This service supports [application/x-www-form-urlencoded], you provided [%s].',
-                    $request->headers->get('Content-Type')
-                ),
-                null,
-                Code::INVALID_ARGUMENT
-            );
         }
 
         $handle = $request->getContent(true);
@@ -118,14 +106,14 @@ class PbjxReceiveController
                 ++$data['lines']['ok'];
                 $result['ok'] = true;
                 $result['code'] = Code::OK;
-                $result['message_ref'] = $message->generateMessageRef();
+                $result['message_ref'] = $message->generateMessageRef()->toString();
 
             } catch (\Exception $e) {
                 ++$data['lines']['failed'];
                 $this->handleException($result, $e);
 
                 if ($message instanceof Message) {
-                    $result['message_ref'] = $message->generateMessageRef();
+                    $result['message_ref'] = $message->generateMessageRef()->toString();
                 }
             }
 
