@@ -1,0 +1,16 @@
+"Field Name": Field Name
+Latitude: Latitude
+Longitude: Longitude
+
+gdbots_pbjx:
+  form:
+    choose_date: Choose a date
+    collection:
+      add: Add
+      remove: Remove
+    date_picker:
+      clear: Clear Date
+    trinary:
+      unknown: Unknown
+      true_val: "True"
+      false_val: "False"

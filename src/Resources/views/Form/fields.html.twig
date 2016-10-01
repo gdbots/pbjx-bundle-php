@@ -1,0 +1,275 @@
+{% use 'bootstrap_3_layout.html.twig' %}
+
+{# Rows #}
+
+{% block gdbots_pbjx_date_picker_row -%}
+  {% if widget == 'single_text' %}
+    <div class="form-group{% if force_error|default(false) and not valid %} has-error{% endif %}">
+      {{- form_label(form) -}}
+      <div class="input-group">
+        <div class="input-group-addon"><i class="{{ group_icon|default('icon-calendar22') }}"></i></div>
+        {{- form_widget(form) -}}
+        <div class="input-group-btn">
+          <button type="button" class="btn btn-default js-clear-btn" data-target="#{{ form.vars.id }}" title="{{ form.vars.clear_label|default('gdbots_pbjx.form.date_picker.clear')|trans }}"><i class="{{ clear_icon|default('icon-cross2') }}"></i></button>
+        </div>
+      </div>
+      {{- form_errors(form) -}}
+    </div>
+  {% else %}
+    {{ block('date_row') }}
+  {% endif %}
+{%- endblock gdbots_pbjx_date_picker_row %}
+
+{% block gdbots_pbjx_datetime_picker_row -%}
+  {% if widget == 'single_text' %}
+    <div class="form-group{% if force_error|default(false) and not valid %} has-error{% endif %}">
+      {{- form_label(form) -}}
+      <div class="input-group">
+        <div class="input-group-addon"><i class="{{ group_icon|default('icon-calendar22') }}"></i></div>
+        {{- form_widget(form) -}}
+        <div class="input-group-btn">
+          <button type="button" class="btn btn-default js-clear-btn" data-target="#{{ form.vars.id }}" title="{{ form.vars.clear_label|default('gdbots_pbjx.form.date_picker.clear')|trans }}"><i class="{{ clear_icon|default('icon-cross2') }}"></i></button>
+        </div>
+      </div>
+      {{- form_errors(form) -}}
+    </div>
+  {% else %}
+    {{ block('datetime_row') }}
+  {% endif %}
+{%- endblock gdbots_pbjx_datetime_picker_row %}
+
+{# Widgets #}
+
+{% block gdbots_pbjx_collection_widget -%}
+  {% if prototype is defined %}
+    {% set prototype_html = _self.collection_item_prototype(form) %}
+  {% endif %}
+
+  {% set id = id ~ '_collection' %}
+  {% set prototype_name = form.vars.prototype_name %}
+
+  <div class="row-collection">
+    <div {{ block('widget_container_attributes') }}
+      data-last-index="{{ form.children|length}}"
+      data-row-count-add="{{ form.vars.row_count_add }}"
+      data-prototype-name="{{ prototype_name }}"
+      {% if prototype_html is defined %}
+        data-prototype="{{ prototype_html|escape }}"
+      {% endif %}
+      data-page-component-module="bundles/gdbotspbjx/js/behaviors/collection"
+      data-page-component-options="{{ {
+        'widgetId': id
+      }|json_encode }}"
+    >
+      {% if form.children|length %}
+        {% for child in form.children %}
+          {{ _self.collection_item_prototype(child) }}
+        {% endfor %}
+      {% elseif show_form_when_empty and prototype_html is defined %}
+        {% for i in 0..(form.vars.row_count_initial - 1) %}
+          {{ prototype_html|replace({(prototype_name): i})|raw }}
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    {% if allow_add %}
+      <button class="btn btn-action js-btn-add-collection-item-btn" type="button">
+        <i class="{{ form.vars.add_icon|default('icon-plus2') }}"></i> {{ form.vars.add_label|default('gdbots_pbjx.form.collection.add')|trans }}
+      </button>
+    {% endif %}
+  </div>
+{% endblock gdbots_pbjx_collection_widget -%}
+
+{% block gdbots_pbjx_dynamic_field_widget -%}
+  <div
+    data-dynamic-field="{{ id }}"
+    data-page-component-module="bundles/gdbotspbjx/js/behaviors/dynamic-field"
+    data-page-component-options="{{ {
+      'widgetId': id
+    }|json_encode }}"
+  >
+    <div class="input-group">
+      {{- form_row(form.name, {
+        'label_attr': {
+          'class': 'hidden'
+        },
+        'attr': {
+          'placeholder': 'Field Name'|trans,
+          'class': 'no-border-right no-border-radius-right'
+        }
+      }) -}}
+      <span class="input-group-addon">:</span>
+      {{- form_row(form.kind, {
+        'label_attr': {
+          'class': 'hidden'
+        },
+        'attr': {
+          'class': 'no-border-left no-border-right no-border-radius-right js-dynamic-field-kind'
+        }
+      }) -}}
+      <span class="input-group-addon">:</span>
+      {{- form_widget(form.value, {'attr': {
+        'class': 'js-dynamic-field-value'
+      }}) -}}
+      {% for fieldName in ['bool_val', 'date_val', 'float_val', 'int_val', 'string_val'] %}
+        <div class="js-dynamic-field-option" style="display:none">
+          {{- form_row(form[fieldName], {
+            'label_attr': {
+              'class': 'hidden'
+            },
+            'attr': {
+              'class': 'no-border-left'
+            }
+          }) -}}
+        </div>
+      {% endfor %}
+      </span>
+    </div>
+
+    <div class="js-dynamic-field-option" style="display:none">
+      {{- form_row(form.text_val, {
+        'label_attr': {
+          'class': 'hidden'
+        },
+        'attr': {
+          'class': 'no-border-top no-border-radius-top'
+        }
+      }) -}}
+    </div>
+  </div>
+{%- endblock gdbots_pbjx_dynamic_field_widget %}
+
+{% block gdbots_pbjx_key_value_widget -%}
+  <div class="input-group">
+    {{- form_row(form.key, {
+      'label_attr': {
+        'class': 'hidden'
+      },
+      'attr': {
+        'placeholder': 'Key'|trans,
+        'class': 'no-border-right no-border-radius-right'
+      }
+    }) -}}
+    <span class="input-group-addon">:</span>
+    {{- form_row(form.value, {
+      'label_attr': {
+        'class': 'hidden'
+      },
+      'attr': {
+        'placeholder': 'Value'|trans,
+        'class': 'no-border-left'
+      }
+    }) -}}
+  </div>
+{%- endblock gdbots_pbjx_key_value_widget %}
+
+{% block gdbots_pbjx_geo_point_widget -%}
+  <div class="input-group">
+    {{- form_row(form.latitude, {
+      'label_attr': {
+        'class': 'hidden'
+      },
+      'attr': {
+        'placeholder': 'Latitude'|trans,
+        'class': 'no-border-right no-border-radius-right'
+      }
+    }) -}}
+    <span class="input-group-addon">:</span>
+    {{- form_row(form.longitude, {
+      'label_attr': {
+        'class': 'hidden'
+      },
+      'attr': {
+        'placeholder': 'Longitude'|trans,
+        'class': 'no-border-left'
+      }
+    }) -}}
+  </div>
+{%- endblock gdbots_pbjx_geo_point_widget %}
+
+{% block gdbots_pbjx_date_picker_widget -%}
+  {% if widget == 'single_text' %}
+    {%- set attr = attr|merge({
+      'placeholder': attr.placeholder|default('gdbots_pbjx.form.choose_date')|trans,
+      'readonly': attr.readonly|default(true),
+      'data-page-component-module': 'bundles/gdbotspbjx/js/behaviors/date-range-picker',
+      'data-page-component-options': {
+        'widgetId': id,
+        'widgetType': type|default('datetime'),
+        'widgetOptions': js_options|default([])|raw,
+        'widgetCallback': js_callback|default('function(){}')|raw
+      }|json_encode
+    }) -%}
+  {% endif %}
+
+  {{ block('date_widget') }}
+{%- endblock gdbots_pbjx_date_picker_widget %}
+
+{% block gdbots_pbjx_datetime_picker_widget -%}
+  {% if widget == 'single_text' %}
+    {%- set attr = attr|merge({
+      'placeholder': attr.placeholder|default('gdbots_pbjx.form.choose_date')|trans,
+      'readonly': attr.readonly|default(true),
+      'data-page-component-module': 'bundles/gdbotspbjx/js/behaviors/date-range-picker',
+      'data-page-component-options': {
+        'widgetId': id,
+        'widgetType': type|default('datetime'),
+        'widgetOptions': js_options|default([])|raw,
+        'widgetCallback': js_callback|default('function(){}')|raw
+      }|json_encode
+    }) -%}
+  {% endif %}
+
+  {{ block('datetime_widget') }}
+{%- endblock gdbots_pbjx_datetime_picker_widget %}
+
+{% block gdbots_pbjx_switchery_widget -%}
+  {%- set attr = attr|merge({
+    'data-page-component-module': 'bundles/gdbotspbjx/js/behaviors/switchery',
+    'data-page-component-options': {
+      'widgetId': id,
+      'widgetOptions': js_options|default([])|raw,
+    }|json_encode
+  }) -%}
+
+  {{ block('checkbox_widget') }}
+
+  {% if js_options.className is defined and 'switchery' not in js_options.className %}
+    {%- set js_options = js_options|merge({className: (js_options.className|default('') ~ ' switchery')|trim}) -%}
+  {% endif %}
+{%- endblock gdbots_pbjx_switchery_widget %}
+
+{# Macro #}
+
+{% macro collection_item_prototype(widget) %}
+  {% if 'collection' in widget.vars.block_prefixes %}
+    {% set form = widget.vars.prototype %}
+    {% set name = widget.vars.prototype.vars.name %}
+    {% set disabled = widget.vars.disabled %}
+    {% set allow_delete = widget.vars.allow_delete %}
+  {% else %}
+    {% set form = widget %}
+    {% set name = widget.vars.full_name %}
+    {% set disabled = widget.parent.vars.disabled %}
+    {% set allow_delete = widget.parent.vars.allow_delete %}
+    {% if widget.vars.allow_delete is defined %}
+      {% set allow_delete = allow_delete and widget.vars.allow_delete %}
+    {% endif %}
+  {% endif %}
+
+  <div data-content="{{ name }}" class="mb-10">
+    <div class="row {% if not allow_delete %} not-removable{% endif %}">
+      <div class="col-md-{% if allow_delete %}11{% else %}12{% endif %}">
+        {{ form_widget(form, {disabled: disabled}) }}
+      </div>
+
+      {% if allow_delete %}
+        <div class="col-md-1">
+          <button class="btn btn-action btn-link js-btn-remove-collection-item-btn" type="button" data-related="{{ name }}">
+            <i class="{{ form.vars.remove_icon|default('icon-minus2') }}"></i> {{ form.vars.remove_label|default('gdbots_pbjx.form.collection.remove')|trans }}
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endmacro collection_item_prototype %}
