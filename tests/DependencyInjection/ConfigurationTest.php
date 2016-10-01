@@ -50,6 +50,10 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
             'pbjx_controller' => [
                 'allow_get_request' => false
             ],
+            'pbjx_receive_controller' => [
+                'enabled' => false,
+                'receive_key' => null
+            ],
             'command_bus' => [
                 'transport' => 'in_memory'
             ],
