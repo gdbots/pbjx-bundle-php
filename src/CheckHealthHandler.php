@@ -33,7 +33,7 @@ class CheckHealthHandler implements CommandHandler
     {
         $event = HealthCheckedV1::create()->set('msg', $command->get('msg'));
         $pbjx->copyContext($command, $event)->publish($event);
-        $this->logger->info('CheckHealthHandler published event [{pbj_schema}] with message [{msg}].', [
+        $this->logger->info('CheckHealthHandler published [{pbj_schema}] with message [{msg}].', [
             'msg' => $event->get('msg'),
             'pbj_schema' => $event::schema()->getId()->toString(),
             'pbj' => $event->toArray(),
