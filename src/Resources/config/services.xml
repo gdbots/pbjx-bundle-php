@@ -145,6 +145,14 @@
     <!-- end: binders -->
 
 
+    <!-- start: command handlers -->
+    <service id="gdbots_pbjx.check_health_handler" class="Gdbots\Bundle\PbjxBundle\CheckHealthHandler">
+      <argument type="service" id="logger" on-invalid="ignore"/>
+      <tag name="monolog.logger" channel="pbjx"/>
+    </service>
+    <!-- end: command handlers -->
+
+
     <!-- start: request handlers -->
     <service id="gdbots_pbjx.echo_request_handler" class="Gdbots\Bundle\PbjxBundle\EchoRequestHandler"/>
     <!-- end: request handlers -->
