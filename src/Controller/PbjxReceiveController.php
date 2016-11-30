@@ -2,7 +2,6 @@
 
 namespace Gdbots\Bundle\PbjxBundle\Controller;
 
-use Gdbots\Bundle\PbjxBundle\Util\StatusCodeConverter;
 use Gdbots\Common\Util\ClassUtils;
 use Gdbots\Pbj\Exception\GdbotsPbjException;
 use Gdbots\Pbj\Exception\HasEndUserMessage;
@@ -10,6 +9,7 @@ use Gdbots\Pbj\Message;
 use Gdbots\Pbjx\Exception\RequestHandlingFailed;
 use Gdbots\Pbjx\ServiceLocator;
 use Gdbots\Pbjx\Transport\TransportEnvelope;
+use Gdbots\Pbjx\Util\StatusCodeConverter;
 use Gdbots\Schemas\Pbjx\Enum\Code;
 use Gdbots\Schemas\Pbjx\Mixin\Command\Command;
 use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
