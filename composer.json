@@ -5,11 +5,11 @@
   "type": "library",
   "license": "Apache-2.0",
   "require": {
-    "php": ">=5.6",
+    "php": ">=7.0",
     "gdbots/pbj": "~1.1",
     "gdbots/pbjx": "dev-es as 1.0.0",
     "gdbots/schemas": "dev-es as 1.0.0",
-    "symfony/symfony": "~3.1"
+    "symfony/symfony": "~3.2"
   },
   "require-dev": {
     "composer/composer": "1.0.*@dev",

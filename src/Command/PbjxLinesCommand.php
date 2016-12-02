@@ -29,8 +29,8 @@ class PbjxLinesCommand extends ContainerAwareCommand
             ->setName('pbjx:lines')
             ->setDescription('Reads messages from a newline-delimited JSON file and processes them.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will read messages (pbj commands or events) from a newline-delimited JSON file 
-and run pbjx->send or pbjx->publish.
+The <info>%command.name%</info> command will read messages (pbj commands or events) from a 
+newline-delimited JSON file and run pbjx->send or pbjx->publish.
 
 <info>php %command.full_name% --dry-run /path/to/file/message.jsonl</info>
 

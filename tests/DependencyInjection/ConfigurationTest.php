@@ -47,6 +47,9 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     protected static function getBundleDefaultConfig()
     {
         return [
+            'service_locator' => [
+                'class' => 'Gdbots\Bundle\PbjxBundle\ContainerAwareServiceLocator',
+            ],
             'pbjx_controller' => [
                 'allow_get_request' => false
             ],
