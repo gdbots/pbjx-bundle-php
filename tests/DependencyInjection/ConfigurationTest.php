@@ -54,6 +54,9 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
                 'enabled' => false,
                 'receive_key' => null
             ],
+            'handler_guesser' => [
+                'class' => 'Gdbots\Bundle\PbjxBundle\HandlerGuesser',
+            ],
             'command_bus' => [
                 'transport' => 'in_memory'
             ],

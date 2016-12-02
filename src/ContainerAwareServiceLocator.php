@@ -18,6 +18,7 @@ use Gdbots\Pbjx\Pbjx;
 use Gdbots\Pbjx\RequestBus;
 use Gdbots\Pbjx\RequestHandler;
 use Gdbots\Pbjx\Transport\Transport;
+use Psr\Log\LoggerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -25,6 +26,9 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
 {
     /** @var ContainerInterface */
     protected $container;
+
+    /** @var HandlerGuesser */
+    protected $handlerGuesser;
 
     /**
      * In some cases (console commands for example) we want to force
@@ -137,6 +141,7 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
     /**
      * @param SchemaCurie $curie
      * @return CommandHandler|RequestHandler
+     *
      * @throws HandlerNotFound
      */
     protected function getHandler(SchemaCurie $curie)
@@ -146,6 +151,19 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
         try {
             return $this->container->get($id);
         } catch (\Exception $e) {
+            /** @var CommandHandler|RequestHandler $className */
+            $className = $this->getHandlerGuesser()->guessHandler($curie);
+            if (class_exists($className)) {
+                /** @var CommandHandler|RequestHandler $handler */
+                $handler = new $className;
+
+                if ($handler instanceof LoggerAwareInterface) {
+                    $handler->setLogger($this->container->get('logger'));
+                }
+
+                return $handler;
+            }
+
             throw new HandlerNotFound($curie, $e);
         }
     }
@@ -163,7 +181,9 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
 
     /**
      * @param string $name name of the bus, one of command, event or request
+     *
      * @return Transport
+     *
      * @throws \Exception
      */
     protected function getTransportForBus($name)
@@ -176,6 +196,19 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
         if (empty($transport)) {
             return $this->getDefaultTransport();
         }
+
         return $this->container->get('gdbots_pbjx.transport.' . $transport);
+    }
+
+    /**
+     * @return HandlerGuesser
+     */
+    protected function getHandlerGuesser()
+    {
+        if (null === $this->handlerGuesser) {
+            $this->handlerGuesser = $this->container->get('gdbots_pbjx.handler_guesser');
+        }
+
+        return $this->handlerGuesser;
     }
 }

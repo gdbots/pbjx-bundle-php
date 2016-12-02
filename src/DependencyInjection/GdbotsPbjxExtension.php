@@ -23,10 +23,14 @@ class GdbotsPbjxExtension extends Extension
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
+        $container->setParameter('gdbots_pbjx.service_locator.class', $config['service_locator']['class']);
+
         $container->setParameter('gdbots_pbjx.pbjx_controller.allow_get_request', $config['pbjx_controller']['allow_get_request']);
 
         $container->setParameter('gdbots_pbjx.pbjx_receive_controller.enabled', $config['pbjx_receive_controller']['enabled']);
         $container->setParameter('gdbots_pbjx.pbjx_receive_controller.receive_key', $config['pbjx_receive_controller']['receive_key']);
+
+        $container->setParameter('gdbots_pbjx.handler_guesser.class', $config['handler_guesser']['class']);
 
         $container->setParameter('gdbots_pbjx.command_bus.transport', $config['command_bus']['transport']);
         $container->setParameter('gdbots_pbjx.event_bus.transport', $config['event_bus']['transport']);

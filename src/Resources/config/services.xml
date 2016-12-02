@@ -9,9 +9,11 @@
       <argument type="service" id="gdbots_pbjx.service_locator"/>
     </service>
 
-    <service id="gdbots_pbjx.service_locator" class="Gdbots\Bundle\PbjxBundle\ContainerAwareServiceLocator">
+    <service id="gdbots_pbjx.service_locator" class="%gdbots_pbjx.service_locator.class%">
       <argument type="service" id="service_container"/>
     </service>
+
+    <service id="gdbots_pbjx.handler_guesser" class="%gdbots_pbjx.handler_guesser.class%"/>
 
     <service id="gdbots_pbjx.event_dispatcher" class="Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher">
       <argument type="service" id="service_container"/>
@@ -143,19 +145,6 @@
       <tag name="pbjx.event_subscriber"/>
     </service>
     <!-- end: binders -->
-
-
-    <!-- start: command handlers -->
-    <service id="gdbots_pbjx.check_health_handler" class="Gdbots\Bundle\PbjxBundle\CheckHealthHandler">
-      <argument type="service" id="logger" on-invalid="ignore"/>
-      <tag name="monolog.logger" channel="pbjx"/>
-    </service>
-    <!-- end: command handlers -->
-
-
-    <!-- start: request handlers -->
-    <service id="gdbots_pbjx.echo_request_handler" class="Gdbots\Bundle\PbjxBundle\EchoRequestHandler"/>
-    <!-- end: request handlers -->
 
   </services>
 

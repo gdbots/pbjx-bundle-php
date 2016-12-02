@@ -7,23 +7,13 @@ use Gdbots\Pbjx\CommandHandlerTrait;
 use Gdbots\Pbjx\Pbjx;
 use Gdbots\Schemas\Pbjx\Command\CheckHealth;
 use Gdbots\Schemas\Pbjx\Event\HealthCheckedV1;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
-class CheckHealthHandler implements CommandHandler
+class CheckHealthHandler implements CommandHandler, LoggerAwareInterface
 {
     use CommandHandlerTrait;
-
-    /** @var LoggerInterface */
-    protected $logger;
-
-    /**
-     * @param LoggerInterface|null $logger
-     */
-    public function __construct(LoggerInterface $logger = null)
-    {
-        $this->logger = $logger ?: new NullLogger();
-    }
+    use LoggerAwareTrait;
 
     /**
      * @param CheckHealth $command
