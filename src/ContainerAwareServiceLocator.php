@@ -151,17 +151,11 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
         try {
             return $this->container->get($id);
         } catch (\Exception $e) {
+            $guesser = $this->getHandlerGuesser();
             /** @var CommandHandler|RequestHandler $className */
-            $className = $this->getHandlerGuesser()->guessHandler($curie);
+            $className = $guesser->guessHandler($curie);
             if (class_exists($className)) {
-                /** @var CommandHandler|RequestHandler $handler */
-                $handler = new $className;
-
-                if ($handler instanceof LoggerAwareInterface) {
-                    $handler->setLogger($this->container->get('logger'));
-                }
-
-                return $handler;
+                return $guesser->createHandler($curie, $className, $this->container);
             }
 
             throw new HandlerNotFound($curie, $e);

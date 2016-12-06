@@ -4,6 +4,10 @@ namespace Gdbots\Bundle\PbjxBundle;
 
 use Gdbots\Common\Util\StringUtils;
 use Gdbots\Pbj\SchemaCurie;
+use Gdbots\Pbjx\CommandHandler;
+use Gdbots\Pbjx\RequestHandler;
+use Psr\Log\LoggerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a guess for what class can handle a given SchemaCurie.
@@ -46,7 +50,29 @@ class HandlerGuesser
         ));
 
         $this->resolved[$curieStr] = $this->filterResolved($resolved);
+
         return $this->resolved[$curieStr];
+    }
+
+    /**
+     * Creates a handler for the provided SchemaCurie.  The $className originates
+     * from the guessHandler method and should exist so doing new $className should work.
+     *
+     * @param SchemaCurie        $curie
+     * @param string             $className
+     * @param ContainerInterface $container
+     *
+     * @return mixed
+     */
+    public function createHandler(SchemaCurie $curie, $className, ContainerInterface $container)
+    {
+        $handler = new $className;
+
+        if ($handler instanceof LoggerAwareInterface) {
+            $handler->setLogger($container->get('logger'));
+        }
+
+        return $handler;
     }
 
     /**
@@ -79,6 +105,7 @@ class HandlerGuesser
     protected function package(SchemaCurie $curie)
     {
         $package = str_replace('.', '. ', $curie->getPackage());
+
         return str_replace('.', '\\', StringUtils::toCamelFromSlug($package));
     }
 
