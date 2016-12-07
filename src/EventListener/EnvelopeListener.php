@@ -23,7 +23,7 @@ class EnvelopeListener
     protected $logger;
 
     /**
-     * @param Pbjx $pbjx
+     * @param Pbjx                 $pbjx
      * @param LoggerInterface|null $logger
      */
     public function __construct(Pbjx $pbjx, LoggerInterface $logger = null)
@@ -67,7 +67,7 @@ class EnvelopeListener
                     ),
                     [
                         'pbj_schema' => $envelope::schema()->getId()->toString(),
-                        'pbj' => $array,
+                        'pbj'        => $array,
                     ]
                 );
             }
@@ -76,8 +76,8 @@ class EnvelopeListener
         }
 
         $response = new JsonResponse($array, $httpCode, [
-            'Content-Type' => 'application/json',
-            'ETag' => $envelope->get('etag'),
+            'Content-Type'       => 'application/json',
+            'ETag'               => $envelope->get('etag'),
             'x-pbjx-envelope-id' => $envelope->get('envelope_id'),
         ]);
 
@@ -96,7 +96,7 @@ class EnvelopeListener
      * we'll replace the message with something generic.
      *
      * @param Envelope $envelope
-     * @param Request $request
+     * @param Request  $request
      *
      * @return string
      */

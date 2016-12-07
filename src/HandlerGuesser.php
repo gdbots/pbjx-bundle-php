@@ -4,8 +4,6 @@ namespace Gdbots\Bundle\PbjxBundle;
 
 use Gdbots\Common\Util\StringUtils;
 use Gdbots\Pbj\SchemaCurie;
-use Gdbots\Pbjx\CommandHandler;
-use Gdbots\Pbjx\RequestHandler;
 use Psr\Log\LoggerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

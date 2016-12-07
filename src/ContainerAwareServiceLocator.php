@@ -18,7 +18,6 @@ use Gdbots\Pbjx\Pbjx;
 use Gdbots\Pbjx\RequestBus;
 use Gdbots\Pbjx\RequestHandler;
 use Gdbots\Pbjx\Transport\Transport;
-use Psr\Log\LoggerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
