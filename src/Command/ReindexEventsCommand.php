@@ -39,12 +39,11 @@ EOF
             ->addOption('batch-delay', null, InputOption::VALUE_REQUIRED, 'Number of milliseconds (1000 = 1 second) to delay between batches.', 1000)
             ->addOption('since', null, InputOption::VALUE_REQUIRED, 'Reindex events where occurred_at is greater than this time (unix timestamp or 16 digit microtime as int).')
             ->addOption('hints', null, InputOption::VALUE_REQUIRED, 'Hints to provide to the event store (json).')
-            ->addArgument('stream-id', InputArgument::REQUIRED, 'The stream to reindex messages from.  See Gdbots\Schemas\Pbjx\StreamId for details.')
-        ;
+            ->addArgument('stream-id', InputArgument::REQUIRED, 'The stream to reindex messages from.  See Gdbots\Schemas\Pbjx\StreamId for details.');
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
      *
      * @return null
@@ -116,13 +115,13 @@ EOF
     }
 
     /**
-     * @param array $queue
-     * @param int $reindexed
-     * @param Pbjx $pbjx
+     * @param array        $queue
+     * @param int          $reindexed
+     * @param Pbjx         $pbjx
      * @param SymfonyStyle $io
-     * @param int $batch
-     * @param bool $dryRun
-     * @param bool $skipErrors
+     * @param int          $batch
+     * @param bool         $dryRun
+     * @param bool         $skipErrors
      *
      * @throws \Exception
      */
@@ -139,7 +138,7 @@ EOF
             $io->note(sprintf('DRY RUN - Would reindex event batch %d here.', $batch));
         } else {
             try {
-                $pbjx->getEventSearch()->index($queue);
+                $pbjx->getEventSearch()->indexEvents($queue);
             } catch (\Exception $e) {
                 $io->error($e->getMessage());
                 $io->note(sprintf('Failed to index batch %d.', $batch));
