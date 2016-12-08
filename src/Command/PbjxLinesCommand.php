@@ -40,7 +40,8 @@ EOF
             ->addOption('in-memory', null, InputOption::VALUE_NONE, 'Forces all transports to be "in_memory".  Useful for debugging.')
             ->addOption('device-view', null, InputOption::VALUE_REQUIRED, 'When gdbots/app-bundle is in use you can provide device-view to populate request and server attributes.')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Reads lines and creates messages but will NOT process them.')
-            ->addOption('skip-errors', null, InputOption::VALUE_NONE, 'Skip any lines that fail to deserialize.')
+            ->addOption('skip-invalid', null, InputOption::VALUE_NONE, 'Skip any lines that fail to deserialize.')
+            ->addOption('skip-errors', null, InputOption::VALUE_NONE, 'Skip any messages that fail to send/publish.')
             ->addOption('batch-size', null, InputOption::VALUE_REQUIRED, 'Number of lines to read at a time.', 100)
             ->addOption('batch-delay', null, InputOption::VALUE_REQUIRED, 'Number of milliseconds (1000 = 1 second) to delay between batches.', 1000)
             ->addOption('start-line', null, InputOption::VALUE_REQUIRED, 'Start processing AT this line number.', 1)
@@ -58,6 +59,7 @@ EOF
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $dryRun = $input->getOption('dry-run');
+        $skipInvalid = $input->getOption('skip-invalid');
         $skipErrors = $input->getOption('skip-errors');
         $batchSize = NumberUtils::bound($input->getOption('batch-size'), 1, 5000);
         $batchDelay = NumberUtils::bound($input->getOption('batch-delay'), 100, 600000);
@@ -210,14 +212,16 @@ EOF
                 $io->note(sprintf('%d. Failed to deserialize json line below:', $i));
                 $io->text($line);
                 $io->newLine(2);
-
-                if (!$skipErrors) {
+                if (!$skipInvalid) {
                     break;
                 }
 
             } catch (\Exception $e) {
                 $io->error(sprintf('%d. %s', $i, $e->getMessage()));
-                break;
+                $io->newLine(2);
+                if (!$skipErrors) {
+                    break;
+                }
             }
 
             if (0 === $i % $batchSize) {
