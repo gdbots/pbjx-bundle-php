@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle;
 
@@ -23,7 +24,7 @@ class HandlerGuesser
      *
      * @return string
      */
-    final public function guessHandler(SchemaCurie $curie)
+    final public function guessHandler(SchemaCurie $curie): string
     {
         $curieStr = $curie->toString();
 
@@ -62,7 +63,7 @@ class HandlerGuesser
      *
      * @return mixed
      */
-    public function createHandler(SchemaCurie $curie, $className, ContainerInterface $container)
+    public function createHandler(SchemaCurie $curie, string $className, ContainerInterface $container)
     {
         $handler = new $className;
 
@@ -80,7 +81,7 @@ class HandlerGuesser
      *
      * @return string
      */
-    protected function filterResolved($resolved)
+    protected function filterResolved(string $resolved): string
     {
         return $resolved;
     }
@@ -90,7 +91,7 @@ class HandlerGuesser
      *
      * @return string
      */
-    protected function vendor(SchemaCurie $curie)
+    protected function vendor(SchemaCurie $curie): string
     {
         return StringUtils::toCamelFromSlug($curie->getVendor());
     }
@@ -100,7 +101,7 @@ class HandlerGuesser
      *
      * @return string
      */
-    protected function package(SchemaCurie $curie)
+    protected function package(SchemaCurie $curie): string
     {
         $package = str_replace('.', '. ', $curie->getPackage());
 
@@ -112,7 +113,7 @@ class HandlerGuesser
      *
      * @return string
      */
-    protected function category(SchemaCurie $curie)
+    protected function category(SchemaCurie $curie): string
     {
         return '';
     }
@@ -122,7 +123,7 @@ class HandlerGuesser
      *
      * @return string
      */
-    protected function message(SchemaCurie $curie)
+    protected function message(SchemaCurie $curie): string
     {
         return StringUtils::toCamelFromSlug($curie->getMessage());
     }
@@ -132,7 +133,7 @@ class HandlerGuesser
      *
      * @return string
      */
-    protected function suffix(SchemaCurie $curie)
+    protected function suffix(SchemaCurie $curie): string
     {
         return 'Handler';
     }
