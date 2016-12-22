@@ -2,10 +2,8 @@
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
-use Gdbots\Bundle\PbjxBundle\ContainerAwareServiceLocator;
 use Gdbots\Bundle\PbjxBundle\Controller\PbjxController;
 use Gdbots\Pbj\SchemaCurie;
-use Gdbots\Pbjx\Pbjx;
 use Gdbots\Schemas\Pbjx\Enum\Code;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -14,10 +12,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class PbjxCommand extends ContainerAwareCommand
 {
+    use PbjxAwareCommandTrait;
+
     /**
      * {@inheritdoc}
      */
@@ -97,18 +96,7 @@ EOF
             $request->attributes->set('device_view', $deviceView);
         }
 
-        /*
-         * running transports "in-memory" means the command/request handlers and event
-         * subscribers to pbjx messages will happen in this process and not run through
-         * kinesis, gearman, sqs, etc.  Generally used for debugging.
-         */
-        if ($input->getOption('in-memory')) {
-            $locator = $this->getContainer()->get('gdbots_pbjx.service_locator');
-            if ($locator instanceof ContainerAwareServiceLocator) {
-                $locator->forceTransportsToInMemory();
-            }
-        }
-
+        $this->useInMemoryTransports($input);
         $this->getRequestStack()->push($request);
         $envelope = $this->getPbjxController()->handleAction($request);
 
@@ -127,26 +115,10 @@ EOF
     }
 
     /**
-     * @return Pbjx
-     */
-    protected function getPbjx()
-    {
-        return $this->getContainer()->get('pbjx');
-    }
-
-    /**
      * @return PbjxController
      */
     protected function getPbjxController()
     {
         return $this->getContainer()->get('gdbots_pbjx.pbjx_controller');
-    }
-
-    /**
-     * @return RequestStack
-     */
-    protected function getRequestStack()
-    {
-        return $this->getContainer()->get('request_stack');
     }
 }

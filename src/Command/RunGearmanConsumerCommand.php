@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class RunGearmanConsumerCommand extends ContainerAwareCommand
 {
-    use ConsumerTrait;
+    use PbjxAwareCommandTrait;
 
     /**
      * {@inheritdoc}

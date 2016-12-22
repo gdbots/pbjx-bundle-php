@@ -14,11 +14,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class PbjxLinesCommand extends ContainerAwareCommand
 {
-    use ConsumerTrait;
+    use PbjxAwareCommandTrait;
 
     /**
      * {@inheritdoc}
@@ -66,20 +65,11 @@ EOF
         $startLine = $input->getOption('start-line');
         $endLine = $input->getOption('end-line');
         $file = $input->getArgument('file');
-        $container = $this->getContainer();
 
         $io = new SymfonyStyle($input, $output);
         $io->title(sprintf('Reading messages from "%s"', $file));
         $this->useInMemoryTransports($input, $io);
-        $question = sprintf(
-            'Have you prepared your event store [%s], transports [%s,%s] and your devops team for the added traffic? ',
-            $container->getParameter('gdbots_pbjx.event_store.provider'),
-            $container->getParameter('gdbots_pbjx.command_bus.transport'),
-            $container->getParameter('gdbots_pbjx.event_bus.transport')
-        );
-
-        if (!$io->confirm($question)) {
-            $io->note('Aborting json lines processing.');
+        if (!$this->readyForPbjxTraffic($io, 'Aborting json lines processing.')) {
             return;
         }
 
@@ -110,8 +100,7 @@ EOF
             return;
         }
 
-        /** @var RequestStack $requestStack */
-        $requestStack = $container->get('request_stack');
+        $requestStack = $this->getRequestStack();
         $pbjx = $this->getPbjx();
         $serializer = new JsonSerializer();
         $batch = 1;

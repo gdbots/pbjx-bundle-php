@@ -15,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ReplayEventsCommand extends ContainerAwareCommand
 {
-    use ConsumerTrait;
+    use PbjxAwareCommandTrait;
 
     /**
      * {@inheritdoc}
@@ -66,7 +66,7 @@ EOF
         $io = new SymfonyStyle($input, $output);
         $io->title(sprintf('Replaying events from stream "%s"', $streamId));
         $this->useInMemoryTransports($input, $io);
-        if (!$this->readyForReplayTraffic($io)) {
+        if (!$this->readyForPbjxTraffic($io)) {
             return;
         }
 

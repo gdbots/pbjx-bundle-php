@@ -4,7 +4,6 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 
 use Gdbots\Common\Util\NumberUtils;
 use Gdbots\Pbj\WellKnown\Microtime;
-use Gdbots\Pbjx\Pbjx;
 use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
 use Gdbots\Schemas\Pbjx\StreamId;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -15,6 +14,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ExportAllEventsCommand extends ContainerAwareCommand
 {
+    use PbjxAwareCommandTrait;
+
     /**
      * {@inheritdoc}
      */
@@ -65,8 +66,7 @@ EOF
             $until = Microtime::fromString(str_pad($until, 16, '0'));
         }
 
-        /** @var Pbjx $pbjx */
-        $pbjx = $this->getContainer()->get('pbjx');
+        $pbjx = $this->getPbjx();
         $i = 0;
 
         $callback = function(Event $event, StreamId $streamId) use ($errOutput, $batchSize, $batchDelay, &$i) {

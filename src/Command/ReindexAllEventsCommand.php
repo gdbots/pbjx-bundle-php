@@ -15,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ReindexAllEventsCommand extends ContainerAwareCommand
 {
-    use ConsumerTrait;
+    use PbjxAwareCommandTrait;
 
     /**
      * {@inheritdoc}
@@ -69,7 +69,7 @@ EOF
 
         $io = new SymfonyStyle($input, $output);
         $io->title('Reindexing events from ALL streams');
-        if (!$this->readyForReplayTraffic($io)) {
+        if (!$this->readyForPbjxTraffic($io)) {
             return;
         }
 

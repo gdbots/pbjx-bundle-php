@@ -4,7 +4,6 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 
 use Gdbots\Common\Util\NumberUtils;
 use Gdbots\Pbj\WellKnown\Microtime;
-use Gdbots\Pbjx\Pbjx;
 use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
 use Gdbots\Schemas\Pbjx\StreamId;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -16,6 +15,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TailEventsCommand extends ContainerAwareCommand
 {
+    use PbjxAwareCommandTrait;
+
     /**
      * {@inheritdoc}
      */
@@ -54,8 +55,7 @@ EOF
         $interval = NumberUtils::bound($input->getOption('interval'), 1, 60);
         $hints = json_decode($input->getOption('hints') ?: '{}', true);
 
-        /** @var Pbjx $pbjx */
-        $pbjx = $this->getContainer()->get('pbjx');
+        $pbjx = $this->getPbjx();
         $since = Microtime::create();
 
         while (true) {

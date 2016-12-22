@@ -15,8 +15,16 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @method ContainerInterface getContainer()
  */
-trait ConsumerTrait
+trait PbjxAwareCommandTrait
 {
+    /**
+     * @return RequestStack
+     */
+    protected function getRequestStack()
+    {
+        return $this->getContainer()->get('request_stack');
+    }
+
     /**
      * @return Pbjx
      */
@@ -51,8 +59,7 @@ trait ConsumerTrait
      */
     protected function createConsoleRequest()
     {
-        /** @var RequestStack $requestStack */
-        $requestStack = $this->getContainer()->get('request_stack');
+        $requestStack = $this->getRequestStack();
         $request = $requestStack->getCurrentRequest();
         if (!$request instanceof Request) {
             $request = new Request();
@@ -69,32 +76,39 @@ trait ConsumerTrait
      * kinesis, gearman, sqs, etc.  Generally used for debugging.
      *
      * @param InputInterface $input
-     * @param SymfonyStyle $io
+     * @param SymfonyStyle   $io
      */
-    protected function useInMemoryTransports(InputInterface $input, SymfonyStyle $io)
+    protected function useInMemoryTransports(InputInterface $input, SymfonyStyle $io = null)
     {
         if ($input->getOption('in-memory')) {
             $locator = $this->getContainer()->get('gdbots_pbjx.service_locator');
             if ($locator instanceof ContainerAwareServiceLocator) {
                 $locator->forceTransportsToInMemory();
-                $io->note('Using in_memory transports.');
+                if ($io) {
+                    $io->note('Using in_memory transports.');
+                }
             }
         }
     }
 
     /**
      * @param SymfonyStyle $io
+     * @param string       $message
+     *
      * @return bool
      */
-    protected function readyForReplayTraffic(SymfonyStyle $io)
+    protected function readyForPbjxTraffic(SymfonyStyle $io, $message = 'Aborting replay of events.')
     {
+        $container = $this->getContainer();
         $question = sprintf(
-            'Have you prepared your event store [%s] and your devops team for the added traffic? ',
-            $this->getContainer()->getParameter('gdbots_pbjx.event_store.provider')
+            'Have you prepared your event store [%s], transports [%s,%s] and your devops team for the added traffic? ',
+            $container->getParameter('gdbots_pbjx.event_store.provider'),
+            $container->getParameter('gdbots_pbjx.command_bus.transport'),
+            $container->getParameter('gdbots_pbjx.event_bus.transport')
         );
 
         if (!$io->confirm($question)) {
-            $io->note('Aborting replay of events.');
+            $io->note($message);
             return false;
         }
 
