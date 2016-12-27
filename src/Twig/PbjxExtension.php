@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Twig;
 
@@ -22,17 +23,14 @@ class PbjxExtension extends \Twig_Extension
     /** @var LoggerInterface */
     protected $logger;
 
-    /** @var Pbjx */
-    protected $pbjx;
-
     /** @var bool */
     protected $debug = false;
 
     /**
-     * @param ContainerInterface $container
+     * @param ContainerInterface   $container
      * @param LoggerInterface|null $logger
      */
-    public function __construct(ContainerInterface $container, LoggerInterface $logger = null)
+    public function __construct(ContainerInterface $container, ?LoggerInterface $logger = null)
     {
         $this->container = $container;
         $this->logger = $logger ?: new NullLogger();
@@ -47,7 +45,7 @@ class PbjxExtension extends \Twig_Extension
         return [
             new \Twig_SimpleFunction('pbj_form_view', [$this, 'pbjFormView']),
             new \Twig_SimpleFunction('pbj_template', [$this, 'pbjTemplate']),
-            new \Twig_SimpleFunction('pbjx_request', [$this, 'pbjxRequest'])
+            new \Twig_SimpleFunction('pbjx_request', [$this, 'pbjxRequest']),
         ];
     }
 
@@ -71,13 +69,13 @@ class PbjxExtension extends \Twig_Extension
      *      {% set pbj_form = pbj_form_view('AppBundle\\Form\\SomeType') %}
      *  {% endif %}
      *
-     * @param string  $type     The fully qualified class name of the pbj form type
-     * @param array   $input    The initial data for the form
-     * @param array   $options  Options for the form
+     * @param string $type    The fully qualified class name of the pbj form type
+     * @param array  $input   The initial data for the form
+     * @param array  $options Options for the form
      *
      * @return FormView
      */
-    public function pbjFormView($type, array $input = [], array $options = [])
+    public function pbjFormView(string $type, array $input = [], array $options = []): FormView
     {
         return $this->container->get('form.factory')->create($type, $input, $options)->createView();
     }
@@ -92,13 +90,13 @@ class PbjxExtension extends \Twig_Extension
      *  {% include pbj_template(pbj, 'card', 'html', device_view) with {'pbj': pbj} %}
      *
      * @param Message $pbj
-     * @param string $template
-     * @param string $format
-     * @param string $deviceView
+     * @param string  $template
+     * @param string  $format
+     * @param string  $deviceView
      *
      * @return string|string[]  A single template reference or array if device view is not null
      */
-    public function pbjTemplate(Message $pbj, $template, $format = 'html', $deviceView = null)
+    public function pbjTemplate(Message $pbj, string $template, string $format = 'html', ?string $deviceView = null)
     {
         $curieStr = str_replace('::', ':_:', $pbj::schema()->getCurie()->toString());
         $default = sprintf('@%s/%s.%s.twig', str_replace(':', '/', $curieStr), $template, $format);
@@ -124,13 +122,13 @@ class PbjxExtension extends \Twig_Extension
      *  {% endif %}
      *
      * @param string $curie
-     * @param array $data
+     * @param array  $data
      *
      * @return Response|null
      *
      * @throws \Exception
      */
-    public function pbjxRequest($curie, array $data = [])
+    public function pbjxRequest(string $curie, array $data = []): ?Response
     {
         try {
             /** @var Request $class */
@@ -140,29 +138,31 @@ class PbjxExtension extends \Twig_Extension
                 throw new InvalidArgumentException(sprintf('The provided curie [%s] is not a request.', $curie));
             }
 
-            return $this->getPbjx()->request($request);
+            $response = $this->getPbjx()->request($request);
+            if (!$response->has('ctx_request')) {
+                $response->set('ctx_request', $request);
+            }
 
+            return $response;
         } catch (\Exception $e) {
             if ($this->debug) {
                 throw $e;
             }
 
             $this->logger->error(
-                'Unable to process twig "pbjx_request" function for {curie}.',
+                'Unable to process twig "pbjx_request" function for [{curie}].',
                 ['exception' => $e, 'curie' => $curie, 'data' => $data]
             );
         }
+
+        return null;
     }
 
     /**
      * @return Pbjx
      */
-    protected function getPbjx()
+    protected function getPbjx(): Pbjx
     {
-        if (null === $this->pbjx) {
-            $this->pbjx = $this->container->get('pbjx');
-        }
-
-        return $this->pbjx;
+        return $this->container->get('pbjx');
     }
 }
