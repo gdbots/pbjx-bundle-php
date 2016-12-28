@@ -1,13 +1,25 @@
 <?php
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection;
 
+use Gdbots\Pbjx\EventStore\DynamoDbEventStoreTable;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
+    private $env;
+
+    /**
+     * @param string $env
+     */
+    public function __construct(string $env = 'dev')
+    {
+        $this->env = $env;
+    }
+
     /**
      * @return TreeBuilder
      */
@@ -114,7 +126,7 @@ class Configuration implements ConfigurationInterface
     /**
      * @return NodeDefinition
      */
-    protected function getGearmanTransportConfigTree()
+    protected function getGearmanTransportConfigTree(): NodeDefinition
     {
         $treeBuilder = new TreeBuilder();
         $node = $treeBuilder->root('gearman');
@@ -145,7 +157,7 @@ class Configuration implements ConfigurationInterface
                     ->treatNullLike(5000)
                 ->end()
                 ->scalarNode('channel_prefix')
-                    ->defaultNull()
+                    ->defaultValue("{$this->env}_")
                 ->end()
             ->end()
         ;
@@ -156,7 +168,7 @@ class Configuration implements ConfigurationInterface
     /**
      * @return NodeDefinition
      */
-    protected function getDynamoDbEventStoreConfigTree()
+    protected function getDynamoDbEventStoreConfigTree(): NodeDefinition
     {
         $treeBuilder = new TreeBuilder();
         $node = $treeBuilder->root('dynamodb');
@@ -166,7 +178,9 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('class')
                     ->defaultValue('Gdbots\Pbjx\EventStore\DynamoDbEventStore')
                 ->end()
-                ->scalarNode('table_name')->end()
+                ->scalarNode('table_name')
+                    ->defaultValue("{$this->env}-event-store-".DynamoDbEventStoreTable::SCHEMA_VERSION)
+                ->end()
             ->end()
         ;
 
@@ -176,7 +190,7 @@ class Configuration implements ConfigurationInterface
     /**
      * @return NodeDefinition
      */
-    protected function getElasticaEventSearchConfigTree()
+    protected function getElasticaEventSearchConfigTree(): NodeDefinition
     {
         $treeBuilder = new TreeBuilder();
         $node = $treeBuilder->root('elastica');
@@ -185,11 +199,11 @@ class Configuration implements ConfigurationInterface
         $defaultCluster = [
             'default' => [
                 'round_robin' => true,
-                'timeout' => 300,
-                'debug' => false,
-                'persistent' => true,
-                'servers' => $defaultServers
-            ]
+                'timeout'     => 300,
+                'debug'       => false,
+                'persistent'  => true,
+                'servers'     => $defaultServers,
+            ],
         ];
 
         $node
@@ -204,7 +218,9 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('class')
                             ->defaultValue('Gdbots\Pbjx\EventSearch\ElasticaIndexManager')
                         ->end()
-                        ->scalarNode('index_prefix')->end()
+                        ->scalarNode('index_prefix')
+                            ->defaultValue("{$this->env}-events")
+                        ->end()
                     ->end()
                 ->end()
                 ->scalarNode('query_timeout')
@@ -213,6 +229,7 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->arrayNode('clusters')
                     ->useAttributeAsKey('name')
+                    ->addDefaultsIfNotSet()
                     ->treatNullLike($defaultCluster)
                     ->defaultValue($defaultCluster)
                     ->prototype('array')

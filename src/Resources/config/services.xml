@@ -31,6 +31,9 @@
       <tag name="pbjx.event_subscriber"/>
     </service>
 
+    <service id="gdbots_pbjx.check_health_handler" class="Gdbots\Bundle\PbjxBundle\CheckHealthHandler"/>
+    <service id="gdbots_pbjx.echo_request_handler" class="Gdbots\Bundle\PbjxBundle\EchoRequestHandler"/>
+
     <service id="gdbots_pbjx.twig.pbjx_extension" class="Gdbots\Bundle\PbjxBundle\Twig\PbjxExtension" public="false">
       <argument type="service" id="service_container"/>
       <argument type="service" id="logger" on-invalid="ignore"/>
