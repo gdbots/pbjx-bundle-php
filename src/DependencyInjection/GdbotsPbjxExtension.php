@@ -95,7 +95,7 @@ class GdbotsPbjxExtension extends Extension
      * @param ContainerBuilder $container
      * @param string           $provider
      */
-    protected function configureDynamoDbEventStore(array $config, ContainerBuilder $container, string $provider): void
+    protected function configureDynamoDbEventStore(array $config, ContainerBuilder $container, ?string $provider): void
     {
         if (!isset($config['event_store']['dynamodb']) || 'dynamodb' !== $provider) {
             $container->removeDefinition('gdbots_pbjx.event_store.dynamodb');
@@ -116,7 +116,7 @@ class GdbotsPbjxExtension extends Extension
      * @param ContainerBuilder $container
      * @param string           $provider
      */
-    protected function configureElasticaEventSearch(array $config, ContainerBuilder $container, string $provider): void
+    protected function configureElasticaEventSearch(array $config, ContainerBuilder $container, ?string $provider): void
     {
         if (!isset($config['event_search']['elastica']) || 'elastica' !== $provider) {
             $container->removeDefinition('gdbots_pbjx.event_search.elastica');
