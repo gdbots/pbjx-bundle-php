@@ -36,7 +36,7 @@ EOF
                 null,
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
                 'The gearman channel (aka function) this process will handle.',
-                ['pbjx_commands', 'pbjx_events']
+                ['pbjx_commands', 'pbjx_events', 'pbjx_requests']
             )
             ->addOption(
                 'max-runtime',
@@ -71,7 +71,7 @@ EOF
         $timeout = (int) $container->getParameter('gdbots_pbjx.transport.gearman.timeout');
         $prefix = $container->getParameter('gdbots_pbjx.transport.gearman.channel_prefix');
         $instanceId = $container->getParameter('cloud_instance_id');
-        $workerId = $id ? sprintf('%s_%s%s', $instanceId, $prefix, $id) : null;
+        $workerId = $id ? sprintf('%s-%s%s', $instanceId, $prefix, $id) : null;
 
         if (!empty($prefix)) {
             $channels = array_map(function ($channel) use ($prefix) { return $prefix . $channel; }, $channels);
