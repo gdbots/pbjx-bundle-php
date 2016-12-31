@@ -21,8 +21,6 @@ class EchoRequestHandler implements RequestHandler
      */
     protected function handle(EchoRequest $request, Pbjx $pbjx)
     {
-        $response = EchoResponseV1::create()->set('msg', $request->get('msg'));
-        $response->set('ctx_request', $request);
-        return $response;
+        return EchoResponseV1::create()->set('msg', $request->get('msg'));
     }
 }
