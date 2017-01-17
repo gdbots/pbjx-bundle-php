@@ -132,6 +132,7 @@ class Configuration implements ConfigurationInterface
         $node = $treeBuilder->root('gearman');
 
         $node
+            ->addDefaultsIfNotSet()
             ->children()
                 ->arrayNode('servers')
                     ->requiresAtLeastOneElement()
@@ -174,6 +175,7 @@ class Configuration implements ConfigurationInterface
         $node = $treeBuilder->root('dynamodb');
 
         $node
+            ->addDefaultsIfNotSet()
             ->children()
                 ->scalarNode('class')
                     ->defaultValue('Gdbots\Pbjx\EventStore\DynamoDbEventStore')
@@ -207,6 +209,7 @@ class Configuration implements ConfigurationInterface
         ];
 
         $node
+            ->addDefaultsIfNotSet()
             ->fixXmlConfig('cluster')
             ->children()
                 ->scalarNode('class')
