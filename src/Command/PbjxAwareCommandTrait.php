@@ -1,8 +1,14 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
 use Gdbots\Bundle\PbjxBundle\ContainerAwareServiceLocator;
+use Gdbots\Pbj\Message;
+use Gdbots\Pbj\MessageResolver;
+use Gdbots\Pbj\Mixin;
+use Gdbots\Pbj\Schema;
+use Gdbots\Pbj\SchemaQName;
 use Gdbots\Pbjx\Pbjx;
 use Gdbots\Pbjx\ServiceLocator;
 use Psr\Log\LoggerInterface;
@@ -20,7 +26,7 @@ trait PbjxAwareCommandTrait
     /**
      * @return RequestStack
      */
-    protected function getRequestStack()
+    protected function getRequestStack(): RequestStack
     {
         return $this->getContainer()->get('request_stack');
     }
@@ -28,7 +34,7 @@ trait PbjxAwareCommandTrait
     /**
      * @return Pbjx
      */
-    protected function getPbjx()
+    protected function getPbjx(): Pbjx
     {
         return $this->getContainer()->get('pbjx');
     }
@@ -36,7 +42,7 @@ trait PbjxAwareCommandTrait
     /**
      * @return ServiceLocator
      */
-    protected function getPbjxServiceLocator()
+    protected function getPbjxServiceLocator(): ServiceLocator
     {
         return $this->getContainer()->get('gdbots_pbjx.service_locator');
     }
@@ -44,7 +50,7 @@ trait PbjxAwareCommandTrait
     /**
      * @return LoggerInterface
      */
-    protected function getLogger()
+    protected function getLogger(): LoggerInterface
     {
         if ($this->getContainer()->has('monolog.logger.pbjx')) {
             return $this->getContainer()->get('monolog.logger.pbjx');
@@ -54,10 +60,12 @@ trait PbjxAwareCommandTrait
     }
 
     /**
-     * Some pbjx binders, validators, etc. expect a request to exist.  Create one
-     * if nothing has been created yet.
+     * Some pbjx binders, validators, etc. expect a request to exist.
+     * Create one if nothing has been created yet.
+     *
+     * @return Request
      */
-    protected function createConsoleRequest()
+    protected function createConsoleRequest(): Request
     {
         $requestStack = $this->getRequestStack();
         $request = $requestStack->getCurrentRequest();
@@ -68,20 +76,22 @@ trait PbjxAwareCommandTrait
 
         $request->attributes->set('pbjx_console', true);
         $request->attributes->set('pbjx_bind_unrestricted', true);
+
+        return $request;
     }
 
     /**
      * Running transports "in-memory" means the command/request handlers and event
      * subscribers to pbjx messages will happen in this process and not run through
-     * kinesis, gearman, sqs, etc.  Generally used for debugging.
+     * kinesis, gearman, sqs, etc.
      *
      * @param InputInterface $input
      * @param SymfonyStyle   $io
      */
-    protected function useInMemoryTransports(InputInterface $input, SymfonyStyle $io = null)
+    protected function useInMemoryTransports(InputInterface $input, ?SymfonyStyle $io = null): void
     {
         if ($input->getOption('in-memory')) {
-            $locator = $this->getContainer()->get('gdbots_pbjx.service_locator');
+            $locator = $this->getPbjxServiceLocator();
             if ($locator instanceof ContainerAwareServiceLocator) {
                 $locator->forceTransportsToInMemory();
                 if ($io) {
@@ -97,7 +107,7 @@ trait PbjxAwareCommandTrait
      *
      * @return bool
      */
-    protected function readyForPbjxTraffic(SymfonyStyle $io, $message = 'Aborting replay of events.')
+    protected function readyForPbjxTraffic(SymfonyStyle $io, $message = 'Aborting replay of events.'): bool
     {
         $container = $this->getContainer();
         $question = sprintf(
@@ -113,5 +123,36 @@ trait PbjxAwareCommandTrait
         }
 
         return true;
+    }
+
+    /**
+     * @param Mixin  $mixin
+     * @param string $qname
+     *
+     * @return Schema[]
+     */
+    protected function getSchemasUsingMixin(Mixin $mixin, ?string $qname = null): array
+    {
+        $curie = $mixin->getId()->getCurieMajor();
+
+        if (null === $qname) {
+            $schemas = MessageResolver::findAllUsingMixin($mixin);
+        } else {
+            /** @var Message $class */
+            $class = MessageResolver::resolveCurie(
+                MessageResolver::resolveQName(SchemaQName::fromString($qname))
+            );
+            $schema = $class::schema();
+
+            if (!$schema->hasMixin($curie)) {
+                throw new \InvalidArgumentException(
+                    sprintf('The SchemaQName [%s] does not have mixin [%s].', $qname, $curie)
+                );
+            }
+
+            $schemas = [$schema];
+        }
+
+        return $schemas;
     }
 }
