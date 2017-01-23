@@ -13,5 +13,5 @@ interface PbjFormType extends FormTypeInterface
      *
      * @return Schema
      */
-    public static function pbjSchema(): Schema
+    public static function pbjSchema(): Schema;
 }
