@@ -5,7 +5,7 @@
 
   <services>
     <!-- start: core services -->
-    <service id="pbjx" class="Gdbots\Pbjx\DefaultPbjx">
+    <service id="pbjx" class="Gdbots\Pbjx\SimplePbjx">
       <argument type="service" id="gdbots_pbjx.service_locator"/>
     </service>
 
@@ -19,7 +19,7 @@
       <argument type="service" id="service_container"/>
     </service>
 
-    <service id="gdbots_pbjx.exception_handler" class="Gdbots\Pbjx\DefaultExceptionHandler">
+    <service id="gdbots_pbjx.exception_handler" class="Gdbots\Pbjx\LogAndDispatchExceptionHandler">
       <argument type="service" id="gdbots_pbjx.service_locator"/>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <tag name="monolog.logger" channel="pbjx"/>
