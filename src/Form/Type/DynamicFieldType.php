@@ -23,7 +23,7 @@ class DynamicFieldType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->addViewTransformer(new DynamicFieldToArrayTransformer());
 
@@ -72,7 +72,7 @@ class DynamicFieldType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver): void
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'compound' => true,
@@ -83,7 +83,7 @@ class DynamicFieldType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent(): string
+    public function getParent()
     {
         return FormType::class;
     }
@@ -91,7 +91,7 @@ class DynamicFieldType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix(): string
+    public function getBlockPrefix()
     {
         return 'gdbots_pbjx_dynamic_field';
     }

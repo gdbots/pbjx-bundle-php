@@ -17,7 +17,7 @@ class CollectionType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->addEventSubscriber(
             new CollectionTypeSubscriber()
@@ -27,7 +27,7 @@ class CollectionType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildView(FormView $view, FormInterface $form, array $options):void
+    public function buildView(FormView $view, FormInterface $form, array $options)
     {
         $view->vars = array_replace($view->vars, [
             'show_form_when_empty' => $options['show_form_when_empty'],
@@ -44,7 +44,7 @@ class CollectionType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver): void
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'allow_add' => true,
@@ -62,15 +62,15 @@ class CollectionType extends AbstractType
 
         $resolver->setRequired(['entry_type']);
 
-        $resolver->setNormalizer('show_form_when_empty', function (Options $options, $value) {
-            return !$options['allow_add'] ? false : $value;
+        $resolver->setNormalizer('show_form_when_empty', function (Options $options, $value): bool {
+            return !$options['allow_add'] ? false : (bool) $value;
         });
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getParent(): string
+    public function getParent()
     {
         return BaseCollectionType::class;
     }
@@ -78,7 +78,7 @@ class CollectionType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix(): string
+    public function getBlockPrefix()
     {
         return 'gdbots_pbjx_collection';
     }

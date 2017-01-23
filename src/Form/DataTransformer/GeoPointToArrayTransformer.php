@@ -13,10 +13,10 @@ class GeoPointToArrayTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function transform($value): ?GeoPoint
+    public function transform($value)
     {
         if (empty($value)) {
-            return;
+            return null;
         }
 
         if (!is_array($value)) {
@@ -29,10 +29,10 @@ class GeoPointToArrayTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function reverseTransform($value): ?array
+    public function reverseTransform($value)
     {
         if (empty($value)) {
-            return;
+            return null;
         }
 
         if (!is_array($value)) {

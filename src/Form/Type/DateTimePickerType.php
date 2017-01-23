@@ -12,11 +12,11 @@ class DateTimePickerType extends DatePickerType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver): void
+    public function configureOptions(OptionsResolver $resolver)
     {
         parent::configureOptions($resolver);
 
-        $resolver->setDefault('js_options', function (Options $options, $previousValue) {
+        $resolver->setDefault('js_options', function (Options $options, $previousValue): array {
             return array_merge($previousValue, [
                 'timePicker' => true,
                 'timePickerIncrement' => 15,
@@ -28,7 +28,7 @@ class DateTimePickerType extends DatePickerType
     /**
      * {@inheritdoc}
      */
-    public function getParent(): string
+    public function getParent()
     {
         return DateTimeType::class;
     }
@@ -36,7 +36,7 @@ class DateTimePickerType extends DatePickerType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix(): string
+    public function getBlockPrefix()
     {
         return 'gdbots_pbjx_datetime_picker';
     }

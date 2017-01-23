@@ -27,7 +27,7 @@ class SwitcheryType extends AbstractType
     /**
      * @inheritDoc
      */
-    public function buildView(FormView $view, FormInterface $form, array $options):void
+    public function buildView(FormView $view, FormInterface $form, array $options)
     {
         $view->vars['js_options'] = $this->parseJsOptions(array_intersect_key($options, $this->jsOptions));
     }
@@ -35,7 +35,7 @@ class SwitcheryType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver): void
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(
             array_merge(
@@ -50,7 +50,7 @@ class SwitcheryType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent(): string
+    public function getParent()
     {
         return CheckboxType::class;
     }
@@ -58,7 +58,7 @@ class SwitcheryType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix(): string
+    public function getBlockPrefix()
     {
         return 'gdbots_pbjx_switchery';
     }

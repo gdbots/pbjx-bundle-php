@@ -13,7 +13,7 @@ class TrinaryType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver): void
+    public function configureOptions(OptionsResolver $resolver)
     {
         $values = [];
         foreach (Trinary::values() as $key => $value) {
@@ -28,7 +28,7 @@ class TrinaryType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent(): string
+    public function getParent()
     {
         return ChoiceType::class;
     }
@@ -36,7 +36,7 @@ class TrinaryType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix(): string
+    public function getBlockPrefix()
     {
         return 'gdbots_pbjx_trinary';
     }

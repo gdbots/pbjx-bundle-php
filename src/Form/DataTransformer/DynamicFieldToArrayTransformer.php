@@ -13,10 +13,10 @@ class DynamicFieldToArrayTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function transform($value): ?DynamicField
+    public function transform($value)
     {
         if (empty($value)) {
-            return;
+            return null;
         }
 
         if (!is_array($value)) {
@@ -29,10 +29,10 @@ class DynamicFieldToArrayTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function reverseTransform($value): ?array
+    public function reverseTransform($value)
     {
         if (empty($value)) {
-            return;
+            return null;
         }
 
         if (!is_array($value)) {
@@ -44,7 +44,7 @@ class DynamicFieldToArrayTransformer implements DataTransformerInterface
         }
 
         if (empty($value['name'])) {
-            return;
+            return null;
         }
 
         return [

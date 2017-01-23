@@ -35,7 +35,7 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
      * @param mixed           $data  Structured data.
      * @param FormInterface[] $forms A list of {@link FormInterface} instances.
      */
-    public function mapDataToForms($data, $forms): void
+    public function mapDataToForms($data, $forms)
     {
         $schema = static::pbjSchema();
         $forms = iterator_to_array($forms);
@@ -74,7 +74,7 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
      *
      * @return bool
      */
-    public function mapFormsToData($forms, &$data): bool
+    public function mapFormsToData($forms, &$data)
     {
         $schema = static::pbjSchema();
         $isRoot = true;

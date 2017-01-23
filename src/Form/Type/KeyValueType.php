@@ -17,7 +17,7 @@ class KeyValueType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->addViewTransformer(new KeyValueToArrayTransformer());
 
@@ -50,7 +50,7 @@ class KeyValueType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver): void
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'key_type' => TextType::class,
@@ -66,7 +66,7 @@ class KeyValueType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent(): string
+    public function getParent()
     {
         return FormType::class;
     }
@@ -74,7 +74,7 @@ class KeyValueType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix(): string
+    public function getBlockPrefix()
     {
         return 'gdbots_pbjx_key_value';
     }

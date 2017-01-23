@@ -17,7 +17,7 @@ class DatePickerType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function finishView(FormView $view, FormInterface $form, array $options): void
+    public function finishView(FormView $view, FormInterface $form, array $options)
     {
         $view->vars = array_replace($view->vars, [
             'group_icon' => null,
@@ -37,7 +37,7 @@ class DatePickerType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver): void
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'model_timezone' => 'UTC',
@@ -61,7 +61,7 @@ class DatePickerType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent(): string
+    public function getParent()
     {
         return DateType::class;
     }
@@ -69,7 +69,7 @@ class DatePickerType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix(): string
+    public function getBlockPrefix()
     {
         return 'gdbots_pbjx_date_picker';
     }
