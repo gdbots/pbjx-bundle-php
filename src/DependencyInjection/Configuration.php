@@ -1,9 +1,9 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection;
 
-use Gdbots\Pbjx\EventStore\DynamoDbEventStoreTable;
+use Gdbots\Pbjx\EventStore\DynamoDb\EventStoreTable;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -178,10 +178,10 @@ class Configuration implements ConfigurationInterface
             ->addDefaultsIfNotSet()
             ->children()
                 ->scalarNode('class')
-                    ->defaultValue('Gdbots\Pbjx\EventStore\DynamoDbEventStore')
+                    ->defaultValue('Gdbots\Pbjx\EventStore\DynamoDb\DynamoDbEventStore')
                 ->end()
                 ->scalarNode('table_name')
-                    ->defaultValue("{$this->env}-event-store-".DynamoDbEventStoreTable::SCHEMA_VERSION)
+                    ->defaultValue("{$this->env}-event-store-".EventStoreTable::SCHEMA_VERSION)
                 ->end()
             ->end()
         ;
@@ -213,13 +213,13 @@ class Configuration implements ConfigurationInterface
             ->fixXmlConfig('cluster')
             ->children()
                 ->scalarNode('class')
-                    ->defaultValue('Gdbots\Pbjx\EventSearch\ElasticaEventSearch')
+                    ->defaultValue('Gdbots\Pbjx\EventSearch\Elastica\ElasticaEventSearch')
                 ->end()
                 ->arrayNode('index_manager')
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('class')
-                            ->defaultValue('Gdbots\Pbjx\EventSearch\ElasticaIndexManager')
+                            ->defaultValue('Gdbots\Pbjx\EventSearch\Elastica\IndexManager')
                         ->end()
                         ->scalarNode('index_prefix')
                             ->defaultValue("{$this->env}-events")

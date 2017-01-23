@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Binder;
 
@@ -21,11 +22,11 @@ trait MessageBinderTrait
 
     /**
      * @param PbjxEvent $pbjxEvent
-     * @param Message $message
-     * @param Field[] $fields
-     * @param array $input
+     * @param Message   $message
+     * @param Field[]   $fields
+     * @param array     $input
      */
-    protected function restrictBindFromInput(PbjxEvent $pbjxEvent, Message $message, array $fields, array $input)
+    protected function restrictBindFromInput(PbjxEvent $pbjxEvent, Message $message, array $fields, array $input): void
     {
         foreach ($fields as $field) {
             $fieldName = $field->getName();
@@ -49,10 +50,10 @@ trait MessageBinderTrait
 
     /**
      * @param PbjxEvent $pbjxEvent
-     * @param Message $message
-     * @param Request $request
+     * @param Message   $message
+     * @param Request   $request
      */
-    protected function bindConsoleApp(PbjxEvent $pbjxEvent, Message $message, Request $request)
+    protected function bindConsoleApp(PbjxEvent $pbjxEvent, Message $message, Request $request): void
     {
         if ($message->has('ctx_app')
             || !$request->attributes->getBoolean('pbjx_console')
@@ -72,10 +73,10 @@ trait MessageBinderTrait
 
     /**
      * @param PbjxEvent $pbjxEvent
-     * @param Message $message
-     * @param Request $request
+     * @param Message   $message
+     * @param Request   $request
      */
-    protected function bindCloud(PbjxEvent $pbjxEvent, Message $message, Request $request)
+    protected function bindCloud(PbjxEvent $pbjxEvent, Message $message, Request $request): void
     {
         if ($message->has('ctx_cloud') || !$this->container->hasParameter('cloud_provider')) {
             return;
@@ -93,10 +94,10 @@ trait MessageBinderTrait
 
     /**
      * @param PbjxEvent $pbjxEvent
-     * @param Message $message
-     * @param Request $request
+     * @param Message   $message
+     * @param Request   $request
      */
-    protected function bindIp(PbjxEvent $pbjxEvent, Message $message, Request $request)
+    protected function bindIp(PbjxEvent $pbjxEvent, Message $message, Request $request): void
     {
         if ($message->has('ctx_ip')) {
             return;
@@ -107,10 +108,10 @@ trait MessageBinderTrait
 
     /**
      * @param PbjxEvent $pbjxEvent
-     * @param Message $message
-     * @param Request $request
+     * @param Message   $message
+     * @param Request   $request
      */
-    protected function bindUserAgent(PbjxEvent $pbjxEvent, Message $message, Request $request)
+    protected function bindUserAgent(PbjxEvent $pbjxEvent, Message $message, Request $request): void
     {
         if ($message->has('ctx_ua')) {
             return;
@@ -122,7 +123,7 @@ trait MessageBinderTrait
     /**
      * @return RequestStack
      */
-    protected function getRequestStack()
+    protected function getRequestStack(): RequestStack
     {
         if (null === $this->requestStack) {
             $this->requestStack = $this->container->get('request_stack');
@@ -134,7 +135,7 @@ trait MessageBinderTrait
     /**
      * @return Request
      */
-    protected function getCurrentRequest()
+    protected function getCurrentRequest(): Request
     {
         return $this->getRequestStack()->getCurrentRequest() ?: new Request();
     }

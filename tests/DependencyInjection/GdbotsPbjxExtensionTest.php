@@ -13,14 +13,13 @@ class GdbotsPbjxExtensionTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         parent::setUp();
-
         $this->container = new ContainerBuilder();
+        $this->container->setParameter('kernel.environment', 'dev');
     }
 
     protected function tearDown()
     {
         parent::tearDown();
-
         $this->container = null;
     }
 
@@ -28,7 +27,6 @@ class GdbotsPbjxExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $extension = new GdbotsPbjxExtension();
         $extension->load([[]], $this->container);
-
         $this->assertFalse($this->container->has('pbjx_controller.allow_get_request'));
     }
 }

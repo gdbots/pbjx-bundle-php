@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle;
 
@@ -9,7 +10,7 @@ use Gdbots\Schemas\Pbjx\Command\CheckHealth;
 use Gdbots\Schemas\Pbjx\Event\HealthCheckedV1;
 use Psr\Log\LoggerInterface;
 
-class CheckHealthHandler implements CommandHandler
+final class CheckHealthHandler implements CommandHandler
 {
     use CommandHandlerTrait;
 
@@ -26,16 +27,16 @@ class CheckHealthHandler implements CommandHandler
 
     /**
      * @param CheckHealth $command
-     * @param Pbjx $pbjx
+     * @param Pbjx        $pbjx
      */
-    protected function handle(CheckHealth $command, Pbjx $pbjx)
+    protected function handle(CheckHealth $command, Pbjx $pbjx): void
     {
         $event = HealthCheckedV1::create()->set('msg', $command->get('msg'));
         $pbjx->copyContext($command, $event)->publish($event);
         $this->logger->info('CheckHealthHandler published [{pbj_schema}] with message [{msg}].', [
-            'msg' => $event->get('msg'),
+            'msg'        => $event->get('msg'),
             'pbj_schema' => $event::schema()->getId()->toString(),
-            'pbj' => $event->toArray(),
+            'pbj'        => $event->toArray(),
         ]);
     }
 }

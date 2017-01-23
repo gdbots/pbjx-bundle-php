@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle;
 
@@ -6,9 +7,6 @@ use Gdbots\Pbj\SchemaCurie;
 use Gdbots\Pbjx\AbstractServiceLocator;
 use Gdbots\Pbjx\CommandBus;
 use Gdbots\Pbjx\CommandHandler;
-use Gdbots\Pbjx\DefaultCommandBus;
-use Gdbots\Pbjx\DefaultEventBus;
-use Gdbots\Pbjx\DefaultRequestBus;
 use Gdbots\Pbjx\EventBus;
 use Gdbots\Pbjx\EventSearch\EventSearch;
 use Gdbots\Pbjx\EventStore\EventStore;
@@ -17,6 +15,9 @@ use Gdbots\Pbjx\Exception\HandlerNotFound;
 use Gdbots\Pbjx\Pbjx;
 use Gdbots\Pbjx\RequestBus;
 use Gdbots\Pbjx\RequestHandler;
+use Gdbots\Pbjx\SimpleCommandBus;
+use Gdbots\Pbjx\SimpleEventBus;
+use Gdbots\Pbjx\SimpleRequestBus;
 use Gdbots\Pbjx\Transport\Transport;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -48,7 +49,7 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
     /**
      * @return Pbjx
      */
-    protected function doGetPbjx()
+    protected function doGetPbjx(): Pbjx
     {
         return $this->container->get('pbjx');
     }
@@ -56,7 +57,7 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
     /**
      * @return EventDispatcherInterface
      */
-    protected function doGetDispatcher()
+    protected function doGetDispatcher(): EventDispatcherInterface
     {
         return $this->container->get('gdbots_pbjx.event_dispatcher');
     }
@@ -64,31 +65,31 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
     /**
      * @return CommandBus
      */
-    protected function doGetCommandBus()
+    protected function doGetCommandBus(): CommandBus
     {
-        return new DefaultCommandBus($this, $this->getTransportForBus('command'));
+        return new SimpleCommandBus($this, $this->getTransportForBus('command'));
     }
 
     /**
      * @return EventBus
      */
-    protected function doGetEventBus()
+    protected function doGetEventBus(): EventBus
     {
-        return new DefaultEventBus($this, $this->getTransportForBus('event'));
+        return new SimpleEventBus($this, $this->getTransportForBus('event'));
     }
 
     /**
      * @return RequestBus
      */
-    protected function doGetRequestBus()
+    protected function doGetRequestBus(): RequestBus
     {
-        return new DefaultRequestBus($this, $this->getTransportForBus('request'));
+        return new SimpleRequestBus($this, $this->getTransportForBus('request'));
     }
 
     /**
      * @return ExceptionHandler
      */
-    protected function doGetExceptionHandler()
+    protected function doGetExceptionHandler(): ExceptionHandler
     {
         return $this->container->get('gdbots_pbjx.exception_handler');
     }
@@ -96,7 +97,7 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
     /**
      * @return EventStore
      */
-    protected function doGetEventStore()
+    protected function doGetEventStore(): EventStore
     {
         $provider = $this->container->getParameter('gdbots_pbjx.event_store.provider');
         return $this->container->get('gdbots_pbjx.event_store.' . $provider);
@@ -105,7 +106,7 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
     /**
      * @return EventSearch
      */
-    protected function doGetEventSearch()
+    protected function doGetEventSearch(): EventSearch
     {
         $provider = $this->container->getParameter('gdbots_pbjx.event_search.provider');
         return $this->container->get('gdbots_pbjx.event_search.' . $provider);
@@ -114,7 +115,7 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
     /**
      * {@inheritdoc}
      */
-    public function getCommandHandler(SchemaCurie $curie)
+    public function getCommandHandler(SchemaCurie $curie): CommandHandler
     {
         return $this->getHandler($curie);
     }
@@ -122,7 +123,7 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
     /**
      * {@inheritdoc}
      */
-    public function getRequestHandler(SchemaCurie $curie)
+    public function getRequestHandler(SchemaCurie $curie): RequestHandler
     {
         return $this->getHandler($curie);
     }
@@ -132,13 +133,14 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
      * This is really only useful in cli commands where you
      * want to see the process run locally.
      */
-    public function forceTransportsToInMemory()
+    public function forceTransportsToInMemory(): void
     {
         $this->forceTransportsToInMemory = true;
     }
 
     /**
      * @param SchemaCurie $curie
+     *
      * @return CommandHandler|RequestHandler
      *
      * @throws HandlerNotFound
@@ -151,7 +153,6 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
             return $this->container->get($id);
         } catch (\Exception $e) {
             $guesser = $this->getHandlerGuesser();
-            /** @var CommandHandler|RequestHandler $className */
             $className = $guesser->guessHandler($curie);
             if (class_exists($className)) {
                 return $guesser->createHandler($curie, $className, $this->container);
@@ -163,12 +164,13 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
 
     /**
      * @param SchemaCurie $curie
+     *
      * @return string
      */
-    protected function curieToServiceId(SchemaCurie $curie)
+    protected function curieToServiceId(SchemaCurie $curie): string
     {
         return str_replace('-', '_', sprintf('%s_%s.%s_handler',
-            $curie->getVendor(), $curie->getPackage(), $curie->getMessage())
+                $curie->getVendor(), $curie->getPackage(), $curie->getMessage())
         );
     }
 
@@ -179,7 +181,7 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
      *
      * @throws \Exception
      */
-    protected function getTransportForBus($name)
+    protected function getTransportForBus($name): Transport
     {
         if ($this->forceTransportsToInMemory) {
             return $this->container->get('gdbots_pbjx.transport.in_memory');
@@ -196,7 +198,7 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
     /**
      * @return HandlerGuesser
      */
-    protected function getHandlerGuesser()
+    protected function getHandlerGuesser(): HandlerGuesser
     {
         if (null === $this->handlerGuesser) {
             $this->handlerGuesser = $this->container->get('gdbots_pbjx.handler_guesser');

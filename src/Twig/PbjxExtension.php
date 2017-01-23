@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Twig;
 
@@ -15,20 +15,20 @@ use Psr\Log\NullLogger;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormView;
 
-class PbjxExtension extends \Twig_Extension
+final class PbjxExtension extends \Twig_Extension
 {
     /** @var ContainerInterface */
-    protected $container;
+    private $container;
 
     /** @var LoggerInterface */
-    protected $logger;
+    private $logger;
 
     /** @var bool */
-    protected $debug = false;
+    private $debug = false;
 
     /**
-     * @param ContainerInterface   $container
-     * @param LoggerInterface|null $logger
+     * @param ContainerInterface $container
+     * @param LoggerInterface    $logger
      */
     public function __construct(ContainerInterface $container, ?LoggerInterface $logger = null)
     {
@@ -161,7 +161,7 @@ class PbjxExtension extends \Twig_Extension
     /**
      * @return Pbjx
      */
-    protected function getPbjx(): Pbjx
+    private function getPbjx(): Pbjx
     {
         return $this->container->get('pbjx');
     }

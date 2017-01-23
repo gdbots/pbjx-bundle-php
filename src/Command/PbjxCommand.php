@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
@@ -34,17 +35,45 @@ payload provided and return an envelope (also json) with the results.
 
 EOF
             )
-            ->addOption('user-agent', null, InputOption::VALUE_REQUIRED, 'The http user agent to run as for this command.')
-            ->addOption('in-memory', null, InputOption::VALUE_NONE, 'Forces all transports to be "in_memory".  Useful for debugging.')
-            ->addOption('device-view', null, InputOption::VALUE_REQUIRED, 'When gdbots/app-bundle is in use you can provide device-view to populate request and server attributes.')
-            ->addOption('pretty', null, InputOption::VALUE_NONE, 'Prints the json response with JSON_PRETTY_PRINT.')
-            ->addArgument('curie', InputArgument::REQUIRED, 'The pbj message curie to use for the provided payload (json).')
-            ->addArgument('json', InputArgument::REQUIRED, 'The pbj message itself as json (on one line).')
-        ;
+            ->addOption(
+                'user-agent',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'The http user agent to run as for this command.'
+            )
+            ->addOption(
+                'in-memory',
+                null,
+                InputOption::VALUE_NONE,
+                'Forces all transports to be "in_memory".  Useful for debugging.'
+            )
+            ->addOption(
+                'device-view',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'When gdbots/app-bundle is in use you can provide device-view to ' .
+                'populate request and server attributes.'
+            )
+            ->addOption(
+                'pretty',
+                null,
+                InputOption::VALUE_NONE,
+                'Prints the json response with JSON_PRETTY_PRINT.'
+            )
+            ->addArgument(
+                'curie',
+                InputArgument::REQUIRED,
+                'The pbj message curie to use for the provided payload (json).'
+            )
+            ->addArgument(
+                'json',
+                InputArgument::REQUIRED,
+                'The pbj message itself as json (on one line).'
+            );
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
      *
      * @return null
@@ -117,7 +146,7 @@ EOF
     /**
      * @return PbjxController
      */
-    protected function getPbjxController()
+    protected function getPbjxController(): PbjxController
     {
         return $this->getContainer()->get('gdbots_pbjx.pbjx_controller');
     }

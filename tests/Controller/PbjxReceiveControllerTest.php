@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Tests\Bundle\PbjxBundle\Controller;
 
@@ -60,7 +61,7 @@ class PbjxReceiveControllerTest extends \PHPUnit_Framework_TestCase
         }, $messages));
 
         $lines .= PHP_EOL . 'invalid json';
-        $lines .= PHP_EOL.PHP_EOL;
+        $lines .= PHP_EOL . PHP_EOL;
 
         $request = new Request([], [], [], [], [], ['HTTP_x-pbjx-receive-key' => 'test'], $lines);
         $request->setMethod('POST');

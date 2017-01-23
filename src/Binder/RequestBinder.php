@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Binder;
 
@@ -8,7 +9,7 @@ use Gdbots\Pbjx\EventSubscriber;
 use Gdbots\Schemas\Pbjx\Mixin\Request\Request as PbjxRequest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class RequestBinder implements EventSubscriber
+final class RequestBinder implements EventSubscriber
 {
     use MessageBinderTrait;
 
@@ -23,7 +24,7 @@ class RequestBinder implements EventSubscriber
     /**
      * @param PbjxEvent $pbjxEvent
      */
-    public function bind(PbjxEvent $pbjxEvent)
+    public function bind(PbjxEvent $pbjxEvent): void
     {
         /** @var PbjxRequest $message */
         $message = $pbjxEvent->getMessage();
@@ -35,7 +36,7 @@ class RequestBinder implements EventSubscriber
         if ($restricted) {
             $fields = array_filter(
                 $message::schema()->getMixin('gdbots:pbjx:mixin:request')->getFields(),
-                function(Field $field) {
+                function (Field $field) {
                     // we allow the client to set ctx_app
                     return 'ctx_app' !== $field->getName();
                 }
