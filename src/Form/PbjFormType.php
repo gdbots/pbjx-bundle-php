@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form;
 
@@ -12,5 +13,5 @@ interface PbjFormType extends FormTypeInterface
      *
      * @return Schema
      */
-    public static function pbjSchema();
+    public static function pbjSchema(): Schema
 }

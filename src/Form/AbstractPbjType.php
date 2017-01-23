@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form;
 
@@ -34,7 +35,7 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
      * @param mixed           $data  Structured data.
      * @param FormInterface[] $forms A list of {@link FormInterface} instances.
      */
-    public function mapDataToForms($data, $forms)
+    public function mapDataToForms($data, $forms): void
     {
         $schema = static::pbjSchema();
         $forms = iterator_to_array($forms);
@@ -70,8 +71,10 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
      *
      * @param FormInterface[] $forms A list of {@link FormInterface} instances.
      * @param mixed           $data  Structured data.
+     *
+     * @return bool
      */
-    public function mapFormsToData($forms, &$data)
+    public function mapFormsToData($forms, &$data): bool
     {
         $schema = static::pbjSchema();
         $isRoot = true;
@@ -125,6 +128,8 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
             // array and fail when no _schema field is present.
             $data = $isRoot ? [] : null;
         }
+
+        return true;
     }
 
     /**
@@ -138,7 +143,7 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
         array $options,
         array $ignoredFields = [],
         array $hiddenFields = []
-    ) {
+    ): void {
         $schema = static::pbjSchema();
         $builder->setDataMapper($this);
         $ignoredFields = array_merge(array_flip($ignoredFields), self::getIgnoredFields());
@@ -173,7 +178,7 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
     /**
      * @return FormFieldFactory
      */
-    final protected function getFormFieldFactory()
+    final protected function getFormFieldFactory(): FormFieldFactory
     {
         if (null === $this->formFieldFactory) {
             $this->formFieldFactory = new FormFieldFactory();
@@ -186,7 +191,7 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
      * @param FormInterface|FormBuilderInterface $form
      * @param Field                              $pbjField
      */
-    private function setFormDefault($form, Field $pbjField)
+    private function setFormDefault($form, Field $pbjField): void
     {
         $pbjType = $pbjField->getType();
         $default = $pbjField->getDefault();
@@ -225,7 +230,7 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
     /**
      * @return string[]
      */
-    private static function getIgnoredFields()
+    private static function getIgnoredFields(): array
     {
         if (null !== self::$ignoredFields) {
             return self::$ignoredFields;

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form\DataTransformer;
 
@@ -11,10 +12,10 @@ class KeyValueToArrayTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function transform($value)
+    public function transform($value): ?array
     {
         if (empty($value)) {
-            return null;
+            return;
         }
 
         if (!is_array($value)) {
@@ -23,17 +24,17 @@ class KeyValueToArrayTransformer implements DataTransformerInterface
 
         return [
             'key' => array_keys($value)[0],
-            'value' => array_values($value)[0]
+            'value' => array_values($value)[0],
         ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function reverseTransform($value)
+    public function reverseTransform($value): ?array
     {
         if (empty($value)) {
-            return null;
+            return;
         }
 
         if (!is_array($value)) {
@@ -45,11 +46,11 @@ class KeyValueToArrayTransformer implements DataTransformerInterface
         }
 
         if (empty($value['key'])) {
-            return null;
+            return;
         }
 
         return [
-            $value['key'] => $value['value']
+            $value['key'] => $value['value'],
         ];
     }
 }

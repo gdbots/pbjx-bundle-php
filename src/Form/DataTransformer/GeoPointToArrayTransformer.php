@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form\DataTransformer;
 
@@ -12,10 +13,10 @@ class GeoPointToArrayTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function transform($value)
+    public function transform($value): ?GeoPoint
     {
         if (empty($value)) {
-            return null;
+            return;
         }
 
         if (!is_array($value)) {
@@ -28,10 +29,10 @@ class GeoPointToArrayTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function reverseTransform($value)
+    public function reverseTransform($value): ?array
     {
         if (empty($value)) {
-            return null;
+            return;
         }
 
         if (!is_array($value)) {
@@ -45,8 +46,8 @@ class GeoPointToArrayTransformer implements DataTransformerInterface
         return [
             'coordinates' => [
                 $value['longitude'],
-                $value['latitude']
-            ]
+                $value['latitude'],
+            ],
         ];
     }
 }

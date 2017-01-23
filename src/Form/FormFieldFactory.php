@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form;
 
@@ -78,7 +79,7 @@ final class FormFieldFactory
      *
      * @return bool
      */
-    public function supports(Field $pbjField)
+    public function supports(Field $pbjField): bool
     {
         return isset($this->types[$pbjField->getType()->getTypeValue()]);
     }
@@ -88,7 +89,7 @@ final class FormFieldFactory
      *
      * @return FormField
      */
-    public function create(Field $pbjField)
+    public function create(Field $pbjField): FormField
     {
         $symfonyType = $this->getSymfonyType($pbjField);
         $options = $this->getOptions($pbjField);
@@ -126,7 +127,7 @@ final class FormFieldFactory
      *
      * @return string
      */
-    private function getSymfonyType(Field $pbjField)
+    private function getSymfonyType(Field $pbjField): string
     {
         $pbjType = $pbjField->getType();
 
@@ -154,7 +155,7 @@ final class FormFieldFactory
      *
      * @return array
      */
-    private function getOptions(Field $pbjField)
+    private function getOptions(Field $pbjField): array
     {
         $options = [
             'required' => $pbjField->isRequired(),

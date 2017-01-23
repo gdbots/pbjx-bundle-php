@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form;
 
@@ -30,7 +31,7 @@ class FormField
     /**
      * @return Field
      */
-    public function getPbjField()
+    public function getPbjField(): Field
     {
         return $this->pbjField;
     }
@@ -38,7 +39,7 @@ class FormField
     /**
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->pbjField->getName();
     }
@@ -46,7 +47,7 @@ class FormField
     /**
      * @return string
      */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
@@ -54,7 +55,7 @@ class FormField
     /**
      * @return array
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->options;
     }
@@ -65,7 +66,7 @@ class FormField
      *
      * @return self
      */
-    public function setOption($name, $value)
+    public function setOption($name, $value): FormField
     {
         $this->options[$name] = $value;
 
@@ -77,7 +78,7 @@ class FormField
      *
      * @return self
      */
-    public function removeOption($name)
+    public function removeOption($name): FormField
     {
         unset($this->options[$name]);
 

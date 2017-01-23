@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form\EventListener;
 
@@ -11,7 +12,7 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             FormEvents::PRE_SUBMIT => 'preSubmit',
@@ -24,12 +25,12 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
      *
      * @param FormEvent $event
      */
-    public function preSubmit(FormEvent $event)
+    public function preSubmit(FormEvent $event): void
     {
         $items = $event->getData();
 
         if (!$items || !is_array($items)) {
-            return null;
+            return;
         }
 
         $notEmptyItems = [];
@@ -51,12 +52,12 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
      *
      * @param FormEvent $event
      */
-    public function submit(FormEvent $event)
+    public function submit(FormEvent $event): void
     {
         $items = $event->getData();
 
         if (!$items || !is_array($items)) {
-            return null;
+            return;
         }
 
         foreach ($items as $index => $item) {
@@ -75,7 +76,7 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
      *
      * @return bool
      */
-    protected function isEmpty($value)
+    protected function isEmpty($value): bool
     {
         if (!is_array($value)) {
             $value = [$value];

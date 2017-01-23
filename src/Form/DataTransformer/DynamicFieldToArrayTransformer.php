@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form\DataTransformer;
 
@@ -12,10 +13,10 @@ class DynamicFieldToArrayTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function transform($value)
+    public function transform($value): ?DynamicField
     {
         if (empty($value)) {
-            return null;
+            return;
         }
 
         if (!is_array($value)) {
@@ -28,10 +29,10 @@ class DynamicFieldToArrayTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function reverseTransform($value)
+    public function reverseTransform($value): ?array
     {
         if (empty($value)) {
-            return null;
+            return;
         }
 
         if (!is_array($value)) {
@@ -43,12 +44,12 @@ class DynamicFieldToArrayTransformer implements DataTransformerInterface
         }
 
         if (empty($value['name'])) {
-            return null;
+            return;
         }
 
         return [
             'name' => $value['name'],
-            $value['kind'] => $value['value']
+            $value['kind'] => $value['value'],
         ];
     }
 }

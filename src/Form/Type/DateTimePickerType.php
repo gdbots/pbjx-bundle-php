@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form\Type;
 
@@ -11,7 +12,7 @@ class DateTimePickerType extends DatePickerType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         parent::configureOptions($resolver);
 
@@ -27,7 +28,7 @@ class DateTimePickerType extends DatePickerType
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function getParent(): string
     {
         return DateTimeType::class;
     }
@@ -35,7 +36,7 @@ class DateTimePickerType extends DatePickerType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'gdbots_pbjx_datetime_picker';
     }

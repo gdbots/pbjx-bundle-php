@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form\Type;
 
@@ -26,7 +27,7 @@ class SwitcheryType extends AbstractType
     /**
      * @inheritDoc
      */
-    public function buildView(FormView $view, FormInterface $form, array $options)
+    public function buildView(FormView $view, FormInterface $form, array $options):void
     {
         $view->vars['js_options'] = $this->parseJsOptions(array_intersect_key($options, $this->jsOptions));
     }
@@ -34,7 +35,7 @@ class SwitcheryType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(
             array_merge(
@@ -49,7 +50,7 @@ class SwitcheryType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function getParent(): string
     {
         return CheckboxType::class;
     }
@@ -57,7 +58,7 @@ class SwitcheryType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'gdbots_pbjx_switchery';
     }
@@ -67,7 +68,7 @@ class SwitcheryType extends AbstractType
      *
      * @return array
      */
-    private function parseJsOptions(array $options)
+    private function parseJsOptions(array $options): array
     {
         // remove null settings
         $options = array_filter(
