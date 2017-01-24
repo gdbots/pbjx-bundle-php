@@ -42,12 +42,8 @@ trait PbjxAwareControllerTrait
      *
      * @return FormInterface
      */
-    protected function handlePbjForm(
-        Request $request,
-        string $type,
-        array $input = [],
-        array $options = []
-    ): FormInterface {
+    protected function handlePbjForm(Request $request, string $type, array $input = [], array $options = []): FormInterface
+    {
         /** @var FormInterface $form */
         $form = $this->container->get('form.factory')->create($type, $input, $options);
 

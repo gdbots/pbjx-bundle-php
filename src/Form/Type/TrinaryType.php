@@ -21,7 +21,7 @@ class TrinaryType extends AbstractType
         }
 
         $resolver->setDefaults([
-            'choices' => $values
+            'choices' => $values,
         ]);
     }
 

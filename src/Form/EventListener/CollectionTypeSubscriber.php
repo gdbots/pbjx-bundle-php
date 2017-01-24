@@ -16,7 +16,7 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
     {
         return [
             FormEvents::PRE_SUBMIT => 'preSubmit',
-            FormEvents::SUBMIT => 'submit'
+            FormEvents::SUBMIT     => 'submit',
         ];
     }
 
@@ -28,14 +28,11 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
     public function preSubmit(FormEvent $event): void
     {
         $items = $event->getData();
-
         if (!$items || !is_array($items)) {
             return;
         }
 
         $notEmptyItems = [];
-
-        // remove empty items
         foreach ($items as $index => $item) {
             if (!$this->isEmpty($item)) {
                 $notEmptyItems[$index] = $item;
@@ -43,7 +40,6 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
         }
 
         $items = $notEmptyItems;
-
         $event->setData($items);
     }
 
@@ -55,7 +51,6 @@ class CollectionTypeSubscriber implements EventSubscriberInterface
     public function submit(FormEvent $event): void
     {
         $items = $event->getData();
-
         if (!$items || !is_array($items)) {
             return;
         }

@@ -13,15 +13,15 @@ class SwitcheryType extends AbstractType
 {
     /** @var array */
     protected $jsOptions = [
-        'sw_color' => null,
-        'sw_secondaryColor' => null,
-        'sw_jackColor' => null,
+        'sw_color'              => null,
+        'sw_secondaryColor'     => null,
+        'sw_jackColor'          => null,
         'sw_jackSecondaryColor' => null,
-        'sw_className' => null,
-        'sw_disabled' => null,
-        'sw_disabledOpacity' => null,
-        'sw_speed' => null,
-        'sw_size' => null
+        'sw_className'          => null,
+        'sw_disabled'           => null,
+        'sw_disabledOpacity'    => null,
+        'sw_speed'              => null,
+        'sw_size'               => null,
     ];
 
     /**
@@ -40,7 +40,7 @@ class SwitcheryType extends AbstractType
         $resolver->setDefaults(
             array_merge(
                 [
-                    'required' => false
+                    'required' => false,
                 ],
                 $this->jsOptions
             )

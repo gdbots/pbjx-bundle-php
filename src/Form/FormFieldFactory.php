@@ -38,7 +38,7 @@ final class FormFieldFactory
      *
      * @var array
      */
-    protected $types = [
+    private $types = [
         'big-int'           => TextType::class,
         //'binary'            => 'todo', // todo: handle as file or textarea?
         //'blob'              => 'todo', // todo: ref binary
@@ -71,7 +71,7 @@ final class FormFieldFactory
         'timestamp'         => TimeType::class,
         'tiny-int'          => IntegerType::class,
         'trinary'           => TrinaryType::class,
-        'uuid'              => TextType::class
+        'uuid'              => TextType::class,
     ];
 
     /**
@@ -106,17 +106,17 @@ final class FormFieldFactory
         // handle maps (assoc array)
         if ($pbjField->isAMap()) {
             $options = array_merge([
-                'required' => $options['required'],
-                'value_type' => $symfonyType,
-                'value_options' => $options
+                'required'      => $options['required'],
+                'value_type'    => $symfonyType,
+                'value_options' => $options,
             ]);
 
             $symfonyType = KeyValueType::class;
         }
 
         $collectionOptions = [
-            'entry_type' => $symfonyType,
-            'entry_options' => $options
+            'entry_type'    => $symfonyType,
+            'entry_options' => $options,
         ];
 
         return new FormField($pbjField, CollectionType::class, $collectionOptions);
@@ -158,8 +158,8 @@ final class FormFieldFactory
     private function getOptions(Field $pbjField): array
     {
         $options = [
-            'required' => $pbjField->isRequired(),
-            'constraints' => []
+            'required'    => $pbjField->isRequired(),
+            'constraints' => [],
         ];
 
         if ($pbjField->isRequired()) {
@@ -171,12 +171,12 @@ final class FormFieldFactory
             case TypeName::STRING:
                 $options['constraints'][] = new Length([
                     'min' => $pbjField->getMinLength(),
-                    'max' => $pbjField->getMaxLength()
+                    'max' => $pbjField->getMaxLength(),
                 ]);
 
                 if ($pattern = $pbjField->getPattern()) {
                     $options['constraints'][] = new Regex([
-                        'pattern' => '/'.trim($pattern, '/').'/'
+                        'pattern' => '/' . trim($pattern, '/') . '/',
                     ]);
                 }
 
@@ -186,30 +186,30 @@ final class FormFieldFactory
             case TypeName::UUID:
             case TypeName::TIME_UUID:
                 $options['constraints'][] = new Regex([
-                    'pattern' => '/^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/'
+                    'pattern' => '/^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/',
                 ]);
                 break;
 
             case TypeName::IDENTIFIER:
                 $options['constraints'][] = new Regex([
-                    'pattern' => '/^[\\w\\.-_]+$/'
+                    'pattern' => '/^[\\w\\.-_]+$/',
                 ]);
                 $options['constraints'][] = new Length([
                     'min' => $pbjField->getMinLength(),
-                    'max' => $pbjField->getMaxLength()
+                    'max' => $pbjField->getMaxLength(),
                 ]);
                 break;
 
             case TypeName::MICROTIME:
                 $options['constraints'][] = new Regex([
-                    'pattern' => '/^[1-9]{1}[0-9]{12,15}$/'
+                    'pattern' => '/^[1-9]{1}[0-9]{12,15}$/',
                 ]);
                 break;
 
             case TypeName::BIG_INT:
             case TypeName::SIGNED_BIG_INT:
                 $options['constraints'][] = new Regex([
-                    'pattern' => '/^\-?\d+$/'
+                    'pattern' => '/^\-?\d+$/',
                 ]);
                 break;
 
@@ -217,7 +217,7 @@ final class FormFieldFactory
             case TypeName::MEDIUM_TEXT:
                 $options['constraints'][] = new Length([
                     'min' => $pbjField->getMinLength(),
-                    'max' => $pbjField->getMaxLength()
+                    'max' => $pbjField->getMaxLength(),
                 ]);
                 break;
 
@@ -239,7 +239,7 @@ final class FormFieldFactory
             case TypeName::TINY_INT:
                 $options['constraints'][] = new Range([
                     'min' => $pbjField->getMin(),
-                    'max' => $pbjField->getMax()
+                    'max' => $pbjField->getMax(),
                 ]);
                 break;
 

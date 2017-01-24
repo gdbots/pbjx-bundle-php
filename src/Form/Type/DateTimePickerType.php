@@ -18,9 +18,9 @@ class DateTimePickerType extends DatePickerType
 
         $resolver->setDefault('js_options', function (Options $options, $previousValue): array {
             return array_merge($previousValue, [
-                'timePicker' => true,
+                'timePicker'          => true,
                 'timePickerIncrement' => 15,
-                'locale' => ['format' => 'YYYY-MM-DDTHH:mm:ss.SSSSSS\Z']
+                'locale'              => ['format' => 'YYYY-MM-DDTHH:mm:ss.SSSSSS\Z'],
             ]);
         });
     }

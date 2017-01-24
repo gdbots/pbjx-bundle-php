@@ -252,12 +252,8 @@ final class PbjxController
      *
      * @return Envelope
      */
-    private function handleException(
-        Envelope $envelope,
-        Request $request,
-        Message $message,
-        \Exception $exception
-    ): Envelope {
+    private function handleException(Envelope $envelope, Request $request, Message $message, \Exception $exception): Envelope
+    {
         if ($exception instanceof HasEndUserMessage) {
             $code = $exception->getCode();
             $httpCode = StatusCodeConverter::vendorToHttp($code);

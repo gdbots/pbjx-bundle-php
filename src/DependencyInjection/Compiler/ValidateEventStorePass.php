@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler;
 
@@ -36,13 +37,13 @@ class ValidateEventStorePass implements CompilerPassInterface
 
     /**
      * @param ContainerBuilder $container
-     * @param string $provider
+     * @param string           $provider
      *
      * @throws \LogicException
      */
-    private function ensureProviderExists(ContainerBuilder $container, $provider)
+    private function ensureProviderExists(ContainerBuilder $container, string $provider): void
     {
-        $serviceId = 'gdbots_pbjx.event_store.'.$provider;
+        $serviceId = 'gdbots_pbjx.event_store.' . $provider;
         if ($container->hasDefinition($serviceId)) {
             return;
         }
@@ -61,7 +62,7 @@ class ValidateEventStorePass implements CompilerPassInterface
      *
      * @throws \LogicException
      */
-    private function validateDynamoDbProvider(ContainerBuilder $container)
+    private function validateDynamoDbProvider(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition('aws.dynamodb')) {
             throw new \LogicException(

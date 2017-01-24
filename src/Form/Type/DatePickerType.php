@@ -20,11 +20,11 @@ class DatePickerType extends AbstractType
     public function finishView(FormView $view, FormInterface $form, array $options)
     {
         $view->vars = array_replace($view->vars, [
-            'group_icon' => null,
+            'group_icon'  => null,
             'clear_label' => null,
-            'clear_icon' => null,
-            'js_options' => null,
-            'js_callback' => null
+            'clear_icon'  => null,
+            'js_options'  => null,
+            'js_callback' => null,
         ]);
 
         foreach (array_keys($view->vars) as $key) {
@@ -41,20 +41,20 @@ class DatePickerType extends AbstractType
     {
         $resolver->setDefaults([
             'model_timezone' => 'UTC',
-            'view_timezone' => 'UTC',
-            'widget' => 'single_text',
-            'group_icon' => null,
-            'clear_label' => null,
-            'clear_icon' => null,
-            'js_options' => [
+            'view_timezone'  => 'UTC',
+            'widget'         => 'single_text',
+            'group_icon'     => null,
+            'clear_label'    => null,
+            'clear_icon'     => null,
+            'js_options'     => [
                 'singleDatePicker' => true,
-                'autoApply' => true,
-                'locale' => ['format' => 'YYYY-MM-DD'],
-                'opens' => 'left',
-                'applyClass' => 'bg-slate',
-                'cancelClass' => 'btn-default'
+                'autoApply'        => true,
+                'locale'           => ['format' => 'YYYY-MM-DD'],
+                'opens'            => 'left',
+                'applyClass'       => 'bg-slate',
+                'cancelClass'      => 'btn-default',
             ],
-            'js_callback' => 'function(start, end, label) {}'
+            'js_callback'    => 'function(start, end, label) {}',
         ]);
     }
 

@@ -27,7 +27,7 @@ class KeyValueType extends AbstractType
             }
 
             $options['key_options']['constraints'][] = new Regex([
-                'pattern' => '/^[a-zA-Z_]{1}[a-zA-Z0-9_-]*$/'
+                'pattern' => '/^[a-zA-Z_]{1}[a-zA-Z0-9_-]*$/',
             ]);
 
             if (!isset($options['key_options']['attr'])) {
@@ -53,10 +53,10 @@ class KeyValueType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'key_type' => TextType::class,
-            'key_options' => [],
+            'key_type'      => TextType::class,
+            'key_options'   => [],
             'value_options' => [],
-            'allowed_keys' => null
+            'allowed_keys'  => null,
         ]);
 
         $resolver->setRequired(['value_type']);

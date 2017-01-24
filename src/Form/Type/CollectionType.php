@@ -31,13 +31,13 @@ class CollectionType extends AbstractType
     {
         $view->vars = array_replace($view->vars, [
             'show_form_when_empty' => $options['show_form_when_empty'],
-            'prototype_name' => $options['prototype_name'],
-            'row_count_add' => $options['row_count_add'],
-            'row_count_initial' => $options['row_count_initial'],
-            'add_label' => $options['add_label'],
-            'add_icon' => $options['add_icon'],
-            'remove_label' => $options['remove_label'],
-            'remove_icon' => $options['remove_icon']
+            'prototype_name'       => $options['prototype_name'],
+            'row_count_add'        => $options['row_count_add'],
+            'row_count_initial'    => $options['row_count_initial'],
+            'add_label'            => $options['add_label'],
+            'add_icon'             => $options['add_icon'],
+            'remove_label'         => $options['remove_label'],
+            'remove_icon'          => $options['remove_icon'],
         ]);
     }
 
@@ -47,23 +47,22 @@ class CollectionType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'allow_add' => true,
-            'allow_delete' => true,
-            'prototype' => true,
-            'prototype_name' => '__name__',
+            'allow_add'            => true,
+            'allow_delete'         => true,
+            'prototype'            => true,
+            'prototype_name'       => '__name__',
             'show_form_when_empty' => true,
-            'row_count_add' => 1,
-            'row_count_initial' => 1,
-            'add_label' => null,
-            'add_icon' => null,
-            'remove_label' => null,
-            'remove_icon' => null
+            'row_count_add'        => 1,
+            'row_count_initial'    => 1,
+            'add_label'            => null,
+            'add_icon'             => null,
+            'remove_label'         => null,
+            'remove_icon'          => null,
         ]);
 
         $resolver->setRequired(['entry_type']);
-
         $resolver->setNormalizer('show_form_when_empty', function (Options $options, $value): bool {
-            return !$options['allow_add'] ? false : (bool) $value;
+            return !$options['allow_add'] ? false : (bool)$value;
         });
     }
 

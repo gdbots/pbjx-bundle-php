@@ -21,7 +21,7 @@ class FormField
      * @param string $type
      * @param array  $options
      */
-    public function __construct(Field $pbjField, $type, array $options = [])
+    public function __construct(Field $pbjField, string $type, array $options = [])
     {
         $this->pbjField = $pbjField;
         $this->type = $type;
@@ -66,10 +66,9 @@ class FormField
      *
      * @return self
      */
-    public function setOption($name, $value): FormField
+    public function setOption(string $name, $value): self
     {
         $this->options[$name] = $value;
-
         return $this;
     }
 
@@ -78,10 +77,9 @@ class FormField
      *
      * @return self
      */
-    public function removeOption($name): FormField
+    public function removeOption(string $name): self
     {
         unset($this->options[$name]);
-
         return $this;
     }
 }

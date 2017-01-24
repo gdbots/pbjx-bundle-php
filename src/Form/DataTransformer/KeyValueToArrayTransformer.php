@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form\DataTransformer;
 
@@ -23,7 +23,7 @@ class KeyValueToArrayTransformer implements DataTransformerInterface
         }
 
         return [
-            'key' => array_keys($value)[0],
+            'key'   => array_keys($value)[0],
             'value' => array_values($value)[0],
         ];
     }

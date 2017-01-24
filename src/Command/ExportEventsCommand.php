@@ -1,9 +1,11 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
 use Gdbots\Common\Util\NumberUtils;
 use Gdbots\Pbj\WellKnown\Microtime;
+use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
 use Gdbots\Schemas\Pbjx\StreamId;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -23,25 +25,64 @@ class ExportEventsCommand extends ContainerAwareCommand
     {
         $this
             ->setName('pbjx:export-events')
-            ->setDescription('Streams events from the event store for a given stream id and writes them to STDOUT.')
+            ->setDescription('Pipes events from the EventStore for a given stream id to STDOUT.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will stream events from the pbjx event store for a given stream id and write the json
-value of the event on one line (json newline delimited) to STDOUT.
+The <info>%command.name%</info> command will pipe events from the pbjx EventStore for a given stream id 
+and write the json value of the event on one line (json newline delimited) to STDOUT.
 
-<info>php %command.full_name% --hints='{"tenant_id":"123"}' stream-id</info>
+<info>php %command.full_name% --tenant-id=client1 'stream-id'</info>
 
 EOF
             )
-            ->addOption('batch-size', null, InputOption::VALUE_REQUIRED, 'Number of events to export at a time.', 100)
-            ->addOption('batch-delay', null, InputOption::VALUE_REQUIRED, 'Number of milliseconds (1000 = 1 second) to delay between batches.', 1000)
-            ->addOption('since', null, InputOption::VALUE_REQUIRED, 'Exports events where occurred_at is greater than this time (unix timestamp or 16 digit microtime as int).')
-            ->addOption('hints', null, InputOption::VALUE_REQUIRED, 'Hints to provide to the event store (json).')
-            ->addArgument('stream-id', InputArgument::REQUIRED, 'The stream to export messages from.  See Gdbots\Schemas\Pbjx\StreamId for details.')
-        ;
+            ->addOption(
+                'batch-size',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Number of events to export at a time.',
+                100
+            )
+            ->addOption(
+                'batch-delay',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Number of milliseconds (1000 = 1 second) to delay between batches.',
+                1000
+            )
+            ->addOption(
+                'since',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Exports events where occurred_at is greater than this time ' .
+                '(unix timestamp or 16 digit microtime as int).'
+            )
+            ->addOption(
+                'until',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Exports events where occurred_at is less than this time ' .
+                '(unix timestamp or 16 digit microtime as int).'
+            )
+            ->addOption(
+                'tenant-id',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Tenant Id to use for this operation.'
+            )
+            ->addOption(
+                'context',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Context to provide to the EventStore (json).'
+            )
+            ->addArgument(
+                'stream-id',
+                InputArgument::REQUIRED,
+                'The stream to export messages from.  See Gdbots\Schemas\Pbjx\StreamId for details.'
+            );
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
      *
      * @return null
@@ -56,20 +97,24 @@ EOF
         $batchSize = NumberUtils::bound($input->getOption('batch-size'), 1, 1000);
         $batchDelay = NumberUtils::bound($input->getOption('batch-delay'), 100, 600000);
         $since = $input->getOption('since');
-        $hints = json_decode($input->getOption('hints') ?: '{}', true);
+        $until = $input->getOption('until');
+        $context = json_decode($input->getOption('context') ?: '{}', true);
+        $context['tenant_id'] = $input->getOption('tenant-id');
 
         if (!empty($since)) {
             $since = Microtime::fromString(str_pad($since, 16, '0'));
         }
 
-        $pbjx = $this->getPbjx();
-        $i = 0;
+        if (!empty($until)) {
+            $until = Microtime::fromString(str_pad($until, 16, '0'));
+        }
 
-        foreach ($pbjx->getEventStore()->streamEvents($streamId, $since, $hints) as $event) {
+        $i = 0;
+        $receiver = function (Event $event) use ($errOutput, $batchSize, $batchDelay, &$i) {
             ++$i;
 
             try {
-                echo json_encode($event).PHP_EOL;
+                echo json_encode($event) . PHP_EOL;
             } catch (\Exception $e) {
                 $errOutput->writeln($e->getMessage());
             }
@@ -79,6 +124,8 @@ EOF
                     usleep($batchDelay * 1000);
                 }
             }
-        }
+        };
+
+        $this->getPbjx()->getEventStore()->pipeEvents($streamId, $receiver, $since, $until, $context);
     }
 }

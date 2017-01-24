@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler;
 
@@ -18,7 +19,7 @@ class ValidateTransportsPass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         foreach (['command', 'event', 'request'] as $busName) {
-            $transport = $container->getParameter('gdbots_pbjx.'.$busName.'_bus.transport');
+            $transport = $container->getParameter('gdbots_pbjx.' . $busName . '_bus.transport');
             $this->ensureTransportExists($container, $busName, $transport);
 
             switch ($transport) {
@@ -43,14 +44,14 @@ class ValidateTransportsPass implements CompilerPassInterface
 
     /**
      * @param ContainerBuilder $container
-     * @param string $busName
-     * @param string $transport
+     * @param string           $busName
+     * @param string           $transport
      *
      * @throws \LogicException
      */
-    private function ensureTransportExists(ContainerBuilder $container, $busName, $transport)
+    private function ensureTransportExists(ContainerBuilder $container, string $busName, string $transport): void
     {
-        $serviceId = 'gdbots_pbjx.transport.'.$transport;
+        $serviceId = 'gdbots_pbjx.transport.' . $transport;
         if ($container->hasDefinition($serviceId)) {
             return;
         }
@@ -68,7 +69,7 @@ class ValidateTransportsPass implements CompilerPassInterface
     /**
      * @param ContainerBuilder $container
      */
-    private function validateInMemoryTransport(ContainerBuilder $container)
+    private function validateInMemoryTransport(ContainerBuilder $container): void
     {
         // nothing to check
     }
@@ -78,7 +79,7 @@ class ValidateTransportsPass implements CompilerPassInterface
      *
      * @throws \LogicException
      */
-    private function validateFirehoseTransport(ContainerBuilder $container)
+    private function validateFirehoseTransport(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition('gdbots_pbjx.transport.firehose_router')) {
             throw new \LogicException(
@@ -102,7 +103,7 @@ class ValidateTransportsPass implements CompilerPassInterface
      *
      * @throws \LogicException
      */
-    private function validateGearmanTransport(ContainerBuilder $container)
+    private function validateGearmanTransport(ContainerBuilder $container): void
     {
         $parameter = 'gdbots_pbjx.transport.gearman.servers';
         if (!$container->hasParameter($parameter)) {
@@ -126,7 +127,7 @@ class ValidateTransportsPass implements CompilerPassInterface
      *
      * @throws \LogicException
      */
-    private function validateKinesisTransport(ContainerBuilder $container)
+    private function validateKinesisTransport(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition('gdbots_pbjx.transport.kinesis_router')) {
             throw new \LogicException(
