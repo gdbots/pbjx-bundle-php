@@ -25,10 +25,11 @@ class ExportEventsCommand extends ContainerAwareCommand
     {
         $this
             ->setName('pbjx:export-events')
-            ->setDescription('Pipes events from the EventStore for a given stream id to STDOUT.')
+            ->setDescription('Pipes events from the EventStore to STDOUT.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will pipe events from the pbjx EventStore for a given stream id 
-and write the json value of the event on one line (json newline delimited) to STDOUT.
+The <info>%command.name%</info> command will pipe events from the EventStore for the 
+given StreamId if provided or all events and write the json value of the event on one 
+line (json newline delimited) to STDOUT.
 
 <info>php %command.full_name% --tenant-id=client1 'stream-id'</info>
 
@@ -63,20 +64,20 @@ EOF
                 '(unix timestamp or 16 digit microtime as int).'
             )
             ->addOption(
-                'tenant-id',
-                null,
-                InputOption::VALUE_REQUIRED,
-                'Tenant Id to use for this operation.'
-            )
-            ->addOption(
                 'context',
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Context to provide to the EventStore (json).'
             )
+            ->addOption(
+                'tenant-id',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Tenant Id to use for this operation.'
+            )
             ->addArgument(
                 'stream-id',
-                InputArgument::REQUIRED,
+                InputArgument::OPTIONAL,
                 'The stream to export messages from.  See Gdbots\Schemas\Pbjx\StreamId for details.'
             );
     }
@@ -93,13 +94,13 @@ EOF
         $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
         $errOutput->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
 
-        $streamId = StreamId::fromString($input->getArgument('stream-id'));
         $batchSize = NumberUtils::bound($input->getOption('batch-size'), 1, 1000);
         $batchDelay = NumberUtils::bound($input->getOption('batch-delay'), 100, 600000);
         $since = $input->getOption('since');
         $until = $input->getOption('until');
         $context = json_decode($input->getOption('context') ?: '{}', true);
         $context['tenant_id'] = $input->getOption('tenant-id');
+        $streamId = $input->getArgument('stream-id') ? StreamId::fromString($input->getArgument('stream-id')) : null;
 
         if (!empty($since)) {
             $since = Microtime::fromString(str_pad($since, 16, '0'));
@@ -110,7 +111,7 @@ EOF
         }
 
         $i = 0;
-        $receiver = function (Event $event) use ($errOutput, $batchSize, $batchDelay, &$i) {
+        $receiver = function (Event $event, StreamId $streamId) use ($errOutput, $batchSize, $batchDelay, &$i) {
             ++$i;
 
             try {
@@ -126,6 +127,10 @@ EOF
             }
         };
 
-        $this->getPbjx()->getEventStore()->pipeEvents($streamId, $receiver, $since, $until, $context);
+        if ($streamId) {
+            $this->getPbjx()->getEventStore()->pipeEvents($streamId, $receiver, $since, $until, $context);
+        } else {
+            $this->getPbjx()->getEventStore()->pipeAllEvents($receiver, $since, $until, $context);
+        }
     }
 }

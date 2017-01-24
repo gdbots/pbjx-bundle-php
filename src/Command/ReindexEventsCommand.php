@@ -25,10 +25,10 @@ class ReindexEventsCommand extends ContainerAwareCommand
     {
         $this
             ->setName('pbjx:reindex-events')
-            ->setDescription('Pipes events from the EventStore for a given stream id and reindexes them.')
+            ->setDescription('Pipes events from the EventStore and reindexes them.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will pipe events from the pbjx EventStore for a given stream id 
-and reindex them into the EventSearch service.
+The <info>%command.name%</info> command will pipe events from the EventStore for the 
+given StreamId if provided or all events and reindex them into the EventSearch service.
 
 <info>php %command.full_name% --dry-run --tenant-id=client1 'stream-id'</info>
 
@@ -75,20 +75,20 @@ EOF
                 '(unix timestamp or 16 digit microtime as int).'
             )
             ->addOption(
-                'tenant-id',
-                null,
-                InputOption::VALUE_REQUIRED,
-                'Tenant Id to use for this operation.'
-            )
-            ->addOption(
                 'context',
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Context to provide to the EventStore (json).'
             )
+            ->addOption(
+                'tenant-id',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Tenant Id to use for this operation.'
+            )
             ->addArgument(
                 'stream-id',
-                InputArgument::REQUIRED,
+                InputArgument::OPTIONAL,
                 'The stream to reindex messages from.  See Gdbots\Schemas\Pbjx\StreamId for details.'
             );
     }
@@ -101,7 +101,6 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $streamId = StreamId::fromString($input->getArgument('stream-id'));
         $dryRun = $input->getOption('dry-run');
         $skipErrors = $input->getOption('skip-errors');
         $batchSize = NumberUtils::bound($input->getOption('batch-size'), 1, 1000);
@@ -112,6 +111,7 @@ EOF
         $context['tenant_id'] = $input->getOption('tenant-id');
         $context['skip_errors'] = $skipErrors;
         $context['reindexing'] = true;
+        $streamId = $input->getArgument('stream-id') ? StreamId::fromString($input->getArgument('stream-id')) : null;
 
         if (!empty($since)) {
             $since = Microtime::fromString(str_pad($since, 16, '0'));
@@ -122,23 +122,21 @@ EOF
         }
 
         $io = new SymfonyStyle($input, $output);
-        $io->title(sprintf('Reindexing events from stream "%s"', $streamId));
+        $io->title(sprintf('Reindexing events from stream "%s"', $streamId ?? 'ALL'));
         if (!$this->readyForPbjxTraffic($io)) {
             return;
         }
 
         $this->createConsoleRequest();
-        $pbjx = $this->getPbjx();
         $batch = 1;
         $i = 0;
         $reindexed = 0;
         $queue = [];
-        $io->comment(sprintf('Processing batch %d from stream "%s".', $batch, $streamId));
+        $io->comment(sprintf('Processing batch %d from stream "%s".', $batch, $streamId ?? 'ALL'));
         $io->comment(sprintf('context: %s', json_encode($context)));
         $io->newLine();
 
-        $receiver = function (Event $event) use (
-            $streamId,
+        $receiver = function (Event $event, StreamId $streamId) use (
             $output,
             $io,
             $context,
@@ -154,9 +152,10 @@ EOF
             ++$i;
             $output->writeln(
                 sprintf(
-                    '<info>%d.</info> <comment>occurred_at:</comment>%s, <comment>curie:</comment>%s, ' .
-                    '<comment>event_id:</comment>%s',
+                    '<info>%d.</info> <comment>stream:</comment>%s, <comment>occurred_at:</comment>%s, ' .
+                    '<comment>curie:</comment>%s, <comment>event_id:</comment>%s',
                     $i,
+                    $streamId,
                     $event->get('occurred_at'),
                     $event::schema()->getCurie()->toString(),
                     $event->get('event_id')
@@ -174,15 +173,20 @@ EOF
                     usleep($batchDelay * 1000);
                 }
 
-                $io->comment(sprintf('Processing batch %d from stream "%s".', $batch, $streamId));
+                $io->comment(sprintf('Processing batch %d.', $batch));
                 $io->newLine();
             }
         };
 
-        $pbjx->getEventStore()->pipeEvents($streamId, $receiver, $since, $until, $context);
+        if ($streamId) {
+            $this->getPbjx()->getEventStore()->pipeEvents($streamId, $receiver, $since, $until, $context);
+        } else {
+            $this->getPbjx()->getEventStore()->pipeAllEvents($receiver, $since, $until, $context);
+        }
+
         $this->reindex($queue, $reindexed, $io, $context, $batch, $dryRun, $skipErrors);
         $io->newLine();
-        $io->success(sprintf('Reindexed %s events from stream "%s".', number_format($reindexed), $streamId));
+        $io->success(sprintf('Reindexed %s events from stream "%s".', number_format($reindexed), $streamId ?? 'ALL'));
     }
 
     /**

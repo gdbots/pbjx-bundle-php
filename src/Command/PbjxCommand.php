@@ -45,7 +45,7 @@ EOF
                 'in-memory',
                 null,
                 InputOption::VALUE_NONE,
-                'Forces all transports to be "in_memory".  Useful for debugging.'
+                'Forces all transports to be "in_memory".  Useful for debugging or ensuring sequential processing.'
             )
             ->addOption(
                 'device-view',

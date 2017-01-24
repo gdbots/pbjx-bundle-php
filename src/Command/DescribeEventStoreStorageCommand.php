@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class CreateEventStoreStorageCommand extends ContainerAwareCommand
+class DescribeEventStoreStorageCommand extends ContainerAwareCommand
 {
     use PbjxAwareCommandTrait;
 
@@ -19,10 +19,10 @@ class CreateEventStoreStorageCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('pbjx:create-event-store-storage')
-            ->setDescription('Creates the EventStore storage.')
+            ->setName('pbjx:describe-event-store-storage')
+            ->setDescription('Describes the EventStore storage.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will create the storage for the EventStore.  
+The <info>%command.name%</info> command will describe the storage for the EventStore.  
 
 <info>php %command.full_name% --tenant-id=client1</info>
 
@@ -56,10 +56,12 @@ EOF
         $context['tenant_id'] = $input->getOption('tenant-id');
 
         $io = new SymfonyStyle($input, $output);
-        $io->title('EventStore Storage Creator');
+        $io->title('EventStore Storage Describer');
         $io->comment(sprintf('context: %s', json_encode($context)));
 
-        $this->getPbjx()->getEventStore()->createStorage($context);
-        $io->success(sprintf('EventStore storage created.'));
+        $details = $this->getPbjx()->getEventStore()->describeStorage($context);
+        $io->comment(sprintf('context: %s', json_encode($context)));
+        $io->text($details);
+        $io->newLine();
     }
 }

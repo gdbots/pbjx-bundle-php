@@ -22,15 +22,15 @@ class KeyValueType extends AbstractType
         $builder->addViewTransformer(new KeyValueToArrayTransformer());
 
         if (null === $options['allowed_keys']) {
-/*
-            if (!isset($options['key_options']['constraints'])) {
-                $options['key_options']['constraints'] = [];
-            }
+            /*
+                        if (!isset($options['key_options']['constraints'])) {
+                            $options['key_options']['constraints'] = [];
+                        }
 
-            $options['key_options']['constraints'][] = new Regex([
-                'pattern' => '/^[a-zA-Z_]{1}[a-zA-Z0-9_-]*$/',
-            ]);
-*/
+                        $options['key_options']['constraints'][] = new Regex([
+                            'pattern' => '/^[a-zA-Z_]{1}[a-zA-Z0-9_-]*$/',
+                        ]);
+            */
 
             if (!isset($options['key_options']['attr'])) {
                 $options['key_options']['attr'] = [];

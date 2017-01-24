@@ -42,16 +42,16 @@ EOF
                 3
             )
             ->addOption(
-                'tenant-id',
-                null,
-                InputOption::VALUE_REQUIRED,
-                'Tenant Id to use for this operation.'
-            )
-            ->addOption(
                 'context',
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Context to provide to the EventStore (json).'
+            )
+            ->addOption(
+                'tenant-id',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Tenant Id to use for this operation.'
             )
             ->addArgument(
                 'stream-id',
@@ -72,10 +72,10 @@ EOF
         $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
         $errOutput->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
 
-        $streamId = StreamId::fromString($input->getArgument('stream-id'));
         $interval = NumberUtils::bound($input->getOption('interval'), 1, 60);
         $context = json_decode($input->getOption('context') ?: '{}', true);
         $context['tenant_id'] = $input->getOption('tenant-id');
+        $streamId = StreamId::fromString($input->getArgument('stream-id'));
 
         $eventStore = $this->getPbjx()->getEventStore();
         $since = Microtime::create();

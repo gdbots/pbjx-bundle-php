@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class CreateEventStoreStorageCommand extends ContainerAwareCommand
+class CreateEventSearchStorageCommand extends ContainerAwareCommand
 {
     use PbjxAwareCommandTrait;
 
@@ -19,10 +19,10 @@ class CreateEventStoreStorageCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('pbjx:create-event-store-storage')
-            ->setDescription('Creates the EventStore storage.')
+            ->setName('pbjx:create-event-search-storage')
+            ->setDescription('Creates the EventSearch storage.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will create the storage for the EventStore.  
+The <info>%command.name%</info> command will create the storage for the EventSearch.  
 
 <info>php %command.full_name% --tenant-id=client1</info>
 
@@ -32,7 +32,7 @@ EOF
                 'context',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Context to provide to the EventStore (json).'
+                'Context to provide to the EventSearch (json).'
             )
             ->addOption(
                 'tenant-id',
@@ -56,10 +56,10 @@ EOF
         $context['tenant_id'] = $input->getOption('tenant-id');
 
         $io = new SymfonyStyle($input, $output);
-        $io->title('EventStore Storage Creator');
+        $io->title('EventSearch Storage Creator');
         $io->comment(sprintf('context: %s', json_encode($context)));
 
-        $this->getPbjx()->getEventStore()->createStorage($context);
-        $io->success(sprintf('EventStore storage created.'));
+        $this->getPbjx()->getEventSearch()->createStorage($context);
+        $io->success(sprintf('EventSearch storage created.'));
     }
 }

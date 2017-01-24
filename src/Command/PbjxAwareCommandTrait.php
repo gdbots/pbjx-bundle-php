@@ -107,7 +107,7 @@ trait PbjxAwareCommandTrait
      *
      * @return bool
      */
-    protected function readyForPbjxTraffic(SymfonyStyle $io, $message = 'Aborting replay of events.'): bool
+    protected function readyForPbjxTraffic(SymfonyStyle $io, string $message = 'Aborting replay of events.'): bool
     {
         $container = $this->getContainer();
         $question = sprintf(
