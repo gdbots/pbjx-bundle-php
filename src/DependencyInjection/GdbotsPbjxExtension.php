@@ -52,6 +52,7 @@ class GdbotsPbjxExtension extends Extension
 
         if (isset($config['event_search'])) {
             $container->setParameter('gdbots_pbjx.event_search.provider', $config['event_search']['provider']);
+            $container->setParameter('gdbots_pbjx.event_search.tenant_id_field', $config['event_search']['tenant_id_field']);
             $this->configureElasticaEventSearch($config, $container, $config['event_search']['provider']);
         } else {
             $container->removeDefinition('gdbots_pbjx.event_search.event_indexer');
