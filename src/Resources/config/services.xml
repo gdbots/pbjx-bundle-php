@@ -117,7 +117,7 @@
       <tag name="monolog.logger" channel="pbjx.event_search"/>
     </service>
 
-    <service id="gdbots_pbjx.event_search.elastica.client_manager" class="Gdbots\Pbjx\EventSearch\ElasticaClientManager">
+    <service id="gdbots_pbjx.event_search.elastica.client_manager" class="Gdbots\Pbjx\EventSearch\Elastica\ClientManager">
       <argument>%gdbots_pbjx.event_search.elastica.clusters%</argument>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <tag name="monolog.logger" channel="pbjx.event_search"/>
@@ -130,6 +130,7 @@
     </service>
 
     <service id="gdbots_pbjx.event_search.event_indexer" class="Gdbots\Pbjx\EventSearch\EventIndexer">
+      <argument>%gdbots_pbjx.event_search.tenant_id_field%</argument>
       <tag name="pbjx.event_subscriber"/>
     </service>
     <!-- end: event search -->
