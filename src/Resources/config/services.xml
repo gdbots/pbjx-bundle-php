@@ -147,6 +147,11 @@
       <tag name="pbjx.event_subscriber"/>
     </service>
 
+    <service id="gdbots_pbjx.query_parsing_binder" class="Gdbots\Bundle\PbjxBundle\Binder\QueryParsingBinder">
+      <argument type="service" id="service_container"/>
+      <tag name="pbjx.event_subscriber"/>
+    </service>
+
     <service id="gdbots_pbjx.request_binder" class="Gdbots\Bundle\PbjxBundle\Binder\RequestBinder">
       <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
