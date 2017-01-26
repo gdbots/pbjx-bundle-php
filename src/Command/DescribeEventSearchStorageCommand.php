@@ -60,7 +60,6 @@ EOF
         $io->comment(sprintf('context: %s', json_encode($context)));
 
         $details = $this->getPbjx()->getEventSearch()->describeStorage($context);
-        $io->comment(sprintf('context: %s', json_encode($context)));
         $io->text($details);
         $io->newLine();
     }
