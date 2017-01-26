@@ -67,7 +67,7 @@ EOF
             )
             ->addArgument(
                 'json',
-                InputArgument::REQUIRED,
+                InputArgument::OPTIONAL,
                 'The pbj message itself as json (on one line).'
             );
     }
@@ -108,7 +108,7 @@ EOF
             $_COOKIE,
             $_FILES,
             $_SERVER,
-            $input->getArgument('json')
+            $input->getArgument('json') ?: '{}'
         );
 
         /*

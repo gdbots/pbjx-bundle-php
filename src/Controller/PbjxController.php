@@ -72,6 +72,7 @@ final class PbjxController
             return $envelope;
         }
 
+        /*
         if (empty($data)) {
             return $envelope
                 ->set('code', Code::INVALID_ARGUMENT)
@@ -79,6 +80,7 @@ final class PbjxController
                 ->set('error_name', 'UnsupportedMediaType')
                 ->set('error_message', 'Empty payload is not supported.');
         }
+        */
 
         $pbjxCategory = $request->attributes->get('pbjx_category');
         if (false !== strpos($pbjxCategory, '_')) {
