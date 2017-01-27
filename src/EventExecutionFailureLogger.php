@@ -11,7 +11,7 @@ use Psr\Log\LoggerInterface;
 final class EventExecutionFailureLogger implements EventSubscriber
 {
     /** @var LoggerInterface */
-    protected $logger;
+    private $logger;
 
     /**
      * @param LoggerInterface $logger

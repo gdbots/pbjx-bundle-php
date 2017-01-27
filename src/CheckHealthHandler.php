@@ -15,7 +15,7 @@ final class CheckHealthHandler implements CommandHandler
     use CommandHandlerTrait;
 
     /** @var LoggerInterface */
-    protected $logger;
+    private $logger;
 
     /**
      * @param LoggerInterface $logger

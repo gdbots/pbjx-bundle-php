@@ -47,10 +47,10 @@ final class PbjxReceiveController
      * @param string         $receiveKey
      * @param bool           $enabled
      */
-    public function __construct(ServiceLocator $locator, string $receiveKey, bool $enabled = false)
+    public function __construct(ServiceLocator $locator, ?string $receiveKey, bool $enabled = false)
     {
         $this->locator = $locator;
-        $this->receiveKey = trim($receiveKey);
+        $this->receiveKey = trim((string)$receiveKey);
         $this->enabled = $enabled;
     }
 
