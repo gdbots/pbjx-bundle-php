@@ -67,7 +67,7 @@ final class PbjxController
             $json = $request->getContent();
         }
 
-        $data = json_decode($json, true) ?: [];
+        $data = json_decode((string)$json, true) ?: [];
         if (!$this->isJsonOk($envelope, $request)) {
             return $envelope;
         }
