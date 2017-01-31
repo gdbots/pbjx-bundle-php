@@ -74,7 +74,7 @@ EOF
 
         $interval = NumberUtils::bound($input->getOption('interval'), 1, 60);
         $context = json_decode($input->getOption('context') ?: '{}', true);
-        $context['tenant_id'] = $input->getOption('tenant-id');
+        $context['tenant_id'] = (string)$input->getOption('tenant-id');
         $streamId = StreamId::fromString($input->getArgument('stream-id'));
 
         $eventStore = $this->getPbjx()->getEventStore();

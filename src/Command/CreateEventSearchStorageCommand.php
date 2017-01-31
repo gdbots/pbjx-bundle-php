@@ -53,7 +53,7 @@ EOF
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $context = json_decode($input->getOption('context') ?: '{}', true);
-        $context['tenant_id'] = $input->getOption('tenant-id');
+        $context['tenant_id'] = (string)$input->getOption('tenant-id');
 
         $io = new SymfonyStyle($input, $output);
         $io->title('EventSearch Storage Creator');

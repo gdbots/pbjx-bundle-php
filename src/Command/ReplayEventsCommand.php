@@ -114,7 +114,7 @@ EOF
         $since = $input->getOption('since');
         $until = $input->getOption('until');
         $context = json_decode($input->getOption('context') ?: '{}', true);
-        $context['tenant_id'] = $input->getOption('tenant-id');
+        $context['tenant_id'] = (string)$input->getOption('tenant-id');
         $context['skip_errors'] = $skipErrors;
         $streamId = $input->getArgument('stream-id') ? StreamId::fromString($input->getArgument('stream-id')) : null;
 
