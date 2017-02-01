@@ -150,7 +150,7 @@ EOF
             &$i,
             &$queue
         ) {
-            if ($event instanceof Indexed) {
+            if (!$event instanceof Indexed) {
                 $io->note(sprintf(
                     'IGNORING - Event [%s] does not have mixin [gdbots:pbjx:mixin:indexed].',
                     $event->generateMessageRef()
