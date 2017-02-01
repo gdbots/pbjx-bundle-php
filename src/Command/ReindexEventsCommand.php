@@ -6,6 +6,7 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 use Gdbots\Common\Util\NumberUtils;
 use Gdbots\Pbj\WellKnown\Microtime;
 use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
+use Gdbots\Schemas\Pbjx\Mixin\Indexed\Indexed;
 use Gdbots\Schemas\Pbjx\StreamId;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -149,6 +150,14 @@ EOF
             &$i,
             &$queue
         ) {
+            if ($event instanceof Indexed) {
+                $io->note(sprintf(
+                    'IGNORING - Event [%s] does not have mixin [gdbots:pbjx:mixin:indexed].',
+                    $event->generateMessageRef()
+                ));
+                return;
+            }
+
             ++$i;
             $output->writeln(
                 sprintf(
