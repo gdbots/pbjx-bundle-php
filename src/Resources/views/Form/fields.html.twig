@@ -41,8 +41,10 @@
 {# Widgets #}
 
 {% block gdbots_pbjx_collection_widget -%}
+  {% import _self as __self %}
+
   {% if prototype is defined %}
-    {% set prototype_html = _self.collection_item_prototype(form) %}
+    {% set prototype_html = __self.collection_item_prototype(form) %}
   {% endif %}
 
   {% set id = id ~ '_collection' %}
@@ -63,7 +65,7 @@
     >
       {% if form.children|length %}
         {% for child in form.children %}
-          {{ _self.collection_item_prototype(child) }}
+          {{ __self.collection_item_prototype(child) }}
         {% endfor %}
       {% elseif show_form_when_empty and prototype_html is defined %}
         {% for i in 0..(form.vars.row_count_initial - 1) %}
