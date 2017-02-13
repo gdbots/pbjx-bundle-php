@@ -135,19 +135,13 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
     /**
      * @param FormBuilderInterface $builder
      * @param array                $options
-     * @param array                $ignoredFields
-     * @param array                $hiddenFields
      */
-    final protected function buildPbjForm(
-        FormBuilderInterface $builder,
-        array $options,
-        array $ignoredFields = [],
-        array $hiddenFields = []
-    ): void {
+    final protected function buildPbjForm(FormBuilderInterface $builder, array $options): void
+    {
         $schema = static::pbjSchema();
         $builder->setDataMapper($this);
-        $ignoredFields = array_merge(array_flip($ignoredFields), self::getIgnoredFields());
-        $hiddenFields = array_flip($hiddenFields);
+        $ignoredFields = array_flip($this->getIgnoredFields()) + self::getGlobalIgnoredFields();
+        $hiddenFields = array_flip($this->getHiddenFields());
         $factory = $this->getFormFieldFactory();
 
         foreach ($schema->getFields() as $pbjField) {
@@ -161,7 +155,14 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
             }
 
             $formField = $factory->create($pbjField);
-            $type = isset($hiddenFields[$fieldName]) ? HiddenType::class : $formField->getType();
+
+            if (isset($hiddenFields[$fieldName])) {
+                $type = HiddenType::class;
+                $formField->removeOption('choices');
+            } else {
+                $type = $formField->getType();
+            }
+
             $child = $builder->create($fieldName, $type, $formField->getOptions());
 
             // fixme: verify this key is correct for data provided as option
@@ -185,6 +186,22 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
         }
 
         return $this->formFieldFactory;
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function getIgnoredFields(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function getHiddenFields(): array
+    {
+        return [];
     }
 
     /**
@@ -230,7 +247,7 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
     /**
      * @return string[]
      */
-    private static function getIgnoredFields(): array
+    private static function getGlobalIgnoredFields(): array
     {
         if (null !== self::$ignoredFields) {
             return self::$ignoredFields;
