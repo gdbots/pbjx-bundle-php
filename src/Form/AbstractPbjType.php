@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Gdbots\Bundle\PbjxBundle\Form;
 
 use Gdbots\Pbj\Enum\FieldRule;
+use Gdbots\Pbj\Enum\TypeName;
 use Gdbots\Pbj\Field;
 use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1Mixin;
 use Gdbots\Schemas\Pbjx\Mixin\Event\EventV1Mixin;
@@ -43,6 +44,25 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
         foreach ((array)$data as $k => $v) {
             if (!isset($forms[$k])) {
                 continue;
+            }
+
+            if ($schema->hasField($k)) {
+                /** @var Field $pbjField */
+                $pbjField = $schema->getField($k);
+
+                // handle maps (assoc array)
+                if ($pbjField->isAMap()) {
+                    $tmp = [];
+                    foreach ($v as $kk => $vv) {
+                        $tmp[] = [$kk => $vv];
+                    }
+                    $v = $tmp;
+                }
+
+                // handle date/time
+                if (in_array($pbjField->getType()->getTypeName(), [TypeName::DATE, TypeName::DATE_TIME])) {
+                    $v = $pbjField->getType()->decode($v, $pbjField);
+                }
             }
 
             $forms[$k]->setData($v);
