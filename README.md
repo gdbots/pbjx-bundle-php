@@ -256,7 +256,7 @@ What you end up with is a [namespaced path](http://symfony.com/doc/current/templ
   <td>acme:users:node:user</td>
   <td>card</td>
   <td>html</td>
-  <td>@acme/users/node/user/modal.html.twig</td>
+  <td>@acme/users/node/user/card.html.twig</td>
 </tr>
 </table>
 
