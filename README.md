@@ -49,9 +49,9 @@ gdbots_pbjx:
   command_bus:
     transport: ~ # in_memory, firehose, gearman, kinesis
   event_bus:
-    transport: gearman # in_memory, firehose, gearman, kinesis
+    transport: ~ # in_memory, firehose, gearman, kinesis
   request_bus:
-    # requests must be return a value, so firehose and kinesis simply run
+    # requests must return a value, so firehose and kinesis simply run
     # the request in memory as they don't support request/response.
     transport: ~ # in_memory, gearman
   transport:
@@ -73,7 +73,7 @@ gdbots_pbjx:
     # for multi-tenant applications, configure the field on the messages
     # that determines what the tenant_id is.  it's value will be used
     # to populate the "tenant_id" on the context provided to the service.
-    tenant_id_field: account_id
+    #tenant_id_field: account_id # only needed if you actually have a multi-tenant app
     elastica:
       # your app will at some point need to customize the queries
       # override the class so you can provide these customizations.
@@ -161,6 +161,33 @@ pbjx:
   resource: '@GdbotsPbjxBundle/Resources/config/routes.xml'
   prefix: /pbjx
 ```
+
+Once this is in place __ANY__ pbjx messages can be sent to the endpoint  `/pbjx/vendor/package/category/message`.  This url is the configured prefix and then the `SchemaCurie` resolved to a url.
+
+> Why not just use `/pbjx`?  It is a huge benefit to have the full path to the `SchemaCurie` for logging, authorization, load balancing, debugging, etc.
+
+__Example curl request:__
+
+```bash
+curl -X POST -s -H "Content-Type: application/json" "https://yourdomain.com/pbjx/gdbots/pbjx/request/echo-request" -d '{"msg":"test"}'
+```
+
+__Example ajax request:__
+
+```javascript
+$.ajax({
+  url: '/pbjx/gdbots/pbjx/request/echo-request',
+  type: 'post',
+  contentType: 'application/json; charset=utf-8',
+  dataType: 'json',
+  data: JSON.stringify({msg: 'hello'}),
+  complete: function (xhr) {
+    console.log(xhr.responseJSON);
+  }
+});
+```
+
+> If your `SchemaCurie` contains an empty category segment, use "_" in its place in the url.
 
 
 # Controllers
