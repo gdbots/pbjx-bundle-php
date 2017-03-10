@@ -231,7 +231,7 @@ Returns a reference to a twig template based on the schema of the provided messa
 
 > This can be combined with __gdbots/app-bundle__ `DeviceViewRendererTrait::renderUsingDeviceView` _(renderPbj* methods do this)_.
 
-What you end up with is a [namespaced path](http://symfony.com/doc/current/templating/namespaced_paths.html) reference to a template.  Examples:
+What you end up with is a [namespaced path](http://symfony.com/doc/current/templating/namespaced_paths.html) reference to a template which conforms to the [Symfony template naming best practices](http://symfony.com/doc/current/best_practices/templates.html#template-locations).  Examples:
 
 <table>
 <tr>
@@ -244,19 +244,19 @@ What you end up with is a [namespaced path](http://symfony.com/doc/current/templ
   <td>acme:blog:node:article</td>
   <td>page</td>
   <td>html</td>
-  <td>@acme/blog/node/article/page.html.twig</td>
+  <td>@acme_blog/node/article/page.html.twig</td>
 </tr>
 <tr>
   <td>acme:users:request:search-users-response</td>
   <td>page</td>
   <td>json</td>
-  <td>@acme/users/request/search-users-response/page.json.twig</td>
+  <td>@acme_users/request/search_users_response/page.json.twig</td>
 </tr>
 <tr>
   <td>acme:users:node:user</td>
   <td>card</td>
   <td>html</td>
-  <td>@acme/users/node/user/card.html.twig</td>
+  <td>@acme_users/node/user/card.html.twig</td>
 </tr>
 </table>
 
@@ -367,7 +367,7 @@ __Example:__
 ```
 
 ### Twig Function: pbj_template
-Returns a reference to a twig template based on the schema of the provided message (pbj schema).  This allows for component style development for pbj messages.  You are asking for a template that can render your message (e.g. Article) as a "card", "modal", "slack-post", etc. and optionally that template can be device view specific _(card.smartphone.html.twig)_.
+Returns a reference to a twig template based on the schema of the provided message (pbj schema).  This allows for component style development for pbj messages.  You are asking for a template that can render your message (e.g. Article) as a "card", "modal", "slack_post", etc. and optionally that template can be device view specific _(card.smartphone.html.twig)_.
 
 __Example:__
 
@@ -376,7 +376,7 @@ __Example:__
 ```
 
 ### Twig Function: pbjx_request
-In the same way that you can [embed a Symfony controller within twig](https://symfony.com/doc/current/templating/embedding_controllers.html) you can embed a pbjx request in twig.  This function performs a `$pbjx->request($request);` and returns the response.  If debugging is enabled an exception wil be thrown (generally in dev), otherwise it will be logged and null will be returned.
+In the same way that you can [embed a Symfony controller within twig](https://symfony.com/doc/current/templating/embedding_controllers.html) you can embed a pbjx request in twig.  This function performs a `$pbjx->request($request);` and returns the response.  If debugging is enabled an exception will be thrown (generally in dev), otherwise it will be logged and null will be returned.
 
 __Example:__
 

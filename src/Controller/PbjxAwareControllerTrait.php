@@ -82,6 +82,9 @@ trait PbjxAwareControllerTrait
      *
      * E.g. return $this->renderUsingDeviceView($this->pbjTemplate($pbj, 'page%device_view%'), ['pbj' => $pbj]);
      *
+     * This depends on twig namespaced paths, not bundle naming conventions.
+     * @link http://symfony.com/doc/current/templating/namespaced_paths.html
+     *
      * @param Message $pbj
      * @param string  $template
      * @param string  $format
@@ -90,8 +93,13 @@ trait PbjxAwareControllerTrait
      */
     protected function pbjTemplate(Message $pbj, string $template, string $format = 'html'): string
     {
-        $curieStr = str_replace('::', ':_:', $pbj::schema()->getCurie()->toString());
-        return sprintf('@%s/%s.%s.twig', str_replace(':', '/', $curieStr), $template, $format);
+        $curie = $pbj::schema()->getCurie();
+        $path = str_replace('-', '_', sprintf('%s_%s/%s/%s',
+            $curie->getVendor(), $curie->getPackage(), $curie->getCategory() ?: '_', $curie->getMessage()
+        ));
+
+        // example: @acme_users/request/search_users_response/page.html.twig
+        return "@{$path}/{$template}.{$format}.twig";
     }
 
     /**

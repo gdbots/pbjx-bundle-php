@@ -83,7 +83,7 @@ final class PbjxExtension extends \Twig_Extension
     /**
      * Returns a reference to a twig template based on the schema of the provided message (pbj schema).
      * This allows for component style development for pbj messages.  You are asking for a template that
-     * can render your message (e.g. Article) as a "card", "modal", "slack-post", etc. and optionally that
+     * can render your message (e.g. Article) as a "card", "modal", "slack_post", etc. and optionally that
      * template can be device view specific. (card.smartphone.html.twig)
      *
      * Example:
@@ -98,15 +98,21 @@ final class PbjxExtension extends \Twig_Extension
      */
     public function pbjTemplate(Message $pbj, string $template, string $format = 'html', ?string $deviceView = null)
     {
-        $curieStr = str_replace('::', ':_:', $pbj::schema()->getCurie()->toString());
-        $default = sprintf('@%s/%s.%s.twig', str_replace(':', '/', $curieStr), $template, $format);
+        $curie = $pbj::schema()->getCurie();
+        $path = str_replace('-', '_', sprintf('%s_%s/%s/%s',
+            $curie->getVendor(), $curie->getPackage(), $curie->getCategory() ?: '_', $curie->getMessage()
+        ));
+
+        // example: @acme_users/request/search_users_response/page.html.twig
+        $default = "@{$path}/{$template}.{$format}.twig";
 
         if (null === $deviceView) {
             return $default;
         }
 
         return [
-            sprintf('@%s/%s.%s.%s.twig', str_replace(':', '/', $curieStr), $template, $deviceView, $format),
+            // example: @acme_users/request/search_users_response/page.smartphone.html.twig
+            "@{$path}/{$template}.{$deviceView}.{$format}.twig",
             $default,
         ];
     }
