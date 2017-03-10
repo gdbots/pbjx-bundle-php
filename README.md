@@ -473,3 +473,58 @@ __Example response:__
 ```
 
 Review the `--help` on the pbjx commands for more details.
+
+
+
+# Library Development
+Pbj has a concept of [mixins](https://github.com/gdbots/pbjc-php) which is just a schema that can be added to other schemas.  This strategy is useful for creating consistent data structures and allowing for library development to be done against mixins and not concrete schemas.
+
+> A mixin cannot be used by itself to create messages, it must be added to a schema.
+
+This bundle provides a [compiler pass](http://symfony.com/doc/current/service_container/compiler_passes.html) that automatically creates aliases for pbjx handlers for concrete services IF they are not defined by the application already.
+
+__Example:__
+
+> Fictional __WidgetCo__ makes widgets for websites by creating mixins and libraries to provide implementations for those mixins.
+
+- WidgetCo has a pbj mixin called `widgetco:blog:mixin:add-comment`
+- WidgetCo has a handler called `WidgetCo\Blog\AddCommentHandler`
+- WidgetCo implementation only knows about its mixin
+- WidgetCoBlogBundle provides symfony integration
+
+> Your company __Acme__ now has a blog and wants to use __WidgetCo__ mixins _AND_ the implementation provided by __WidgetCoBlogBundle__.
+
+- Acme creates a concrete schema called `acme:blog:command:add-comment` that uses the mixin `widgetco:blog:mixin:add-comment`
+- When pbjx goes to send the command it will look for a handler called `acme_blog.add_comment_handler`
+- That service doesn't exist so you'll get a __"HandlerNotFound"__ exception with message __"ServiceLocator did not find a handler for curie [acme:blog:command:add-comment]"__.
+
+Using the `pbjx.handler` [service tag](http://symfony.com/doc/current/service_container/tags.html) allows a library developer to automatically handle both its original service id (likely never called directly unless decorated) AND your concrete service.  This is made possible by aliasing itself to the symfony service tag _alias_ attribute provided, if the alias cannot be found in the container already.
+
+__Example service configuration (in library):__
+
+```yaml
+parameters:
+  app_vendor: acme # gdbots/app-bundle provides this automatically
+
+services:
+  widgetco_blog.add_comment_handler:
+    class: WidgetCo\Blog\AddCommentHandler
+    tags:
+      - {name: pbjx.handler, alias: '%app_vendor%_blog.add_comment_handler'}
+```
+
+Now pbjx will automatically call the service provided by the library with no additional configuration on the acme application.
+
+You can still override if you want to extend or replace what __widgetco_blog.add_comment_handler__ provides.
+
+__Example service configuration (in acme app):__
+
+```yaml
+services:
+  acme_blog.add_comment_handler:
+    class: Acme\Blog\AddCommentHandler
+```
+
+> You can of course provide concrete schemas and implementations in libraries as well.  There are pros and cons to both strategies, the biggest issue is that the schema is not as easily customized at the application level if the library is not developed using mixins.
+
+__Pbjx__ itself is a library built on mixins for `Command`, `Request` and `Event` messages.
