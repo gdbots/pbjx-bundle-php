@@ -4,7 +4,6 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
   <services>
-    <!-- start: core services -->
     <service id="pbjx" class="Gdbots\Pbjx\SimplePbjx">
       <argument type="service" id="gdbots_pbjx.service_locator"/>
     </service>
@@ -31,112 +30,7 @@
       <tag name="pbjx.event_subscriber"/>
     </service>
 
-    <service id="gdbots_pbjx.check_health_handler" class="Gdbots\Bundle\PbjxBundle\CheckHealthHandler">
-      <argument type="service" id="logger"/>
-      <tag name="monolog.logger" channel="pbjx"/>
-    </service>
-    <service id="gdbots_pbjx.echo_request_handler" class="Gdbots\Bundle\PbjxBundle\EchoRequestHandler"/>
-
-    <service id="gdbots_pbjx.twig.pbjx_extension" class="Gdbots\Bundle\PbjxBundle\Twig\PbjxExtension" public="false">
-      <argument type="service" id="service_container"/>
-      <argument type="service" id="logger" on-invalid="ignore"/>
-      <tag name="monolog.logger" channel="pbjx"/>
-      <tag name="twig.extension"/>
-    </service>
-    <!-- end: core services -->
-
-
-    <!-- start: http handling -->
-    <service id="gdbots_pbjx.pbjx_controller" class="Gdbots\Bundle\PbjxBundle\Controller\PbjxController">
-      <argument type="service" id="pbjx"/>
-      <argument>%gdbots_pbjx.pbjx_controller.allow_get_request%</argument>
-    </service>
-
-    <service id="gdbots_pbjx.pbjx_receive_controller" class="Gdbots\Bundle\PbjxBundle\Controller\PbjxReceiveController">
-      <argument type="service" id="gdbots_pbjx.service_locator"/>
-      <argument>%gdbots_pbjx.pbjx_receive_controller.receive_key%</argument>
-      <argument>%gdbots_pbjx.pbjx_receive_controller.enabled%</argument>
-    </service>
-
-    <service id="gdbots_pbjx.envelope_listener" class="Gdbots\Bundle\PbjxBundle\EventListener\EnvelopeListener">
-      <argument type="service" id="pbjx"/>
-      <argument type="service" id="logger" on-invalid="ignore"/>
-      <tag name="monolog.logger" channel="pbjx"/>
-      <tag name="kernel.event_listener" event="kernel.view" />
-    </service>
-    <!-- end: http handling -->
-
-
-    <!-- start: transports -->
-    <service id="gdbots_pbjx.transport.in_memory" class="Gdbots\Pbjx\Transport\InMemoryTransport">
-      <argument type="service" id="gdbots_pbjx.service_locator"/>
-    </service>
-
-    <service id="gdbots_pbjx.transport.firehose" class="Gdbots\Pbjx\Transport\FirehoseTransport">
-      <argument type="service" id="gdbots_pbjx.service_locator"/>
-      <argument type="service" id="aws.firehose" on-invalid="ignore"/>
-      <argument type="service" id="gdbots_pbjx.transport.firehose_router" on-invalid="ignore"/>
-    </service>
-
-    <service id="gdbots_pbjx.transport.gearman" class="Gdbots\Pbjx\Transport\GearmanTransport">
-      <argument type="service" id="gdbots_pbjx.service_locator"/>
-      <argument>%gdbots_pbjx.transport.gearman.servers%</argument>
-      <argument>%gdbots_pbjx.transport.gearman.timeout%</argument>
-      <argument type="service" id="gdbots_pbjx.transport.gearman_router"/>
-    </service>
-
-    <service id="gdbots_pbjx.transport.gearman_router" class="Gdbots\Pbjx\Transport\GearmanRouter" public="false">
-      <argument>%gdbots_pbjx.transport.gearman.channel_prefix%</argument>
-    </service>
-
-    <service id="gdbots_pbjx.transport.kinesis" class="Gdbots\Pbjx\Transport\KinesisTransport">
-      <argument type="service" id="gdbots_pbjx.service_locator"/>
-      <argument type="service" id="aws.kinesis" on-invalid="ignore"/>
-      <argument type="service" id="gdbots_pbjx.transport.kinesis_router" on-invalid="ignore"/>
-    </service>
-    <!-- end: transports -->
-
-
-    <!-- start: event store -->
-    <service id="gdbots_pbjx.event_store.dynamodb" class="%gdbots_pbjx.event_store.dynamodb.class%">
-      <argument type="service" id="pbjx"/>
-      <argument type="service" id="aws.dynamodb" on-invalid="ignore"/>
-      <argument>%gdbots_pbjx.event_store.dynamodb.table_name%</argument>
-      <argument type="service" id="logger" on-invalid="ignore"/>
-      <tag name="monolog.logger" channel="pbjx.event_store"/>
-    </service>
-    <!-- end: event store -->
-
-
-    <!-- start: event search -->
-    <service id="gdbots_pbjx.event_search.elastica" class="%gdbots_pbjx.event_search.elastica.class%">
-      <argument type="service" id="gdbots_pbjx.event_search.elastica.client_manager"/>
-      <argument type="service" id="gdbots_pbjx.event_search.elastica.index_manager"/>
-      <argument type="service" id="logger" on-invalid="ignore"/>
-      <argument>%gdbots_pbjx.event_search.elastica.query_timeout%</argument>
-      <tag name="monolog.logger" channel="pbjx.event_search"/>
-    </service>
-
-    <service id="gdbots_pbjx.event_search.elastica.client_manager" class="Gdbots\Pbjx\EventSearch\Elastica\ClientManager">
-      <argument>%gdbots_pbjx.event_search.elastica.clusters%</argument>
-      <argument type="service" id="logger" on-invalid="ignore"/>
-      <tag name="monolog.logger" channel="pbjx.event_search"/>
-    </service>
-
-    <service id="gdbots_pbjx.event_search.elastica.index_manager" class="%gdbots_pbjx.event_search.elastica.index_manager.class%">
-      <argument>%gdbots_pbjx.event_search.elastica.index_manager.index_prefix%</argument>
-      <argument type="service" id="logger" on-invalid="ignore"/>
-      <tag name="monolog.logger" channel="pbjx.event_search"/>
-    </service>
-
-    <service id="gdbots_pbjx.event_search.event_indexer" class="Gdbots\Pbjx\EventSearch\EventIndexer">
-      <argument>%gdbots_pbjx.event_search.tenant_id_field%</argument>
-      <tag name="pbjx.event_subscriber"/>
-    </service>
-    <!-- end: event search -->
-
-
-    <!-- start: binders -->
+    <!-- binders -->
     <service id="gdbots_pbjx.command_binder" class="Gdbots\Bundle\PbjxBundle\Binder\CommandBinder">
       <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
@@ -156,7 +50,18 @@
       <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
     </service>
-    <!-- end: binders -->
+
+    <!-- command handlers -->
+    <service id="gdbots_pbjx.check_health_handler" class="Gdbots\Bundle\PbjxBundle\CheckHealthHandler">
+      <argument type="service" id="logger"/>
+      <tag name="monolog.logger" channel="pbjx"/>
+      <tag name="pbjx.handler"/>
+    </service>
+
+    <!-- request handlers -->
+    <service id="gdbots_pbjx.echo_request_handler" class="Gdbots\Bundle\PbjxBundle\EchoRequestHandler">
+      <tag name="pbjx.handler"/>
+    </service>
 
   </services>
 

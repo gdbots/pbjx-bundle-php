@@ -22,7 +22,12 @@ class GdbotsPbjxExtension extends Extension
         $config = $processor->processConfiguration($configuration, $config);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader->load('event_search.xml');
+        $loader->load('event_store.xml');
+        $loader->load('http.xml');
         $loader->load('services.xml');
+        $loader->load('transport.xml');
+        $loader->load('twig.xml');
 
         $container->setParameter('gdbots_pbjx.service_locator.class', $config['service_locator']['class']);
 

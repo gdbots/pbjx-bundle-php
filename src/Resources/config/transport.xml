@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+  <services>
+    <service id="gdbots_pbjx.transport.in_memory" class="Gdbots\Pbjx\Transport\InMemoryTransport">
+      <argument type="service" id="gdbots_pbjx.service_locator"/>
+    </service>
+
+    <service id="gdbots_pbjx.transport.firehose" class="Gdbots\Pbjx\Transport\FirehoseTransport">
+      <argument type="service" id="gdbots_pbjx.service_locator"/>
+      <argument type="service" id="aws.firehose" on-invalid="ignore"/>
+      <argument type="service" id="gdbots_pbjx.transport.firehose_router" on-invalid="ignore"/>
+    </service>
+
+    <service id="gdbots_pbjx.transport.gearman" class="Gdbots\Pbjx\Transport\GearmanTransport">
+      <argument type="service" id="gdbots_pbjx.service_locator"/>
+      <argument>%gdbots_pbjx.transport.gearman.servers%</argument>
+      <argument>%gdbots_pbjx.transport.gearman.timeout%</argument>
+      <argument type="service" id="gdbots_pbjx.transport.gearman_router"/>
+    </service>
+
+    <service id="gdbots_pbjx.transport.gearman_router" class="Gdbots\Pbjx\Transport\GearmanRouter" public="false">
+      <argument>%gdbots_pbjx.transport.gearman.channel_prefix%</argument>
+    </service>
+
+    <service id="gdbots_pbjx.transport.kinesis" class="Gdbots\Pbjx\Transport\KinesisTransport">
+      <argument type="service" id="gdbots_pbjx.service_locator"/>
+      <argument type="service" id="aws.kinesis" on-invalid="ignore"/>
+      <argument type="service" id="gdbots_pbjx.transport.kinesis_router" on-invalid="ignore"/>
+    </service>
+  </services>
+
+</container>
