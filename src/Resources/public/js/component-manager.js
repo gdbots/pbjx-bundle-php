@@ -13,10 +13,10 @@ class ComponentManager {
     const elements = [];
     const modules = [];
 
-    _analyseDom.bind(this)(elements, modules);
+    analyseDom.bind(this)(elements, modules);
 
     elements.forEach(element => {
-      promises.push(_initComponent.bind(this)(element, options));
+      promises.push(initComponent.bind(this)(element, options));
     });
 
     // optimize load time - preload components in separate layouts
@@ -136,7 +136,7 @@ class ComponentManager {
  *
  * @protected
  */
-function _analyseDom(elements, modules) {
+function analyseDom(elements, modules) {
   const self = this;
   const el = self.$el[0];
 
@@ -149,7 +149,7 @@ function _analyseDom(elements, modules) {
     // collects container elements
     elements.push($elem);
 
-    _bindChangesEvents.bind(self)($elem);
+    bindChangesEvents.bind(self)($elem);
   });
 };
 
@@ -160,7 +160,7 @@ function _analyseDom(elements, modules) {
  *
  * @protected
  */
-function _bindChangesEvents($elem) {
+function bindChangesEvents($elem) {
   const self = this;
 
   // if the container catches content changed event -- updates its layout
@@ -191,18 +191,19 @@ function _bindChangesEvents($elem) {
  * Read component's data attributes from the DOM element.
  *
  * @param {jQuery} $elem
+ *
  * @protected
  */
-function _readData($elem) {
+function readData($elem) {
   const data = {
     module: $elem.data('page-component-module'),
     options: $elem.data('page-component-options') || {}
   };
 
-  if (data.options._sourceElement) {
-    data.options._sourceElement = $(data.options._sourceElement);
+  if (data.options.sourceElement) {
+    data.options.sourceElement = $(data.options.sourceElement);
   } else {
-    data.options._sourceElement = $elem;
+    data.options.sourceElement = $elem;
   }
 
   const name = $elem.data('page-component-name') || $elem.attr('data-fid');
@@ -219,7 +220,7 @@ function _readData($elem) {
  *
  * @protected
  */
-function _cleanupData($elem) {
+function cleanupData($elem) {
   $elem
     .removeAttr('data-page-component-module')
     .removeAttr('data-page-component-options');
@@ -235,18 +236,18 @@ function _cleanupData($elem) {
  *
  * @protected
  */
-function _initComponent($elem, options) {
-  const data = _readData.bind(this)($elem);
-  _cleanupData.bind(this)($elem);
+function initComponent($elem, options) {
+  const data = readData.bind(this)($elem);
+  cleanupData.bind(this)($elem);
 
   // mark elem
   $elem.attr('data-bound-component', data.module);
 
   const initDeferred = $.Deferred();
 
-  if (!data.options._sourceElement.get(0)) {
-    const message = `Cannot resolve _sourceElement by selector "${data.options._sourceElement.selector}"`;
-    _handleError.bind(this)(message, new Error(message));
+  if (!data.options.sourceElement.get(0)) {
+    const message = `Cannot resolve sourceElement by selector "${data.options.sourceElement.selector}"`;
+    handleError.bind(this)(message, new Error(message));
     initDeferred.resolve();
   }
 
@@ -256,8 +257,8 @@ function _initComponent($elem, options) {
   require.ensure([], () => {
     require(
       [`${data.module}`],
-      $.proxy(_onComponentLoaded, this, initDeferred, componentOptions),
-      $.proxy(_onRequireJsError, this, initDeferred)
+      $.proxy(onComponentLoaded, this, initDeferred, componentOptions),
+      $.proxy(onRequireJsError, this, initDeferred)
     );
   });
 
@@ -275,18 +276,18 @@ function _initComponent($elem, options) {
  *
  * @protected
  */
-function _onComponentLoaded(initDeferred, options, Component) {
+function onComponentLoaded(initDeferred, options, Component) {
   if (this.removed) {
     initDeferred.resolve();
     return;
   }
 
-  const $elem = options._sourceElement;
+  const $elem = options.sourceElement;
   const name = options.name;
 
   if (name && this.components.hasOwnProperty(name)) {
     const message = `Component with the name "${name}" is already registered in the layout`;
-    _handleError.bind(this)(message, new Error(message));
+    handleError.bind(this)(message, new Error(message));
 
     // prevent interface from blocking by loader
     initDeferred.resolve();
@@ -309,9 +310,9 @@ function _onComponentLoaded(initDeferred, options, Component) {
  *
  * @protected
  */
-function _onRequireJsError(initDeferred, error) {
+function onRequireJsError(initDeferred, error) {
   const message = `Cannot load module "${error.requireModules[0]}"`;
-  _handleError.bind(this)(message, error);
+  handleError.bind(this)(message, error);
   // prevent interface from blocking by loader
   initDeferred.resolve();
 };
@@ -326,7 +327,7 @@ function _onRequireJsError(initDeferred, error) {
  *
  * @protected
  */
-function _handleError(message, error) {
+function handleError(message, error) {
   const console = window.console;
   if (console && console.error) {
     console.error(message);

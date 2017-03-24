@@ -21,7 +21,7 @@ class DateRangePickerComponent {
    * @param {Object} options
    */
   initialize(options) {
-    _bindEvent.bind(this)();
+    bindEvent.bind(this)();
   }
 }
 
@@ -30,7 +30,7 @@ class DateRangePickerComponent {
  *
  * @protected
  */
-function _bindEvent() {
+function bindEvent() {
   const self = this;
 
   self.$el.on('change', e => {

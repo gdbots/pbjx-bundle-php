@@ -13,7 +13,7 @@ class DynamicFieldComponent {
    * @param {Object} options
    */
   initialize(options) {
-    _bindEvent.bind(this)();
+    bindEvent.bind(this)();
   }
 }
 
@@ -22,7 +22,7 @@ class DynamicFieldComponent {
  *
  * @protected
  */
-function _bindEvent() {
+function bindEvent() {
   const self = this;
 
   self.$el.find('.js-dynamic-field-kind').on('change', e => {

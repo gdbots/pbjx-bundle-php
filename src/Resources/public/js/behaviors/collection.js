@@ -13,7 +13,7 @@ class CollectionComponent {
    * @param {Object} options
    */
   initialize(options) {
-    _bindEvent.bind(this)();
+    bindEvent.bind(this)();
   }
 }
 
@@ -22,7 +22,7 @@ class CollectionComponent {
  *
  * @protected
  */
-function _bindEvent() {
+function bindEvent() {
   const self = this;
 
   self.$el.parent('.row-collection').on('click', '.js-btn-add-collection-item-btn', e => {
@@ -33,10 +33,10 @@ function _bindEvent() {
     }
 
     const rowCountAdd = self.$el.data('row-count-add') || 1;
-    const collectionInfo = _getCollectionInfo(self.$el);
+    const collectionInfo = getCollectionInfo(self.$el);
 
     for (let i = 1; i <= rowCountAdd; i++) {
-      const nextItemHtml = _getCollectionNextItemHtml(collectionInfo);
+      const nextItemHtml = getCollectionNextItemHtml(collectionInfo);
       collectionInfo.nextIndex++;
       self.$el.append(nextItemHtml)
         .trigger('content:changed')
@@ -73,7 +73,7 @@ function _bindEvent() {
  *
  * @protected
  */
-function _getCollectionInfo($el) {
+function getCollectionInfo($el) {
   const index = $el.data('last-index') || $el.children().length;
   const prototypeName = $el.attr('data-prototype-name') || '__name__';
   const html = $el.attr('data-prototype');
@@ -94,7 +94,7 @@ function _getCollectionInfo($el) {
  *
  * @protected
  */
-function _getCollectionNextItemHtml(collectionInfo) {
+function getCollectionNextItemHtml(collectionInfo) {
   return collectionInfo.prototypeHtml.replace(new RegExp(collectionInfo.prototypeName, 'g'), collectionInfo.nextIndex);
 }
 
