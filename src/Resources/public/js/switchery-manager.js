@@ -1,4 +1,4 @@
-export default () => {
+export default function () {
   return {
     instances: [],
 
@@ -7,6 +7,6 @@ export default () => {
     },
     getInstance(id) {
       return this.instances[id] || null;
-    }
+    },
   };
 }

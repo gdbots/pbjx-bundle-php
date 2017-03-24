@@ -1,20 +1,35 @@
 import $ from 'jquery';
 
-class CollectionComponent {
-  constructor(options) {
-    this.$el = $(`#${options.widgetId}`);
-    this.options = options || {};
+/**
+ * Returns the collection item
+ *
+ * @param {Object} collectionInfo
+ *
+ * @return {String}
+ *
+ * @protected
+ */
+function getCollectionNextItemHtml(collectionInfo) {
+  return collectionInfo.prototypeHtml.replace(new RegExp(collectionInfo.prototypeName, 'g'), collectionInfo.nextIndex);
+}
 
-    this.initialize(options);
-  }
+/**
+ * Get collection prototype settings.
+ *
+ * @return {Object}
+ *
+ * @protected
+ */
+function getCollectionInfo($el) {
+  const index = $el.data('last-index') || $el.children().length;
+  const prototypeName = $el.attr('data-prototype-name') || '__name__';
+  const html = $el.attr('data-prototype');
 
-  /**
-   * @constructor
-   * @param {Object} options
-   */
-  initialize(options) {
-    bindEvent.bind(this)();
-  }
+  return {
+    nextIndex: index,
+    prototypeHtml: html,
+    prototypeName,
+  };
 }
 
 /**
@@ -25,7 +40,7 @@ class CollectionComponent {
 function bindEvent() {
   const self = this;
 
-  self.$el.parent('.row-collection').on('click', '.js-btn-add-collection-item-btn', e => {
+  self.$el.parent('.row-collection').on('click', '.js-btn-add-collection-item-btn', (e) => {
     e.preventDefault();
 
     if ($(e.target).attr('disabled')) {
@@ -48,7 +63,7 @@ function bindEvent() {
     });
   });
 
-  self.$el.parent('.row-collection').on('click', '.js-btn-remove-collection-item-btn', e => {
+  self.$el.parent('.row-collection').on('click', '.js-btn-remove-collection-item-btn', (e) => {
     e.preventDefault();
 
     if ($(e.target).attr('disabled')) {
@@ -57,45 +72,28 @@ function bindEvent() {
 
     let closest = '*[data-content]';
     if ($(e.target).data('closest')) {
-        closest = $(e.target).data('closest');
+      closest = $(e.target).data('closest');
     }
 
     const item = $(e.target).closest(closest);
     item.trigger('content:remove')
       .remove();
   });
-};
-
-/**
- * Get collection prototype settings.
- *
- * @return {Object}
- *
- * @protected
- */
-function getCollectionInfo($el) {
-  const index = $el.data('last-index') || $el.children().length;
-  const prototypeName = $el.attr('data-prototype-name') || '__name__';
-  const html = $el.attr('data-prototype');
-
-  return {
-    nextIndex: index,
-    prototypeHtml: html,
-    prototypeName
-  };
-};
-
-/**
- * Returns the collection item
- *
- * @param {Object} collectionInfo
- *
- * @return {String}
- *
- * @protected
- */
-function getCollectionNextItemHtml(collectionInfo) {
-  return collectionInfo.prototypeHtml.replace(new RegExp(collectionInfo.prototypeName, 'g'), collectionInfo.nextIndex);
 }
 
-export default CollectionComponent;
+export default class CollectionComponent {
+  constructor(options) {
+    this.$el = $(`#${options.widgetId}`);
+    this.options = options || {};
+
+    this.initialize(options);
+  }
+
+  /**
+   * @constructor
+   * @param {Object} options
+   */
+  initialize(options) {
+    bindEvent.bind(this)();
+  }
+}
