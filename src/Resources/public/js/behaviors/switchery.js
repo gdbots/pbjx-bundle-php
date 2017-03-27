@@ -3,32 +3,26 @@
     - http://abpetkov.github.io/switchery/
 */
 
-define(
-[
-  'jquery',
-  'switchery',
-  '../switchery-manager'
-],
-function ($, Switchery, SwitcheryManager) {
-  'use strict';
+import $ from 'jquery';
+import Switchery from 'switchery';
+import SwitcheryManager from '../switchery-manager';
 
-  var SwitcheryComponent = function(options) {
-    this.$el = $('#' + options.widgetId);
+export default class SwitcheryComponent {
+  constructor(options) {
+    this.$el = $(`#${options.widgetId}`);
     this.options = options || {};
 
     this.initialize(options);
-  };
+  }
 
   /**
    * @constructor
    * @param {Object} options
    */
-  SwitcheryComponent.prototype.initialize = function(options) {
-    var switchery = new Switchery(this.$el[0], options.widgetOptions);
+  initialize(options) {
+    const switchery = new Switchery(this.$el[0], options.widgetOptions);
     this.$el.data('switchery', switchery);
 
     SwitcheryManager.addInstance(options.widgetId, switchery);
-  };
-
-  return SwitcheryComponent;
-});
+  }
+}

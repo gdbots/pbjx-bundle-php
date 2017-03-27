@@ -1,14 +1,12 @@
-define([], function () {
-  'use strict';
-
+export default function () {
   return {
     instances: [],
 
-    addInstance: function(id, switchery) {
+    addInstance(id, switchery) {
       this.instances[id] = switchery;
     },
-    getInstance: function(id) {
+    getInstance(id) {
       return this.instances[id] || null;
-    }
+    },
   };
-});
+}

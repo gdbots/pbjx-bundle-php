@@ -1,0 +1,27 @@
+{
+  "name": "@gdbots/pbjx-bundle",
+  "version": "0.1.0",
+  "description": "Symfony3 bundle that integrates gdbots/pbjx messaging tools.",
+  "files": [
+    "src/Resources/public/js/"
+  ],
+  "scripts": {
+    "lint": "eslint src test"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/gdbots/pbjx-bundle-php#readme",
+  "devDependencies": {
+    "eslint": "^3.8.1",
+    "babel-eslint": "^7.1.1",
+    "eslint-config-airbnb": "^13.0.0",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-react": "^6.8.0"
+  },
+  "dependencies": {
+    "daterangepicker": "0.0.3",
+    "jquery": "^3.2.1",
+    "moment": "^2.18.1",
+    "switchery": "0.0.2"
+  }
+}
