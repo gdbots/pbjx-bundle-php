@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form\Type;
 
@@ -21,30 +22,29 @@ class GeoPointType extends AbstractType
 
         $builder
             ->add('latitude', NumberType::class, [
-                'required' => $options['required'],
-                'attr' => [
-                    'pattern' => '^-?\d*(\.\d+)?$'
+                'required'    => $options['required'],
+                'attr'        => [
+                    'pattern' => '^-?\d*(\.\d+)?$',
                 ],
                 'constraints' => [
                     new Length([
                         'min' => -90,
-                        'max' => 90
-                    ])
-                ]
+                        'max' => 90,
+                    ]),
+                ],
             ])
             ->add('longitude', NumberType::class, [
-                'required' => $options['required'],
-                'attr' => [
-                    'pattern' => '^-?\d*(\.\d+)?$'
+                'required'    => $options['required'],
+                'attr'        => [
+                    'pattern' => '^-?\d*(\.\d+)?$',
                 ],
                 'constraints' => [
                     new Length([
                         'min' => -180,
-                        'max' => 180
-                    ])
-                ]
-            ])
-        ;
+                        'max' => 180,
+                    ]),
+                ],
+            ]);
     }
 
     /**
@@ -54,7 +54,7 @@ class GeoPointType extends AbstractType
     {
         $resolver->setDefaults([
             'compound' => true,
-            'required' => false
+            'required' => false,
         ]);
     }
 

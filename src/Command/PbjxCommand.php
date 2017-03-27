@@ -1,11 +1,10 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
-use Gdbots\Bundle\PbjxBundle\ContainerAwareServiceLocator;
 use Gdbots\Bundle\PbjxBundle\Controller\PbjxController;
 use Gdbots\Pbj\SchemaCurie;
-use Gdbots\Pbjx\Pbjx;
 use Gdbots\Schemas\Pbjx\Enum\Code;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -14,10 +13,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class PbjxCommand extends ContainerAwareCommand
 {
+    use PbjxAwareCommandTrait;
+
     /**
      * {@inheritdoc}
      */
@@ -28,23 +28,52 @@ class PbjxCommand extends ContainerAwareCommand
             ->setAliases(['pbjx:message'])
             ->setDescription('Handles pbjx messages (command, event, request) and returns an envelope with the result.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will create a single pbjx message using the json payload provided and return an envelope (also json) with the results.
+The <info>%command.name%</info> command will create a single pbjx message using the json 
+payload provided and return an envelope (also json) with the results.
 
 <info>php %command.full_name% 'acme:service:command:say-hello' '{"name":"Homer"}'</info>
 
 EOF
             )
-            ->addOption('user-agent', null, InputOption::VALUE_REQUIRED, 'The http user agent to run as for this command.')
-            ->addOption('in-memory', null, InputOption::VALUE_NONE, 'Forces all transports to be "in_memory".  Useful for debugging.')
-            ->addOption('device-view', null, InputOption::VALUE_REQUIRED, 'When gdbots/app-bundle is in use you can provide device-view to populate request and server attributes.')
-            ->addOption('pretty', null, InputOption::VALUE_NONE, 'Prints the json response with JSON_PRETTY_PRINT.')
-            ->addArgument('curie', InputArgument::REQUIRED, 'The pbj message curie to use for the provided payload (json).')
-            ->addArgument('json', InputArgument::REQUIRED, 'The pbj message itself as json (on one line).')
-        ;
+            ->addOption(
+                'user-agent',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'The http user agent to run as for this command.'
+            )
+            ->addOption(
+                'in-memory',
+                null,
+                InputOption::VALUE_NONE,
+                'Forces all transports to be "in_memory".  Useful for debugging or ensuring sequential processing.'
+            )
+            ->addOption(
+                'device-view',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'When gdbots/app-bundle is in use you can provide device-view to ' .
+                'populate request and server attributes.'
+            )
+            ->addOption(
+                'pretty',
+                null,
+                InputOption::VALUE_NONE,
+                'Prints the json response with JSON_PRETTY_PRINT.'
+            )
+            ->addArgument(
+                'curie',
+                InputArgument::REQUIRED,
+                'The pbj message curie to use for the provided payload (json).'
+            )
+            ->addArgument(
+                'json',
+                InputArgument::OPTIONAL,
+                'The pbj message itself as json (on one line).'
+            );
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
      *
      * @return null
@@ -79,7 +108,7 @@ EOF
             $_COOKIE,
             $_FILES,
             $_SERVER,
-            $input->getArgument('json')
+            $input->getArgument('json') ?: '{}'
         );
 
         /*
@@ -96,18 +125,7 @@ EOF
             $request->attributes->set('device_view', $deviceView);
         }
 
-        /*
-         * running transports "in-memory" means the command/request handlers and event
-         * subscribers to pbjx messages will happen in this process and not run through
-         * kinesis, gearman, sqs, etc.  Generally used for debugging.
-         */
-        if ($input->getOption('in-memory')) {
-            $locator = $this->getContainer()->get('gdbots_pbjx.service_locator');
-            if ($locator instanceof ContainerAwareServiceLocator) {
-                $locator->forceTransportsToInMemory();
-            }
-        }
-
+        $this->useInMemoryTransports($input);
         $this->getRequestStack()->push($request);
         $envelope = $this->getPbjxController()->handleAction($request);
 
@@ -126,26 +144,10 @@ EOF
     }
 
     /**
-     * @return Pbjx
-     */
-    protected function getPbjx()
-    {
-        return $this->getContainer()->get('pbjx');
-    }
-
-    /**
      * @return PbjxController
      */
-    protected function getPbjxController()
+    protected function getPbjxController(): PbjxController
     {
         return $this->getContainer()->get('gdbots_pbjx.pbjx_controller');
-    }
-
-    /**
-     * @return RequestStack
-     */
-    protected function getRequestStack()
-    {
-        return $this->getContainer()->get('request_stack');
     }
 }

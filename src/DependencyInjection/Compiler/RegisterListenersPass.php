@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler;
 
@@ -9,7 +10,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
  * Compiler pass to register tagged services for an event dispatcher.
  *
  * This file is a slightly modified version of:
- * @see Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass
+ * @see \Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass
  *
  */
 class RegisterListenersPass implements CompilerPassInterface
@@ -55,7 +56,11 @@ class RegisterListenersPass implements CompilerPassInterface
                     throw new \InvalidArgumentException(sprintf('Service "%s" must define the "method" attribute on "%s" tags.', $id, $this->listenerTag));
                 }
 
-                $definition->addMethodCall('addListenerService', [$event['event'], [$id, $event['method']], $priority]);
+                $definition->addMethodCall('addListenerService', [
+                    $event['event'],
+                    [$id, $container->getParameterBag()->resolveValue($event['method'])],
+                    $priority
+                ]);
             }
         }
 

@@ -1,10 +1,10 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
 use Gdbots\Common\Util\NumberUtils;
 use Gdbots\Pbj\WellKnown\Microtime;
-use Gdbots\Pbjx\Pbjx;
 use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
 use Gdbots\Schemas\Pbjx\StreamId;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -16,6 +16,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TailEventsCommand extends ContainerAwareCommand
 {
+    use PbjxAwareCommandTrait;
+
     /**
      * {@inheritdoc}
      */
@@ -23,23 +25,43 @@ class TailEventsCommand extends ContainerAwareCommand
     {
         $this
             ->setName('pbjx:tail-events')
-            ->setDescription('Tails events from the event store for a given stream id and writes them to STDOUT.')
+            ->setDescription('Tails events from the EventStore for a given stream id and writes them to STDOUT.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will tail events from the pbjx event store for a given stream id and write the json
-value of the event on one line (json newline delimited) to STDOUT.
+The <info>%command.name%</info> command will tail events from the pbjx EventStore for a given 
+stream id and write the json value of the event on one line (json newline delimited) to STDOUT.
 
-<info>php %command.full_name% --hints='{"tenant_id":"123"}' stream-id</info>
+<info>php %command.full_name% --tenant-id=client1 'stream-id'</info>
 
 EOF
             )
-            ->addOption('interval', null, InputOption::VALUE_REQUIRED, 'Number of seconds to wait between updates.', 3)
-            ->addOption('hints', null, InputOption::VALUE_REQUIRED, 'Hints to provide to the event store (json).')
-            ->addArgument('stream-id', InputArgument::REQUIRED, 'The stream to tail messages from.  See Gdbots\Schemas\Pbjx\StreamId for details.')
-        ;
+            ->addOption(
+                'interval',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Number of seconds to wait between updates.',
+                3
+            )
+            ->addOption(
+                'context',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Context to provide to the EventStore (json).'
+            )
+            ->addOption(
+                'tenant-id',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Tenant Id to use for this operation.'
+            )
+            ->addArgument(
+                'stream-id',
+                InputArgument::REQUIRED,
+                'The stream to tail messages from.  See Gdbots\Schemas\Pbjx\StreamId for details.'
+            );
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
      *
      * @return null
@@ -50,21 +72,21 @@ EOF
         $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
         $errOutput->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
 
-        $streamId = StreamId::fromString($input->getArgument('stream-id'));
         $interval = NumberUtils::bound($input->getOption('interval'), 1, 60);
-        $hints = json_decode($input->getOption('hints') ?: '{}', true);
+        $context = json_decode($input->getOption('context') ?: '{}', true);
+        $context['tenant_id'] = (string)$input->getOption('tenant-id');
+        $streamId = StreamId::fromString($input->getArgument('stream-id'));
 
-        /** @var Pbjx $pbjx */
-        $pbjx = $this->getContainer()->get('pbjx');
+        $eventStore = $this->getPbjx()->getEventStore();
         $since = Microtime::create();
 
         while (true) {
             $event = null;
+            $slice = $eventStore->getStreamSlice($streamId, $since, 25, true, false, $context);
 
-            /** @var Event $event */
-            foreach ($pbjx->getEventStore()->streamEvents($streamId, $since, $hints) as $event) {
+            foreach ($slice as $event) {
                 try {
-                    echo json_encode($event).PHP_EOL;
+                    echo json_encode($event) . PHP_EOL;
                 } catch (\Exception $e) {
                     $errOutput->writeln($e->getMessage());
                 }

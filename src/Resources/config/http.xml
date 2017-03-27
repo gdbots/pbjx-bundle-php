@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+  <services>
+    <service id="gdbots_pbjx.pbjx_controller" class="Gdbots\Bundle\PbjxBundle\Controller\PbjxController">
+      <argument type="service" id="pbjx"/>
+      <argument>%gdbots_pbjx.pbjx_controller.allow_get_request%</argument>
+    </service>
+
+    <service id="gdbots_pbjx.pbjx_receive_controller" class="Gdbots\Bundle\PbjxBundle\Controller\PbjxReceiveController">
+      <argument type="service" id="gdbots_pbjx.service_locator"/>
+      <argument>%gdbots_pbjx.pbjx_receive_controller.receive_key%</argument>
+      <argument>%gdbots_pbjx.pbjx_receive_controller.enabled%</argument>
+    </service>
+
+    <service id="gdbots_pbjx.envelope_listener" class="Gdbots\Bundle\PbjxBundle\EventListener\EnvelopeListener">
+      <argument type="service" id="pbjx"/>
+      <argument type="service" id="logger" on-invalid="ignore"/>
+      <tag name="monolog.logger" channel="pbjx"/>
+      <tag name="kernel.event_listener" event="kernel.view" />
+    </service>
+  </services>
+
+</container>

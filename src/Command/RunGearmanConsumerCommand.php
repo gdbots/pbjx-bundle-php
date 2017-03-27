@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
@@ -10,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class RunGearmanConsumerCommand extends ContainerAwareCommand
 {
-    use ConsumerTrait;
+    use PbjxAwareCommandTrait;
 
     /**
      * {@inheritdoc}
@@ -36,7 +37,7 @@ EOF
                 null,
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
                 'The gearman channel (aka function) this process will handle.',
-                ['pbjx_commands', 'pbjx_events']
+                ['pbjx_commands', 'pbjx_events', 'pbjx_requests']
             )
             ->addOption(
                 'max-runtime',
@@ -49,13 +50,13 @@ EOF
                 'id',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Optional id for the gearman consumer. Gets combined with "cloud.instance_id" and "gdbots_pbjx.transport.gearman.channel_prefix".'
-            )
-        ;
+                'Optional id for the gearman consumer. Gets combined with "cloud.instance_id" ' .
+                'and "gdbots_pbjx.transport.gearman.channel_prefix".'
+            );
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
      *
      * @return null
@@ -63,15 +64,15 @@ EOF
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $channels = $input->getOption('channel');
-        $maxRuntime = (int) $input->getOption('max-runtime');
+        $maxRuntime = (int)$input->getOption('max-runtime');
         $id = $input->getOption('id');
 
         $container = $this->getContainer();
         $servers = $container->getParameter('gdbots_pbjx.transport.gearman.servers');
-        $timeout = (int) $container->getParameter('gdbots_pbjx.transport.gearman.timeout');
+        $timeout = (int)$container->getParameter('gdbots_pbjx.transport.gearman.timeout');
         $prefix = $container->getParameter('gdbots_pbjx.transport.gearman.channel_prefix');
         $instanceId = $container->getParameter('cloud_instance_id');
-        $workerId = $id ? sprintf('%s_%s%s', $instanceId, $prefix, $id) : null;
+        $workerId = $id ? sprintf('%s-%s%s', $instanceId, $prefix, $id) : null;
 
         if (!empty($prefix)) {
             $channels = array_map(function ($channel) use ($prefix) { return $prefix . $channel; }, $channels);

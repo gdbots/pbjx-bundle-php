@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
@@ -14,11 +15,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
-class PbjxLinesCommand extends ContainerAwareCommand
+class PbjxBatchCommand extends ContainerAwareCommand
 {
-    use ConsumerTrait;
+    use PbjxAwareCommandTrait;
 
     /**
      * {@inheritdoc}
@@ -26,31 +26,91 @@ class PbjxLinesCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('pbjx:lines')
+            ->setName('pbjx:batch')
+            ->setAliases(['pbjx:lines'])
             ->setDescription('Reads messages from a newline-delimited JSON file and processes them.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will read messages (pbj commands or events) from a newline-delimited JSON file 
-and run pbjx->send or pbjx->publish.
+The <info>%command.name%</info> command will read messages (pbj commands or events) from a 
+newline-delimited JSON file and run pbjx->send or pbjx->publish.
 
 <info>php %command.full_name% --dry-run /path/to/file/message.jsonl</info>
 
 EOF
             )
-            ->addOption('user-agent', null, InputOption::VALUE_REQUIRED, 'The http user agent to run as for this command.')
-            ->addOption('in-memory', null, InputOption::VALUE_NONE, 'Forces all transports to be "in_memory".  Useful for debugging.')
-            ->addOption('device-view', null, InputOption::VALUE_REQUIRED, 'When gdbots/app-bundle is in use you can provide device-view to populate request and server attributes.')
-            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Reads lines and creates messages but will NOT process them.')
-            ->addOption('skip-errors', null, InputOption::VALUE_NONE, 'Skip any lines that fail to deserialize.')
-            ->addOption('batch-size', null, InputOption::VALUE_REQUIRED, 'Number of lines to read at a time.', 100)
-            ->addOption('batch-delay', null, InputOption::VALUE_REQUIRED, 'Number of milliseconds (1000 = 1 second) to delay between batches.', 1000)
-            ->addOption('start-line', null, InputOption::VALUE_REQUIRED, 'Start processing AT this line number.', 1)
-            ->addOption('end-line', null, InputOption::VALUE_REQUIRED, 'Stop processing AFTER this line number.', PHP_INT_MAX)
-            ->addArgument('file', InputArgument::REQUIRED, 'The full path to a json line delimited file with pbj messages.')
-        ;
+            ->addOption(
+                'user-agent',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'The http user agent to run as for this command.'
+            )
+            ->addOption(
+                'in-memory',
+                null,
+                InputOption::VALUE_NONE,
+                'Forces all transports to be "in_memory".  Useful for debugging or ensuring sequential processing.'
+            )
+            ->addOption(
+                'device-view',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'When gdbots/app-bundle is in use you can provide device-view to ' .
+                'populate request and server attributes.'
+            )
+            ->addOption(
+                'dry-run',
+                null,
+                InputOption::VALUE_NONE,
+                'Reads lines and creates messages but will NOT process them.'
+            )
+            ->addOption(
+                'skip-invalid',
+                null,
+                InputOption::VALUE_NONE,
+                'Skip any lines that fail to deserialize.'
+            )
+            ->addOption(
+                'skip-errors',
+                null,
+                InputOption::VALUE_NONE,
+                'Skip any messages that fail to send/publish.'
+            )
+            ->addOption(
+                'batch-size',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Number of lines to read at a time.',
+                100
+            )
+            ->addOption(
+                'batch-delay',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Number of milliseconds (1000 = 1 second) to delay between batches.',
+                1000
+            )
+            ->addOption(
+                'start-line',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Start processing AT this line number.',
+                1
+            )
+            ->addOption(
+                'end-line',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Stop processing AFTER this line number.',
+                PHP_INT_MAX
+            )
+            ->addArgument(
+                'file',
+                InputArgument::REQUIRED,
+                'The full path to a json line delimited file with pbj messages.'
+            );
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
      *
      * @return null
@@ -58,26 +118,18 @@ EOF
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $dryRun = $input->getOption('dry-run');
+        $skipInvalid = $input->getOption('skip-invalid');
         $skipErrors = $input->getOption('skip-errors');
         $batchSize = NumberUtils::bound($input->getOption('batch-size'), 1, 5000);
         $batchDelay = NumberUtils::bound($input->getOption('batch-delay'), 100, 600000);
         $startLine = $input->getOption('start-line');
         $endLine = $input->getOption('end-line');
         $file = $input->getArgument('file');
-        $container = $this->getContainer();
 
         $io = new SymfonyStyle($input, $output);
         $io->title(sprintf('Reading messages from "%s"', $file));
         $this->useInMemoryTransports($input, $io);
-        $question = sprintf(
-            'Have you prepared your event store [%s], transports [%s,%s] and your devops team for the added traffic? ',
-            $container->getParameter('gdbots_pbjx.event_store.provider'),
-            $container->getParameter('gdbots_pbjx.command_bus.transport'),
-            $container->getParameter('gdbots_pbjx.event_bus.transport')
-        );
-
-        if (!$io->confirm($question)) {
-            $io->note('Aborting json lines processing.');
+        if (!$this->readyForPbjxTraffic($io, 'Aborting json lines processing.')) {
             return;
         }
 
@@ -108,8 +160,7 @@ EOF
             return;
         }
 
-        /** @var RequestStack $requestStack */
-        $requestStack = $container->get('request_stack');
+        $requestStack = $this->getRequestStack();
         $pbjx = $this->getPbjx();
         $serializer = new JsonSerializer();
         $batch = 1;
@@ -204,20 +255,20 @@ EOF
                         --$processed;
                     }
                 }
-
             } catch (DeserializeMessageFailed $de) {
                 $io->error(sprintf('%d. %s', $i, $de->getMessage()));
                 $io->note(sprintf('%d. Failed to deserialize json line below:', $i));
                 $io->text($line);
                 $io->newLine(2);
-
+                if (!$skipInvalid) {
+                    break;
+                }
+            } catch (\Exception $e) {
+                $io->error(sprintf('%d. %s', $i, $e->getMessage()));
+                $io->newLine(2);
                 if (!$skipErrors) {
                     break;
                 }
-
-            } catch (\Exception $e) {
-                $io->error(sprintf('%d. %s', $i, $e->getMessage()));
-                break;
             }
 
             if (0 === $i % $batchSize) {

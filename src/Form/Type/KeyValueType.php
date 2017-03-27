@@ -1,10 +1,11 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form\Type;
 
 use Gdbots\Bundle\PbjxBundle\Form\DataTransformer\KeyValueToArrayTransformer;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\ChoiceList\SimpleChoiceList;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -21,13 +22,15 @@ class KeyValueType extends AbstractType
         $builder->addViewTransformer(new KeyValueToArrayTransformer());
 
         if (null === $options['allowed_keys']) {
-            if (!isset($options['key_options']['constraints'])) {
-                $options['key_options']['constraints'] = [];
-            }
+            /*
+                        if (!isset($options['key_options']['constraints'])) {
+                            $options['key_options']['constraints'] = [];
+                        }
 
-            $options['key_options']['constraints'][] = new Regex([
-                'pattern' => '/^[a-zA-Z_]{1}[a-zA-Z0-9_-]*$/'
-            ]);
+                        $options['key_options']['constraints'][] = new Regex([
+                            'pattern' => '/^[a-zA-Z_]{1}[a-zA-Z0-9_-]*$/',
+                        ]);
+            */
 
             if (!isset($options['key_options']['attr'])) {
                 $options['key_options']['attr'] = [];
@@ -37,8 +40,8 @@ class KeyValueType extends AbstractType
 
             $builder->add('key', $options['key_type'], $options['key_options']);
         } else {
-            $builder->add('key', 'choice', array_merge(
-                ['choice_list' => new SimpleChoiceList($options['allowed_keys'])],
+            $builder->add('key', ChoiceType::class, array_merge(
+                ['choices' => $options['allowed_keys']],
                 $options['key_options']
             ));
         }
@@ -52,10 +55,10 @@ class KeyValueType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'key_type' => TextType::class,
-            'key_options' => [],
+            'key_type'      => TextType::class,
+            'key_options'   => [],
             'value_options' => [],
-            'allowed_keys' => null
+            'allowed_keys'  => null,
         ]);
 
         $resolver->setRequired(['value_type']);

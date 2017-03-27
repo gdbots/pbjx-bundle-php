@@ -1,8 +1,10 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form;
 
 use Gdbots\Pbj\Enum\FieldRule;
+use Gdbots\Pbj\Enum\TypeName;
 use Gdbots\Pbj\Field;
 use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1Mixin;
 use Gdbots\Schemas\Pbjx\Mixin\Event\EventV1Mixin;
@@ -44,6 +46,25 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
                 continue;
             }
 
+            if ($schema->hasField($k)) {
+                /** @var Field $pbjField */
+                $pbjField = $schema->getField($k);
+
+                // handle maps (assoc array)
+                if ($pbjField->isAMap()) {
+                    $tmp = [];
+                    foreach ($v as $kk => $vv) {
+                        $tmp[] = [$kk => $vv];
+                    }
+                    $v = $tmp;
+                }
+
+                // handle date/time
+                if (in_array($pbjField->getType()->getTypeName(), [TypeName::DATE, TypeName::DATE_TIME])) {
+                    $v = $pbjField->getType()->decode($v, $pbjField);
+                }
+            }
+
             $forms[$k]->setData($v);
         }
 
@@ -70,6 +91,8 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
      *
      * @param FormInterface[] $forms A list of {@link FormInterface} instances.
      * @param mixed           $data  Structured data.
+     *
+     * @return bool
      */
     public function mapFormsToData($forms, &$data)
     {
@@ -125,24 +148,20 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
             // array and fail when no _schema field is present.
             $data = $isRoot ? [] : null;
         }
+
+        return true;
     }
 
     /**
      * @param FormBuilderInterface $builder
      * @param array                $options
-     * @param array                $ignoredFields
-     * @param array                $hiddenFields
      */
-    final protected function buildPbjForm(
-        FormBuilderInterface $builder,
-        array $options,
-        array $ignoredFields = [],
-        array $hiddenFields = []
-    ) {
+    final protected function buildPbjForm(FormBuilderInterface $builder, array $options): void
+    {
         $schema = static::pbjSchema();
         $builder->setDataMapper($this);
-        $ignoredFields = array_merge(array_flip($ignoredFields), self::getIgnoredFields());
-        $hiddenFields = array_flip($hiddenFields);
+        $ignoredFields = array_flip($this->getIgnoredFields()) + self::getGlobalIgnoredFields();
+        $hiddenFields = array_flip($this->getHiddenFields());
         $factory = $this->getFormFieldFactory();
 
         foreach ($schema->getFields() as $pbjField) {
@@ -156,7 +175,14 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
             }
 
             $formField = $factory->create($pbjField);
-            $type = isset($hiddenFields[$fieldName]) ? HiddenType::class : $formField->getType();
+
+            if (isset($hiddenFields[$fieldName])) {
+                $type = HiddenType::class;
+                $formField->removeOption('choices');
+            } else {
+                $type = $formField->getType();
+            }
+
             $child = $builder->create($fieldName, $type, $formField->getOptions());
 
             // fixme: verify this key is correct for data provided as option
@@ -173,7 +199,7 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
     /**
      * @return FormFieldFactory
      */
-    final protected function getFormFieldFactory()
+    final protected function getFormFieldFactory(): FormFieldFactory
     {
         if (null === $this->formFieldFactory) {
             $this->formFieldFactory = new FormFieldFactory();
@@ -183,10 +209,26 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
     }
 
     /**
+     * @return string[]
+     */
+    protected function getIgnoredFields(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function getHiddenFields(): array
+    {
+        return [];
+    }
+
+    /**
      * @param FormInterface|FormBuilderInterface $form
      * @param Field                              $pbjField
      */
-    private function setFormDefault($form, Field $pbjField)
+    private function setFormDefault($form, Field $pbjField): void
     {
         $pbjType = $pbjField->getType();
         $default = $pbjField->getDefault();
@@ -225,7 +267,7 @@ abstract class AbstractPbjType extends AbstractType implements PbjFormType, Data
     /**
      * @return string[]
      */
-    private static function getIgnoredFields()
+    private static function getGlobalIgnoredFields(): array
     {
         if (null !== self::$ignoredFields) {
             return self::$ignoredFields;

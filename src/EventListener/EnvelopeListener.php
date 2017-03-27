@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\EventListener;
 
@@ -14,19 +15,19 @@ use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 /**
  * Handles the conversion of an Envelope to a symfony response.
  */
-class EnvelopeListener
+final class EnvelopeListener
 {
     /* @var Pbjx */
-    protected $pbjx;
+    private $pbjx;
 
     /* @var LoggerInterface */
-    protected $logger;
+    private $logger;
 
     /**
-     * @param Pbjx $pbjx
-     * @param LoggerInterface|null $logger
+     * @param Pbjx            $pbjx
+     * @param LoggerInterface $logger
      */
-    public function __construct(Pbjx $pbjx, LoggerInterface $logger = null)
+    public function __construct(Pbjx $pbjx, ?LoggerInterface $logger = null)
     {
         $this->pbjx = $pbjx;
         $this->logger = $logger ?: new NullLogger();
@@ -35,7 +36,7 @@ class EnvelopeListener
     /**
      * @param GetResponseForControllerResultEvent $event
      */
-    public function onKernelView(GetResponseForControllerResultEvent $event)
+    public function onKernelView(GetResponseForControllerResultEvent $event): void
     {
         $envelope = $event->getControllerResult();
         if (!$envelope instanceof Envelope) {
@@ -67,7 +68,7 @@ class EnvelopeListener
                     ),
                     [
                         'pbj_schema' => $envelope::schema()->getId()->toString(),
-                        'pbj' => $array,
+                        'pbj'        => $array,
                     ]
                 );
             }
@@ -76,8 +77,8 @@ class EnvelopeListener
         }
 
         $response = new JsonResponse($array, $httpCode, [
-            'Content-Type' => 'application/json',
-            'ETag' => $envelope->get('etag'),
+            'Content-Type'       => 'application/json',
+            'ETag'               => $envelope->get('etag'),
             'x-pbjx-envelope-id' => $envelope->get('envelope_id'),
         ]);
 
@@ -96,11 +97,11 @@ class EnvelopeListener
      * we'll replace the message with something generic.
      *
      * @param Envelope $envelope
-     * @param Request $request
+     * @param Request  $request
      *
      * @return string
      */
-    protected function redactErrorMessage(Envelope $envelope, Request $request)
+    private function redactErrorMessage(Envelope $envelope, Request $request): string
     {
         try {
             $code = Code::create($envelope->get('code'))->getName();

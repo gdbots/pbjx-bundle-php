@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form\Type;
 
@@ -28,44 +29,43 @@ class DynamicFieldType extends AbstractType
 
         $builder
             ->add('name', TextType::class, [
-                'attr' => [
-                    'pattern' => '^[a-zA-Z_]{1}[a-zA-Z0-9_-]*$'
+                'attr'        => [
+                    'pattern' => '^[a-zA-Z_]{1}[a-zA-Z0-9_-]*$',
                 ],
                 'constraints' => [
                     new Regex([
-                        'pattern' => '/^[a-zA-Z_]{1}[a-zA-Z0-9_-]*$/'
-                    ])
-                ]
+                        'pattern' => '/^[a-zA-Z_]{1}[a-zA-Z0-9_-]*$/',
+                    ]),
+                ],
             ])
             ->add('kind', ChoiceType::class, [
-                'choices' => DynamicFieldKind::values()
+                'choices' => DynamicFieldKind::values(),
             ])
             ->add('value', HiddenType::class)
             ->add('bool_val', ChoiceType::class, [
                 'choices' => [
                     'False' => false,
-                    'True' => true
-                ]
+                    'True'  => true,
+                ],
             ])
             ->add('date_val', DatePickerType::class, [
-                'format' => 'yyyy-MM-dd'
+                'format' => 'yyyy-MM-dd',
             ])
             ->add('float_val', NumberType::class, [
                 'attr' => [
-                    'pattern' => '^-?\d*(\.\d+)?$'
-                ]
+                    'pattern' => '^-?\d*(\.\d+)?$',
+                ],
             ])
             ->add('int_val', IntegerType::class)
             ->add('string_val', TextType::class, [
                 'constraints' => [
                     new Length([
                         'min' => 0,
-                        'max' => 255
-                    ])
-                ]
+                        'max' => 255,
+                    ]),
+                ],
             ])
-            ->add('text_val', TextareaType::class)
-        ;
+            ->add('text_val', TextareaType::class);
     }
 
     /**
@@ -75,7 +75,7 @@ class DynamicFieldType extends AbstractType
     {
         $resolver->setDefaults([
             'compound' => true,
-            'required' => false
+            'required' => false,
         ]);
     }
 

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form\Type;
 
@@ -20,7 +21,7 @@ class TrinaryType extends AbstractType
         }
 
         $resolver->setDefaults([
-            'choices' => $values
+            'choices' => $values,
         ]);
     }
 

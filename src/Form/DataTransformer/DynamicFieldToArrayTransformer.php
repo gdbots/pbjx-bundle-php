@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form\DataTransformer;
 
@@ -47,8 +48,8 @@ class DynamicFieldToArrayTransformer implements DataTransformerInterface
         }
 
         return [
-            'name' => $value['name'],
-            $value['kind'] => $value['value']
+            'name'         => $value['name'],
+            $value['kind'] => $value['value'],
         ];
     }
 }

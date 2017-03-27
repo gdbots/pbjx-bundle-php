@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form\Type;
 
@@ -12,15 +13,15 @@ class SwitcheryType extends AbstractType
 {
     /** @var array */
     protected $jsOptions = [
-        'sw_color' => null,
-        'sw_secondaryColor' => null,
-        'sw_jackColor' => null,
+        'sw_color'              => null,
+        'sw_secondaryColor'     => null,
+        'sw_jackColor'          => null,
         'sw_jackSecondaryColor' => null,
-        'sw_className' => null,
-        'sw_disabled' => null,
-        'sw_disabledOpacity' => null,
-        'sw_speed' => null,
-        'sw_size' => null
+        'sw_className'          => null,
+        'sw_disabled'           => null,
+        'sw_disabledOpacity'    => null,
+        'sw_speed'              => null,
+        'sw_size'               => null,
     ];
 
     /**
@@ -39,7 +40,7 @@ class SwitcheryType extends AbstractType
         $resolver->setDefaults(
             array_merge(
                 [
-                    'required' => false
+                    'required' => false,
                 ],
                 $this->jsOptions
             )
@@ -67,7 +68,7 @@ class SwitcheryType extends AbstractType
      *
      * @return array
      */
-    private function parseJsOptions(array $options)
+    private function parseJsOptions(array $options): array
     {
         // remove null settings
         $options = array_filter(

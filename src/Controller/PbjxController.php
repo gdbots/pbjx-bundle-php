@@ -1,8 +1,8 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Controller;
 
-use Gdbots\Bundle\PbjxBundle\Util\StatusCodeConverter;
 use Gdbots\Common\Util\ClassUtils;
 use Gdbots\Pbj\Exception\GdbotsPbjException;
 use Gdbots\Pbj\Exception\HasEndUserMessage;
@@ -13,6 +13,7 @@ use Gdbots\Pbj\SchemaCurie;
 use Gdbots\Pbj\SchemaId;
 use Gdbots\Pbjx\Exception\RequestHandlingFailed;
 use Gdbots\Pbjx\Pbjx;
+use Gdbots\Pbjx\Util\StatusCodeConverter;
 use Gdbots\Schemas\Pbjx\Enum\Code;
 use Gdbots\Schemas\Pbjx\Enum\HttpCode;
 use Gdbots\Schemas\Pbjx\Envelope;
@@ -23,33 +24,34 @@ use Gdbots\Schemas\Pbjx\Mixin\Request\Request as PbjxRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
-class PbjxController
+final class PbjxController
 {
     /** @var Pbjx */
-    protected $pbjx;
+    private $pbjx;
 
     /** @var string[] */
-    protected $allowedMethods = ['POST'];
+    private $allowedMethods = ['POST'];
 
     /**
      * @param Pbjx $pbjx
      * @param bool $allowGetRequest
      */
-    public function __construct(Pbjx $pbjx, $allowGetRequest = false)
+    public function __construct(Pbjx $pbjx, bool $allowGetRequest = false)
     {
         $this->pbjx = $pbjx;
-        if (true === filter_var($allowGetRequest, FILTER_VALIDATE_BOOLEAN)) {
+        if ($allowGetRequest) {
             $this->allowedMethods = ['GET', 'POST'];
         }
     }
 
     /**
      * @param Request $request
+     *
      * @return Envelope
      *
      * @throws \Exception
      */
-    public function handleAction(Request $request)
+    public function handleAction(Request $request): Envelope
     {
         $request->attributes->set('pbjx_redact_error_message', false);
         $envelope = EnvelopeV1::create();
@@ -57,12 +59,20 @@ class PbjxController
             return $envelope;
         }
 
-        $json = $request->isMethod('GET') ? base64_decode($request->query->get('data')) : $request->getContent();
-        $data = json_decode($json, true) ?: [];
+        if ($request->isMethod('GET')) {
+            $json = base64_decode($request->query->get('pbj'));
+        } elseif (0 === strpos($request->headers->get('Content-Type'), 'multipart/form-data')) {
+            $json = $request->request->get('pbj');
+        } else {
+            $json = $request->getContent();
+        }
+
+        $data = json_decode((string)$json, true) ?: [];
         if (!$this->isJsonOk($envelope, $request)) {
             return $envelope;
         }
 
+        /*
         if (empty($data)) {
             return $envelope
                 ->set('code', Code::INVALID_ARGUMENT)
@@ -70,6 +80,7 @@ class PbjxController
                 ->set('error_name', 'UnsupportedMediaType')
                 ->set('error_message', 'Empty payload is not supported.');
         }
+        */
 
         $pbjxCategory = $request->attributes->get('pbjx_category');
         if (false !== strpos($pbjxCategory, '_')) {
@@ -107,7 +118,6 @@ class PbjxController
                     )
                 );
             }
-
         } catch (\Exception $e) {
             return $envelope
                 ->set('code', Code::INVALID_ARGUMENT)
@@ -161,12 +171,12 @@ class PbjxController
 
     /**
      * @param Envelope $envelope
-     * @param Request $request
-     * @param Command $command
+     * @param Request  $request
+     * @param Command  $command
      *
      * @return Envelope
      */
-    protected function handleCommand(Envelope $envelope, Request $request, Command $command)
+    private function handleCommand(Envelope $envelope, Request $request, Command $command): Envelope
     {
         try {
             $this->pbjx->send($command);
@@ -188,12 +198,12 @@ class PbjxController
 
     /**
      * @param Envelope $envelope
-     * @param Request $request
-     * @param Event $event
+     * @param Request  $request
+     * @param Event    $event
      *
      * @return Envelope
      */
-    protected function handleEvent(Envelope $envelope, Request $request, Event $event)
+    private function handleEvent(Envelope $envelope, Request $request, Event $event): Envelope
     {
         try {
             $this->pbjx->publish($event);
@@ -214,13 +224,13 @@ class PbjxController
     }
 
     /**
-     * @param Envelope $envelope
-     * @param Request $request
+     * @param Envelope    $envelope
+     * @param Request     $request
      * @param PbjxRequest $pbjxRequest
      *
      * @return Envelope
      */
-    protected function handleRequest(Envelope $envelope, Request $request, PbjxRequest $pbjxRequest)
+    private function handleRequest(Envelope $envelope, Request $request, PbjxRequest $pbjxRequest): Envelope
     {
         try {
             $response = $this->pbjx->request($pbjxRequest);
@@ -237,14 +247,14 @@ class PbjxController
     }
 
     /**
-     * @param Envelope $envelope
-     * @param Request $request
-     * @param Message $message
+     * @param Envelope   $envelope
+     * @param Request    $request
+     * @param Message    $message
      * @param \Exception $exception
      *
      * @return Envelope
      */
-    protected function handleException(Envelope $envelope, Request $request, Message $message, \Exception $exception)
+    private function handleException(Envelope $envelope, Request $request, Message $message, \Exception $exception): Envelope
     {
         if ($exception instanceof HasEndUserMessage) {
             $code = $exception->getCode();
@@ -252,20 +262,17 @@ class PbjxController
             $errorName = ClassUtils::getShortName($exception);
             $errorMessage = $exception->getEndUserMessage();
             $request->attributes->set('pbjx_redact_error_message', false);
-
         } elseif ($exception instanceof HttpExceptionInterface) {
             $code = StatusCodeConverter::httpToVendor($exception->getStatusCode());
             $httpCode = $exception->getStatusCode();
             $errorName = ClassUtils::getShortName($exception);
             $errorMessage = $exception->getMessage();
-
         } elseif ($exception instanceof RequestHandlingFailed) {
             $response = $exception->getResponse();
             $code = $response->get('error_code', Code::UNKNOWN);
             $httpCode = StatusCodeConverter::vendorToHttp($code);
             $errorName = $response->get('error_name', ClassUtils::getShortName($exception));
             $errorMessage = $response->get('error_message', $exception->getMessage());
-
         } elseif ($exception instanceof GdbotsPbjException) {
             $code = Code::INVALID_ARGUMENT;
             $httpCode = HttpCode::HTTP_UNPROCESSABLE_ENTITY;
@@ -273,7 +280,6 @@ class PbjxController
             $errorMessage = $exception->getMessage();
             // these error messages are safe to show as they only indicate schema problems
             $request->attributes->set('pbjx_redact_error_message', false);
-
         } else {
             $code = $exception->getCode() > 0 ? $exception->getCode() : Code::INVALID_ARGUMENT;
             $httpCode = StatusCodeConverter::vendorToHttp($code);
@@ -290,11 +296,11 @@ class PbjxController
 
     /**
      * @param Envelope $envelope
-     * @param Request $request
+     * @param Request  $request
      *
      * @return bool
      */
-    protected function isRequestMethodOk(Envelope $envelope, Request $request)
+    private function isRequestMethodOk(Envelope $envelope, Request $request): bool
     {
         if (in_array($request->getMethod(), $this->allowedMethods)) {
             return true;
@@ -314,11 +320,11 @@ class PbjxController
 
     /**
      * @param Envelope $envelope
-     * @param Request $request
+     * @param Request  $request
      *
      * @return bool
      */
-    protected function isContentTypeOk(Envelope $envelope, Request $request)
+    private function isContentTypeOk(Envelope $envelope, Request $request): bool
     {
         if ($request->query->has('callback') && $request->isMethod('GET')) {
             // jsonp request, don't enforce
@@ -327,7 +333,9 @@ class PbjxController
         }
 
         $request->attributes->set('_jsonp_enabled', false);
-        if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
+        $contentType = $request->headers->get('Content-Type');
+
+        if (0 === strpos($contentType, 'multipart/form-data') || 0 === strpos($contentType, 'application/json')) {
             return true;
         }
 
@@ -338,8 +346,8 @@ class PbjxController
             ->set(
                 'error_message',
                 sprintf(
-                    'This service supports [application/json], you provided [%s].',
-                    $request->headers->get('Content-Type')
+                    'This service supports [application/json] or [multipart/form-data], you provided [%s].',
+                    $contentType
                 )
             );
 
@@ -348,11 +356,11 @@ class PbjxController
 
     /**
      * @param Envelope $envelope
-     * @param Request $request
+     * @param Request  $request
      *
      * @return bool
      */
-    protected function isJsonOk(Envelope $envelope, Request $request)
+    private function isJsonOk(Envelope $envelope, Request $request): bool
     {
         if (JSON_ERROR_NONE === json_last_error()) {
             return true;
@@ -372,7 +380,7 @@ class PbjxController
      *
      * @return string
      */
-    protected function getLastJsonErrorMessage()
+    private function getLastJsonErrorMessage(): string
     {
         if (function_exists('json_last_error_msg')) {
             return json_last_error_msg();

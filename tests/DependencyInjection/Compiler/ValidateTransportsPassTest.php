@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Tests\Bundle\PbjxBundle\DependencyInjection\Compiler;
 
@@ -36,8 +37,7 @@ class ValidateTransportsPassTest extends \PHPUnit_Framework_TestCase
             ->addArgument(new Definition('gdbots_pbjx.service_locator'))
             ->addArgument($container->getParameter('gdbots_pbjx.transport.gearman.servers'))
             ->addArgument($container->getParameter('gdbots_pbjx.transport.gearman.timeout'))
-            ->addArgument(new Definition('gdbots_pbjx.transport.gearman_router'))
-        ;
+            ->addArgument(new Definition('gdbots_pbjx.transport.gearman_router'));
 
         $this->process($container);
     }
@@ -53,8 +53,7 @@ class ValidateTransportsPassTest extends \PHPUnit_Framework_TestCase
 
         $container
             ->register('gdbots_pbjx.transport.kinesis')
-            ->addArgument(new Definition('gdbots_pbjx.service_locator'))
-        ;
+            ->addArgument(new Definition('gdbots_pbjx.service_locator'));
 
         $this->process($container);
     }

@@ -1,13 +1,25 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection;
 
+use Gdbots\Pbjx\EventStore\DynamoDb\EventStoreTable;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
+    private $env;
+
+    /**
+     * @param string $env
+     */
+    public function __construct(string $env = 'dev')
+    {
+        $this->env = $env;
+    }
+
     /**
      * @return TreeBuilder
      */
@@ -18,6 +30,14 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->arrayNode('service_locator')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('class')
+                            ->defaultValue('Gdbots\Bundle\PbjxBundle\ContainerAwareServiceLocator')
+                        ->end()
+                    ->end()
+                ->end()
                 ->arrayNode('pbjx_controller')
                     ->addDefaultsIfNotSet()
                     ->children()
@@ -36,6 +56,14 @@ class Configuration implements ConfigurationInterface
                         ->end()
                         ->scalarNode('receive_key')
                             ->defaultNull()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('handler_guesser')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('class')
+                            ->defaultValue('Gdbots\Bundle\PbjxBundle\HandlerGuesser')
                         ->end()
                     ->end()
                 ->end()
@@ -86,6 +114,9 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('provider')
                             ->defaultNull()
                         ->end()
+                        ->scalarNode('tenant_id_field')
+                            ->defaultNull()
+                        ->end()
                         ->append($this->getElasticaEventSearchConfigTree())
                     ->end()
                 ->end()
@@ -98,12 +129,13 @@ class Configuration implements ConfigurationInterface
     /**
      * @return NodeDefinition
      */
-    protected function getGearmanTransportConfigTree()
+    protected function getGearmanTransportConfigTree(): NodeDefinition
     {
         $treeBuilder = new TreeBuilder();
         $node = $treeBuilder->root('gearman');
 
         $node
+            ->addDefaultsIfNotSet()
             ->children()
                 ->arrayNode('servers')
                     ->requiresAtLeastOneElement()
@@ -129,7 +161,7 @@ class Configuration implements ConfigurationInterface
                     ->treatNullLike(5000)
                 ->end()
                 ->scalarNode('channel_prefix')
-                    ->defaultNull()
+                    ->defaultValue("{$this->env}_")
                 ->end()
             ->end()
         ;
@@ -140,17 +172,20 @@ class Configuration implements ConfigurationInterface
     /**
      * @return NodeDefinition
      */
-    protected function getDynamoDbEventStoreConfigTree()
+    protected function getDynamoDbEventStoreConfigTree(): NodeDefinition
     {
         $treeBuilder = new TreeBuilder();
         $node = $treeBuilder->root('dynamodb');
 
         $node
+            ->addDefaultsIfNotSet()
             ->children()
                 ->scalarNode('class')
-                    ->defaultValue('Gdbots\Pbjx\EventStore\DynamoDbEventStore')
+                    ->defaultValue('Gdbots\Pbjx\EventStore\DynamoDb\DynamoDbEventStore')
                 ->end()
-                ->scalarNode('table_name')->end()
+                ->scalarNode('table_name')
+                    ->defaultValue("{$this->env}-event-store-".EventStoreTable::SCHEMA_VERSION)
+                ->end()
             ->end()
         ;
 
@@ -160,7 +195,7 @@ class Configuration implements ConfigurationInterface
     /**
      * @return NodeDefinition
      */
-    protected function getElasticaEventSearchConfigTree()
+    protected function getElasticaEventSearchConfigTree(): NodeDefinition
     {
         $treeBuilder = new TreeBuilder();
         $node = $treeBuilder->root('elastica');
@@ -169,31 +204,34 @@ class Configuration implements ConfigurationInterface
         $defaultCluster = [
             'default' => [
                 'round_robin' => true,
-                'timeout' => 300,
-                'debug' => false,
-                'persistent' => true,
-                'servers' => $defaultServers
-            ]
+                'timeout'     => 300,
+                'debug'       => false,
+                'persistent'  => true,
+                'servers'     => $defaultServers,
+            ],
         ];
 
         $node
+            ->addDefaultsIfNotSet()
             ->fixXmlConfig('cluster')
             ->children()
                 ->scalarNode('class')
-                    ->defaultValue('Gdbots\Pbjx\EventSearch\ElasticaEventSearch')
+                    ->defaultValue('Gdbots\Pbjx\EventSearch\Elastica\ElasticaEventSearch')
                 ->end()
                 ->arrayNode('index_manager')
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('class')
-                            ->defaultValue('Gdbots\Pbjx\EventSearch\ElasticaIndexManager')
+                            ->defaultValue('Gdbots\Pbjx\EventSearch\Elastica\IndexManager')
                         ->end()
-                        ->scalarNode('index_prefix')->end()
+                        ->scalarNode('index_prefix')
+                            ->defaultValue("{$this->env}-events")
+                        ->end()
                     ->end()
                 ->end()
                 ->scalarNode('query_timeout')
-                    ->defaultValue('100ms')
-                    ->treatNullLike('100ms')
+                    ->defaultValue('500ms')
+                    ->treatNullLike('500ms')
                 ->end()
                 ->arrayNode('clusters')
                     ->useAttributeAsKey('name')
@@ -201,6 +239,7 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue($defaultCluster)
                     ->prototype('array')
                         ->fixXmlConfig('server')
+                        ->addDefaultsIfNotSet()
                         ->performNoDeepMerging()
                         ->children()
                             ->booleanNode('round_robin')

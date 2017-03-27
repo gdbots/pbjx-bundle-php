@@ -1,15 +1,17 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle;
 
 use Gdbots\Pbjx\EventSubscriber;
+use Gdbots\Pbjx\Pbjx;
 use Gdbots\Schemas\Pbjx\Event\EventExecutionFailed;
 use Psr\Log\LoggerInterface;
 
-class EventExecutionFailureLogger implements EventSubscriber
+final class EventExecutionFailureLogger implements EventSubscriber
 {
     /** @var LoggerInterface */
-    protected $logger;
+    private $logger;
 
     /**
      * @param LoggerInterface $logger
@@ -21,8 +23,9 @@ class EventExecutionFailureLogger implements EventSubscriber
 
     /**
      * @param EventExecutionFailed $event
+     * @param Pbjx                 $pbjx
      */
-    public function onEventExecutionFailed(EventExecutionFailed $event)
+    public function onEventExecutionFailed(EventExecutionFailed $event, Pbjx $pbjx): void
     {
         $message = sprintf(
             '%s::%s Event subscriber failed to handle message [{pbj_schema}].',
@@ -32,7 +35,7 @@ class EventExecutionFailureLogger implements EventSubscriber
 
         $this->logger->critical($message, [
             'pbj_schema' => $event::schema()->getId()->toString(),
-            'pbj' => $event->toArray(),
+            'pbj'        => $event->toArray(),
         ]);
     }
 

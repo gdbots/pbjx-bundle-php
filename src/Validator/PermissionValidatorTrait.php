@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle\Validator;
 
@@ -19,7 +20,7 @@ trait PermissionValidatorTrait
     /**
      * @param PbjxEvent $pbjxEvent
      */
-    public function validate(PbjxEvent $pbjxEvent)
+    public function validate(PbjxEvent $pbjxEvent): void
     {
         if (!$pbjxEvent->isRootEvent()) {
             // lifecycle events on nested messages do not require permission
@@ -63,12 +64,12 @@ trait PermissionValidatorTrait
 
     /**
      * @param PbjxEvent $pbjxEvent
-     * @param Message $message
-     * @param Request $request
+     * @param Message   $message
+     * @param Request   $request
      *
      * @throws \Exception
      */
-    protected function checkPermission(PbjxEvent $pbjxEvent, Message $message, Request $request)
+    protected function checkPermission(PbjxEvent $pbjxEvent, Message $message, Request $request): void
     {
         // override to provide custom validation logic.
     }
