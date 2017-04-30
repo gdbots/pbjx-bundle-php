@@ -1,14 +1,14 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * Example use (services.yml)
- * 
+ *
  * widgetco_blog.add_comment_handler:
  *   class: WidgetCo\Blog\AddCommentHandler
  *     tags:
@@ -29,6 +29,7 @@ class AliasHandlersPass implements CompilerPassInterface
     {
         foreach ($container->findTaggedServiceIds($this->handlerTag) as $id => $attributes) {
             $def = $container->getDefinition($id);
+
             if (!$def->isPublic()) {
                 throw new \InvalidArgumentException(
                     sprintf('The service "%s" must be public as pbjx request/command handlers are lazy-loaded.', $id)
@@ -48,7 +49,7 @@ class AliasHandlersPass implements CompilerPassInterface
 
                 $alias = $container->getParameterBag()->resolveValue($attribute['alias']);
                 if ($container->hasDefinition($alias) || $container->hasAlias($alias)) {
-                    return;
+                    continue;
                 }
 
                 $container->setAlias($alias, $id);
