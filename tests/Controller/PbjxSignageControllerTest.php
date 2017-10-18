@@ -11,6 +11,8 @@ use Gdbots\Tests\Bundle\PbjxBundle\Fixtures\FakeCommand;
 use Symfony\Component\HttpFoundation\Request;
 use Firebase\JWT\JWT;
 
+use Gdbots\Bundle\PbjxBundle\PbjxSignature;
+
 class PbjxSignageControllerTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -22,7 +24,7 @@ class PbjxSignageControllerTest extends \PHPUnit_Framework_TestCase
 
     public function testSignatureAlgorithmSupported()
     {
-        $this->assertArrayHasKey(self::JWT_HMAC_ALG, JWT::$supported_algs);
+        $this->assertArrayHasKey(PbjxSignature::DEFAULT_ALGO, JWT::$supported_algs);
     }
 
     public function secretKeyProvider()
@@ -42,10 +44,24 @@ class PbjxSignageControllerTest extends \PHPUnit_Framework_TestCase
         return $cmd;
     }
 
+    public function testSignatureBypass()
+    {
+        /*
+        $command = $this->getFakePayload();
+        $jwt = JWT::encode($command, $this->_secret, self::JWT_HMAC_ALG);
+        $parts = explode('.', $jwt);
+        //TODO: set alg to a serialized object that string casts to the wrong name
+        $parts[0] = base64_encode('{"typ":"JWT","alg":"none"}');
+        $parts = implode('.', $parts);
+
+        $decoded = JWT::decode($parts, "\x0\x0", ['none']);
+        */
+    }
+
     public function testInvalidPayload()
     {
         $this->setExpectedException(\DomainException::class);
-        JWT::encode(sha1('nope', true), $this->_secret, self::JWT_HMAC_ALG);
+        $pbjxSignature = PbjxSignature::create(sha1('nope', true), $this->_secret);
     }
 
     public function testInvalidToken()
