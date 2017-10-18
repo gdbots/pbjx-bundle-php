@@ -7,7 +7,8 @@
   "require": {
     "php": ">=7.1",
     "gdbots/pbjx": "~2.0",
-    "symfony/symfony": "~3.2"
+    "symfony/symfony": "~3.2",
+    "firebase/php-jwt": "^5.0"
   },
   "require-dev": {
     "composer/composer": "1.0.*@dev",
