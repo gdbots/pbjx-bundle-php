@@ -23,10 +23,23 @@ class PbjxSignature
     private $_signed = false;
     private $_signature;
     private $_header;
+    private $_expired = false;
 
     public function __construct()
     {
         JWT::$leeway = self::DEFAULT_LEEWAY;
+    }
+
+    public function setLeeway($seconds) {
+        if(!is_numeric($seconds)) {
+            return false;
+        }
+        JWT::$leeway = (int)$seconds;
+        return true;
+    }
+
+    public function getLeeway($seconds) {
+        return JWT::$leeway;
     }
 
     public function isValid() {
@@ -40,6 +53,7 @@ class PbjxSignature
                 //expiration date check
                 if (isset($this->_payload->exp)) {
                     if (($timestamp - JWT::$leeway) >= $this->_payload->exp ) {
+                        $this->_expired = true;
                         return true;
                     }
                 }
@@ -47,6 +61,7 @@ class PbjxSignature
                 //iat date check
                 if (isset($this->_payload->iat)) {
                     if ($this->_payload->iat > ($timestamp + JWT::$leeway)) {
+                        $this->_expired = true;
                         return true;
                     }
                 }
@@ -56,6 +71,9 @@ class PbjxSignature
     }
 
     private function parseJwtToken($token) {
+        if(substr_count($token, '.') != 2) {
+            return false;
+        }
         $this->_token = $token;
         if ($this->_token) {
             list($header, $payload, $sig) = explode('.', $this->_token);
@@ -85,14 +103,39 @@ class PbjxSignature
         }
     }
 
+    public function sign($secret, $algo = self::DEFAULT_ALGO) {
+        return JWT::sign($this->_payload, $secret, $algo);
+    }
+
+    public function validate($secret, $algo = self::DEFAULT_ALGO) {
+        if( $this->_token) {
+            try {
+                $decoded = JWT::decode($this->_token, $secret, [$algo]);
+                return $decoded;
+            }
+            catch(ExpiredException $e) {
+                $this->_expired = true;
+                throw($e);
+            }
+            catch(Exception $e) {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
     public static function fromString($jwt, $secret, $algo = self::DEFAULT_ALGO) {
         $pbjxSignature = new self();
         try {
-            $pbjxSignature->parseJwtToken($jwt);
-            $pbjxSignature->_payload = JWT::decode($jwt, $secret, [$algo]);
-            $pbjxSignature->_signed = true;
-            $pbjxSignature->_valid = true;
-            return $pbjxSignature;
+            if($pbjxSignature->parseJwtToken($jwt)) {
+                $pbjxSignature->_payload = JWT::decode($jwt, $secret, [$algo]);
+                $pbjxSignature->_signed = true;
+                $pbjxSignature->_valid = true;
+                return $pbjxSignature;
+            } else {
+                throw new UnexpectedValueException('Could not parse token');
+            }
         } catch (Exception $e) {
             throw $e;
         }
@@ -115,10 +158,10 @@ class PbjxSignature
                     throw new \DomainException('Could not encode payload');
                 }
 
-                $token = JWT::encode($payload, $secret, $algo, null, [
+                $pbjxSignature->_token = JWT::encode($payload, $secret, $algo, null, [
                     'payload_hash' => base64_encode(hash_hmac('sha256', $payloadEncoded, $secret, true))
                 ]);
-                $pbjxSignature->parseJwtToken($token);
+                $pbjxSignature->parseJwtToken($pbjxSignature->_token);
             } catch (Exception $e) {
                 throw $e;
             }
