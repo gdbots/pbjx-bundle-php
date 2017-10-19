@@ -107,7 +107,12 @@ class PbjxSignature
     public function validate($secret, $algo = self::DEFAULT_ALGO) {
         if( $this->_token) {
             try {
+                $this->_valid = false;
+                // If this token has a iat/nbf claim it may have been invalid before and
+                // has now become possibly valid.  Otherwise an exception will be thrown.
                 $decoded = JWT::decode($this->_token, $secret, [$algo]);
+                $this->_expired = false;
+                $this->_valid = true;
                 return $decoded;
             }
             catch(ExpiredException $e) {
