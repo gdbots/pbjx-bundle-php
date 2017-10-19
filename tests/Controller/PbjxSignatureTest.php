@@ -11,7 +11,7 @@ use Firebase\JWT\JWT;
 
 use Gdbots\Bundle\PbjxBundle\PbjxSignature;
 
-class PbjxSignageControllerTest extends \PHPUnit_Framework_TestCase
+class PbjxSignatureTest extends \PHPUnit_Framework_TestCase
 {
 
     const JWT_HMAC_ALG = 'HS256';
