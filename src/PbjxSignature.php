@@ -3,12 +3,8 @@ declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle;
 
-use Firebase\JWT\BeforeValidException;
 use Firebase\JWT\ExpiredException;
-use Firebase\JWT\SignatureInvalidException;
-use Gdbots\Pbjx\Exception\UnexpectedValueException;
-use Gdbots\Tests\Bundle\PbjxBundle\Fixtures\FakeCommand;
-use Symfony\Component\HttpFoundation\Request;
+use Gdbots\Pbjx\Exception\UnexpectedValueException;;
 use Firebase\JWT\JWT;
 
 class PbjxSignature
