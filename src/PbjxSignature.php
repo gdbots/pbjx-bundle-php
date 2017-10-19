@@ -139,6 +139,11 @@ class PbjxSignature
         return false;
     }
 
+    public static function getPayloadHash($payload, $secret, $algo = 'sha256')
+    {
+        return base64_encode(hash_hmac('sha256', $payload, (string)$secret, true));
+    }
+
     public static function create($payload, $secret = false, $algo = self::DEFAULT_ALGO)
     {
         $pbjxSignature = new self();
