@@ -170,30 +170,28 @@ class PbjxSignatureTest extends \PHPUnit_Framework_TestCase
        // $jwt = JWT::encode($message, $secret, self::JWT_HMAC_ALG, $keyid, $this->_header);
         $jwt = PbjxSignature::create($message, (string)$secret);
 
+        //TODO: convenience methods
         list($header, $payload, $signature) = explode('.', $jwt->getToken());
         $headerData = base64_decode($header);
         $this->assertNotNull($headerData);
         $headerData = json_decode($headerData);
         $this->assertNotNull($headerData);
-
         $payloadData = base64_decode($payload);
+        $this->assertNotNull($payloadData);
+
 
         $this->assertEquals($headerData->alg, self::JWT_HMAC_ALG);
         $this->assertEquals($headerData->typ, self::JWT_HMAC_TYP);
         $this->assertEquals($headerData->payload_hash, PbjxSignature::getPayloadHash($payloadData, (string)$secret));
         //Firebase\JWT assigns key id to 'kid' property
         //$this->assertEquals($headerData->kid, $keyid);
-
-
-        $this->assertNotNull($payloadData);
-
         $payloadData = json_decode($payloadData, false);
         $this->assertNotNull($payloadData);
-
         $this->assertEquals($payloadData, $message);
-        
+
         $this->assertContains(strlen($signature), self::JWT_SIGNATURE_SIZE);
 
-        $jwt->validate($secret);
+        $this->assertNotFalse($jwt->validate($secret));
+
     }
 }
