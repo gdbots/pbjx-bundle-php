@@ -63,6 +63,7 @@ class PbjxSignature
                 }
             }
         }
+        $this->_expired = false;
         return false;
     }
 
