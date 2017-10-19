@@ -177,7 +177,7 @@ class PbjxSignatureTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($headerData->alg, self::JWT_HMAC_ALG);
         $this->assertEquals($headerData->typ, self::JWT_HMAC_TYP);
-        $this->assertEquals($headerData->payload_hash, PbjxSignature::getPayloadHash($payloadData, $secret));
+        $this->assertEquals($headerData->payload_hash, PbjxSignature::getPayloadHash($payloadData, (string)$secret));
         //Firebase\JWT assigns key id to 'kid' property
         //$this->assertEquals($headerData->kid, $keyid);
 

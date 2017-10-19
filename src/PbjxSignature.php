@@ -141,7 +141,7 @@ class PbjxSignature
 
     public static function getPayloadHash($payload, $secret, $algo = 'sha256')
     {
-        return base64_encode(hash_hmac('sha256', $payload, (string)$secret, true));
+        return base64_encode(hash_hmac($algo, $payload, (string)$secret, true));
     }
 
     public static function create($payload, $secret = false, $algo = self::DEFAULT_ALGO)
@@ -159,8 +159,9 @@ class PbjxSignature
                     throw new \DomainException('Could not encode payload');
                 }
 
+                $payloadHash = self::getPayloadHash($payloadEncoded, $secret);
                 $pbjxSignature->_token = JWT::encode($payload, $secret, $algo, null, [
-                    'payload_hash' => base64_encode(hash_hmac('sha256', $payloadEncoded, $secret, true))
+                    'payload_hash' => $payloadHash
                 ]);
                 $pbjxSignature->parseJwtToken($pbjxSignature->_token);
             } catch (Exception $e) {
