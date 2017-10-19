@@ -16,6 +16,9 @@ class PbjxSignatureTest extends \PHPUnit_Framework_TestCase
 
     const JWT_HMAC_ALG = 'HS256';
     const JWT_HMAC_TYP = 'JWT';
+    // String length of the base64 encoded binary signature
+    //  accounting for base64 padding
+    const JWT_SIGNATURE_SIZE = [43, 44];
 
     private $_secret = 'af3o8ahf3a908faasdaofiahaefar3u';
 
@@ -188,8 +191,8 @@ class PbjxSignatureTest extends \PHPUnit_Framework_TestCase
         $this->assertNotNull($payloadData);
 
         $this->assertEquals($payloadData, $message);
-
-        $this->assertEquals(strlen($signature), 43);
+        
+        $this->assertContains(strlen($signature), self::JWT_SIGNATURE_SIZE);
 
         $jwt->validate($secret);
     }
