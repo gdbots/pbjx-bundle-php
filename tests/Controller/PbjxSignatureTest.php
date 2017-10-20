@@ -3,20 +3,18 @@ declare(strict_types = 1);
 
 namespace Gdbots\Tests\Bundle\PbjxBundle\Controller;
 
-use Firebase\JWT\SignatureInvalidException;
 use Gdbots\Bundle\PbjxBundle\PbjxToken;
 use Gdbots\Pbjx\Exception\UnexpectedValueException;
 use Firebase\JWT\JWT;
 
 class PbjxTokenTest extends \PHPUnit_Framework_TestCase
 {
-
     private const JWT_HMAC_ALG = 'HS256';
     private const JWT_HMAC_TYP = 'JWT';
     private const JWT_DEFAULT_HOST = 'tmzdev.com';
     // String length of the base64 encoded binary signature
     //  accounting for base64 padding
-    const JWT_SIGNATURE_SIZE = [43, 44];
+    private const JWT_SIGNATURE_SIZE = [43, 44];
 
     public function testSignatureAlgorithmSupported()
     {
@@ -26,10 +24,14 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
     public function secretKeyProvider()
     {
         return [
-            [(string)mt_rand(43,43), mt_rand(10,20)],
-            [(string)mt_rand(40,40), mt_rand(10,20)],
-            [(string)mt_rand(43,43), mt_rand(10,20)],
-            [(string)mt_rand(13,13), mt_rand(10,20)]
+            //len 32
+            [md5((string)mt_rand(5, mt_getrandmax()))],
+            //len 64
+            [hash('sha256', (string)mt_rand(5, mt_getrandmax()))],
+            //len 96
+            [hash('sha384', (string)mt_rand(5, mt_getrandmax()))],
+            //len 128
+            [hash('sha512', (string)mt_rand(5, mt_getrandmax()))]
         ];
     }
 
@@ -119,7 +121,7 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
      * @dataProvider secretKeyProvider
      * @expectedException Firebase\JWT\SignatureInvalidException
      */
-    public function testInvalidSignatureDecode($secret, $keyid)
+    public function testInvalidSignatureDecode($secret)
     {
         $message = $this->getFakePayload();
         $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, $secret);
@@ -128,8 +130,10 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider secretKeyProvider
+     *
+     * @param string $secret Shared secret
      */
-    public function testValidSignatureCreation($secret, $keyid)
+    public function testValidSignatureCreation($secret)
     {
         $message = $this->getFakePayload();
         $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, $secret);
