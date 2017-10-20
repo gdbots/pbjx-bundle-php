@@ -48,21 +48,19 @@ class PbjxToken implements \JsonSerializable
     /**
      * @param mixed $payload The content to hash
      * @param string $secret Shared secret
-     * @param string $algo A hashing algorithm support by PHP's hash_hmac(), defaults to 'sha256'
      * @return string A base64-encoded hmac
      */
-    public static function getPayloadHash($payload, string $secret, string $algo = 'sha256') : string
+    public static function getPayloadHash($payload, string $secret) : string
     {
         if(!is_string($payload)) {
             $payload = json_encode($payload);
         }
-        return base64_encode(hash_hmac($algo, $payload, $secret, true));
+        return base64_encode(hash_hmac('sha256', $payload, $secret, true));
     }
 
     /**
      * @param string $host The host or endpoint that this payload is being sent to
      * @param mixed $content The content to include in the payload.
-     * @param bool $exp Set to true to create a JWT token that expires
      * @return array The default structure for all PBJX tokens
      */
     public static function generatePayload(string $host, $content, string $secret): array
@@ -251,11 +249,19 @@ class PbjxToken implements \JsonSerializable
         return false;
     }
 
+    /**
+     * Returns a string representation of an encoded JWT Token
+     * @return string
+     */
     public function __toString()
     {
         return $this->getToken();
     }
 
+    /**
+     * Returns a json encoded representation of a decoded JWT Token
+     * @return string
+     */
     public function toJson() : string
     {
         return json_encode($this);
