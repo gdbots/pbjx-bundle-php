@@ -40,7 +40,7 @@ class PbjxToken implements \JsonSerializable
      * Gets the currently active algorithm used for signing JWT based tokens.
      * @return string
      */
-    public static function getAlgorithm()
+    public static function getAlgorithm(): string
     {
         return self::DEFAULT_ALGO;
     }
@@ -67,10 +67,9 @@ class PbjxToken implements \JsonSerializable
     {
         $ret = [
             "host" => $host,
-            "content" => $content,
-            "content_signature" => self::getPayloadHash($content, $secret)
+            "pbjx" => self::getPayloadHash($content, $secret),
+            "exp"  => time() + self::DEFAULT_EXPIRATION
         ];
-        $ret['exp'] = time() + self::DEFAULT_EXPIRATION;
 
         return $ret;
     }
@@ -154,7 +153,8 @@ class PbjxToken implements \JsonSerializable
      * @param $token JWT formatted token
      * @return bool
      */
-    private function parseJwtToken($token) {
+    private function parseJwtToken($token): bool
+    {
 
         if(substr_count($token, '.') != 2) {
             return false;
@@ -186,7 +186,7 @@ class PbjxToken implements \JsonSerializable
     /**
      * @return string The decoded payload
      */
-    public function getPayload(): string
+    public function getPayload()
     {
         return $this->payload;
     }
@@ -214,11 +214,12 @@ class PbjxToken implements \JsonSerializable
      * Attempts to decode the current jwt token using the supplied secret.
      *
      * @param string $secret Shared secret
-     * @return bool|object False is the token is invalid, otherwise the decoded payload object.
+     * @return mixed False is the token is invalid, otherwise the decoded payload object.
      * @throws ExpiredException If the token has expired
      * @throws Exception The token was malformed or could not be decoded
      */
-    public function validate($secret) {
+    public function validate($secret)
+    {
         if($this->token) {
             try {
                 $defaultLeeway = JWT::$leeway;

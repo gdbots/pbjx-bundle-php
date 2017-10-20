@@ -47,17 +47,6 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test a payload containing invalid UTF8 binary data
-     *
-     * @expectedException DomainException
-     */
-    public function testInvalidPayload()
-    {
-        $secret = 'af3o8ahf3a908faasdaofiahaefar3u';
-        PbjxToken::create(self::JWT_DEFAULT_HOST, sha1('nope', true), $secret);
-    }
-
-    /**
      * @expectedException DomainException
      */
     public function testInvalidToken()
