@@ -160,7 +160,7 @@ class PbjxToken implements \JsonSerializable
         return $this->payload;
     }
 
-    public function getToken()
+    public function getToken(): string
     {
         return $this->token;
     }
@@ -212,6 +212,11 @@ class PbjxToken implements \JsonSerializable
         }
 
         return false;
+    }
+
+    public function __toString()
+    {
+        return $this->getToken();
     }
 
     public function toJson() : string

@@ -165,4 +165,11 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
         $jsonData = json_decode($json);
         $this->assertEquals($jsonData->signature, $jwt->getSignature());
     }
+
+    public function testToString()
+    {
+        $message = $this->getFakePayload();
+        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, 'secret');
+        $this->assertEquals((string)$jwt, $jwt->getToken());
+    }
 }
