@@ -44,14 +44,14 @@ class PbjxToken
      * @param bool $exp Set to true to create a JWT token that expires
      * @return array
      */
-    public static function generatePayload($host, bool $exp = false)
+    public static function generatePayload(string $host, $content, string $secret)
     {
         $ret = [
-            "host" => $host
+            "host" => $host,
+            "content" => $content,
+            "content_signature" => self::getPayloadHash($content, $secret)
         ];
-        if ($exp !== false) {
-            $ret['exp'] = time() + self::DEFAULT_EXPIRATION;
-        }
+        $ret['exp'] = time() + self::DEFAULT_EXPIRATION;
 
         return $ret;
     }
@@ -73,9 +73,7 @@ class PbjxToken
         $pbjxToken = new self();
         $pbjxToken->payload = $content;
 
-        $payload = self::generatePayload($host, true);
-        $payload['content'] = $content;
-        $payload['content_signature'] = self::getPayloadHash($content, $secret);
+        $payload = self::generatePayload($host, $content, $secret);
 
         try {
             $payloadEncoded = json_encode($payload);

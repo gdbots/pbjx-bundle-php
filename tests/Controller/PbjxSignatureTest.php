@@ -82,7 +82,7 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
     public function testExpiredToken($secret, $token)
     {
         $jwt = PbjxToken::fromString($token, $secret);
-        $ret = $jwt->validate($secret);
+        $jwt->validate($secret);
     }
 
     public function expiredTokenProvider()
