@@ -19,7 +19,6 @@ class PbjxToken
 
     private $token;
     private $payload;
-    private $signed = false;
     private $signature;
     private $header;
 
@@ -60,7 +59,6 @@ class PbjxToken
 
         $pbjxToken = new self();
         $pbjxToken->payload = $content;
-        $pbjxToken->signed = false;
 
         $payload = self::generatePayload($host, true);
         $payload['content'] = $content;
