@@ -3,161 +3,119 @@ declare(strict_types = 1);
 
 namespace Gdbots\Tests\Bundle\PbjxBundle\Controller;
 
-use Firebase\JWT\BeforeValidException;
-use Firebase\JWT\ExpiredException;
 use Firebase\JWT\SignatureInvalidException;
+use Gdbots\Bundle\PbjxBundle\PbjxToken;
 use Gdbots\Pbjx\Exception\UnexpectedValueException;
 use Firebase\JWT\JWT;
 
-use Gdbots\Bundle\PbjxBundle\PbjxSignature;
-
-class PbjxSignatureTest extends \PHPUnit_Framework_TestCase
+class PbjxTokenTest extends \PHPUnit_Framework_TestCase
 {
 
-    const JWT_HMAC_ALG = 'HS256';
-    const JWT_HMAC_TYP = 'JWT';
+    private const JWT_HMAC_ALG = 'HS256';
+    private const JWT_HMAC_TYP = 'JWT';
+    private const JWT_DEFAULT_HOST = 'tmzdev.com';
     // String length of the base64 encoded binary signature
     //  accounting for base64 padding
     const JWT_SIGNATURE_SIZE = [43, 44];
 
-    private $_secret = 'af3o8ahf3a908faasdaofiahaefar3u';
-
     public function testSignatureAlgorithmSupported()
     {
-        $this->assertArrayHasKey(PbjxSignature::DEFAULT_ALGO, JWT::$supported_algs);
+        $this->assertArrayHasKey(PbjxToken::getAlgorithm(), JWT::$supported_algs);
     }
 
     public function secretKeyProvider()
     {
         return [
-            [mt_rand(43,43), mt_rand(10,20)],
-            [mt_rand(40,40), mt_rand(10,20)],
-            [mt_rand(43,43), mt_rand(10,20)],
-            [mt_rand(13,13), mt_rand(10,20)]
+            [(string)mt_rand(43,43), mt_rand(10,20)],
+            [(string)mt_rand(40,40), mt_rand(10,20)],
+            [(string)mt_rand(43,43), mt_rand(10,20)],
+            [(string)mt_rand(13,13), mt_rand(10,20)]
         ];
     }
 
+    /**
+     * Generates the most basic JWT token payload and returns it as an associative array.
+     * @return array
+     */
     private function getFakePayload()
     {
-        $cmd = new \stdClass();
-        $cmd->host = 'tmzdev.com';
-        return $cmd;
+        return [
+            "host" => self::JWT_DEFAULT_HOST
+        ];
     }
 
-    public function testSignatureBypass()
-    {
-        /*
-        $command = $this->getFakePayload();
-        $jwt = JWT::encode($command, $this->_secret, self::JWT_HMAC_ALG);
-        $parts = explode('.', $jwt);
-        //TODO: set alg to a serialized object that string casts to the wrong name
-        $parts[0] = base64_encode('{"typ":"JWT","alg":"none"}');
-        $parts = implode('.', $parts);
-
-        $decoded = JWT::decode($parts, "\x0\x0", ['none']);
-        */
-    }
-
+    /**
+     * Test a payload containing invalid UTF8 binary data
+     *
+     * @expectedException DomainException
+     */
     public function testInvalidPayload()
     {
-        $this->setExpectedException(\DomainException::class);
-        $pbjxSignature = PbjxSignature::create(sha1('nope', true), $this->_secret);
+        $secret = 'af3o8ahf3a908faasdaofiahaefar3u';
+        PbjxToken::create(self::JWT_DEFAULT_HOST, sha1('nope', true), $secret);
     }
 
+    /**
+     * @expectedException DomainException
+     */
     public function testInvalidToken()
     {
-        $this->setExpectedException(\DomainException::class);
-        PbjxSignature::fromString('not.a.jwt', $this->_secret);
-
-        $this->setExpectedException(UnexpectedValueException::class);
-        PbjxSignature::fromString(md5('not.a.jwt', true), $this->_secret);
+        $secret = 'af3o8ahf3a908faasdaofiahaefar3u';
+        PbjxToken::fromString('not.a.jwt', $secret);
     }
 
+    /**
+     * @expectedException UnexpectedValueException
+     */
+    public function testInvalidBinaryToken()
+    {
+        $secret = 'af3o8ahf3a908faasdaofiahaefar3u';
+        PbjxToken::fromString(md5('not.a.jwt', true), $secret);
+    }
+
+    /**
+     * @expectedException Firebase\JWT\ExpiredException
+     */
     public function testExpiredToken()
     {
-        $this->setExpectedException(ExpiredException::class);
+        $secret = 'af3o8ahf3a908faasdaofiahaefar3u';
+        $content = $this->getFakePayload();
 
-        $command = $this->getFakePayload();
-        $command->exp = time() - 60;
-
-        $jwt = PbjxSignature::create($command, $this->_secret);
-        $jwt->setLeeway(1);
-        $jwt->validate($this->_secret);
+        // Pin the expiration date on this token to 15 seconds ago
+        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $content, $secret, -15);
+        $jwt->validate($secret);
     }
 
-    public function testGreedyToken()
+    public function staticTokenProvider()
     {
-        $this->setExpectedException(BeforeValidException::class);
-
-        $command = $this->getFakePayload();
-        $command->iat = time() + 60;
-        $jwt = PbjxSignature::create($command, $this->_secret);
-        $jwt->setLeeway(1);
-        $jwt->validate($this->_secret);
+        return [
+            ['af3o8ahf3a908faasdaofiahaefar3u', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImhvc3QiOiJ0bXpkZXYuY29tIiwiY29udGVudCI6ImxvIiwiY29udGVudF9zaWduYXR1cmUiOiJjS2FFUXNjUkJUNEpRTExzVjFDSmwwRGNGSzhhR3g3U3YwSkdnSDA3OHFNPSJ9.B5Wo4phTTqbmcpTSHwbPO5cehzqZjDxFAOKbk7TxviI'],
+            ['af3o8ahf3a908faasdaofiahaefar3u', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJob3N0IjoidG16ZGV2LmNvbSIsImNvbnRlbnQiOiIxNTA4NDYxNDgwIiwiY29udGVudF9zaWduYXR1cmUiOiJqQm9jV29iYnlpNTQ2M01WNUV5QzBpMHNqU1ZhbEdRQzY2Vk9YVXA3QWtrPSJ9.jQahNNEP1FGynnvt-CNF7moaOPw7Ex3t8JGhMVVdNwQ'],
+            ['sup33haefou8g2k', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJob3N0IjoidG16bGFicy5jb20iLCJjb250ZW50IjoiMTUwODQ2MTU2MSIsImNvbnRlbnRfc2lnbmF0dXJlIjoibVU1WlFpUlJLUU9NNEVHRDFJV3F4dGF4NXY4VkFkV1wvSDFnYUJkVmV6SG89In0.JsCJOSsyRPZWOoOMfDaWE7q8beWgQD-tVEdn8_gI69Q'],
+            ['sup33haefou8g2k', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJob3N0IjoidG16bGFicy5jb20iLCJjb250ZW50IjoiMTUwODQ2MTU4OCIsImNvbnRlbnRfc2lnbmF0dXJlIjoiTGpIcG5VZ25EZTl5ZDVxOXZhOUt4K1RkaXg0bEJTNnd5NHZwYlNGZmlJND0ifQ.C0pq0hUMvaBtuaa-4TAitDrCsRjUo4y-MjPNJCALeLA']
+        ];
     }
 
-    public function testGreedyTokenLeeway()
+    /**
+     * @dataProvider staticTokenProvider
+     */
+    public function testJwtSignatureMethod($secret, $token)
     {
-        $command = $this->getFakePayload();
-        $command->iat = time() + 60;
-        $jwt = PbjxSignature::create($command, $this->_secret);
-        $jwt->setLeeway(180);
-        $decoded = $jwt->validate($this->_secret);
-
-        $this->assertEquals($decoded, $command);
-    }
-
-    public function testExpiredTokenLeeway()
-    {
-        $command = $this->getFakePayload();
-        $command->exp = time() - 60;
-        $jwt = PbjxSignature::create($command, $this->_secret);
-        $jwt->setLeeway(180);
-        $decoded = $jwt->validate($this->_secret);
-
-        $this->assertEquals($decoded, $command);
-    }
-
-    public function testJwtSignatureMethod()
-    {
-        $message = 'lo';
-        $jwt = PbjxSignature::create($message, $this->_secret);
-        $sig = $jwt->sign($this->_secret);
-        $this->assertEquals(bin2hex($sig), '70a68442c711053e0940b2ec5750899740dc14af1a1b1ed2bf4246807d3bf2a3');
-    }
-
-    public function testKnownSignature()
-    {
-        $jwtString = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfc2NoZW1hIjoicGJqOmdkYm90czp0ZXN0cy5wYmp4OmZpeHR1cmVzOmZha2UtY29tbWFuZDoxLTAtMCIsImNvbW1hbmRfaWQiOiJjMjRiNmY1Ni1iNDM0LTExZTctOWFmOC04MGU2NTAwNWUwNmMiLCJvY2N1cnJlZF9hdCI6IjE1MDgzNTI0MzQ5MTE1ODYiLCJjdHhfcmV0cmllcyI6MH0.wRj9yT5N64z7klPRfNQ4YyMlAa5rG_FIg4XJmhlTTGQ';
-        $jwt = PbjxSignature::fromString($jwtString, $this->_secret);
-        $decoded = $jwt->getPayload();
-
-        $this->assertEquals($decoded->command_id,"c24b6f56-b434-11e7-9af8-80e65005e06c");
-        $this->assertEquals($decoded->_schema,'pbj:gdbots:tests.pbjx:fixtures:fake-command:1-0-0');
+        $jwt = PbjxToken::fromString($token, $secret);
+        $this->assertEquals(mb_strlen($jwt->getSignature()), 43);
+        $this->assertEquals($jwt->getPayload()->content_signature,
+                            PbjxToken::getPayloadHash($jwt->getPayload()->content, $secret));
     }
 
     /**
      * @dataProvider secretKeyProvider
+     * @expectedException Firebase\JWT\SignatureInvalidException
      */
     public function testInvalidSignatureDecode($secret, $keyid)
     {
-        $this->setExpectedException(SignatureInvalidException::class);
         $message = $this->getFakePayload();
-        $jwt = PbjxSignature::create($message, $this->_secret);
+        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, $secret);
         $jwt->validate('badkey');
-    }
-
-    /**
-     * @dataProvider secretKeyProvider
-     */
-    public function testInvalidHmacDecode($secret, $keyid)
-    {
-        $message = $this->getFakePayload();
-        $jwt = PbjxSignature::create($message, (string)$secret);
-
-        $this->setExpectedException(\UnexpectedValueException::class);
-        $jwt->validate((string)$secret, 'RS256');
-        $jwt->validate((string)$secret, 'HS384');
     }
 
     /**
@@ -166,30 +124,23 @@ class PbjxSignatureTest extends \PHPUnit_Framework_TestCase
     public function testValidSignatureCreation($secret, $keyid)
     {
         $message = $this->getFakePayload();
+        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, $secret);
 
-       // $jwt = JWT::encode($message, $secret, self::JWT_HMAC_ALG, $keyid, $this->_header);
-        $jwt = PbjxSignature::create($message, (string)$secret);
-
-        //TODO: convenience methods
-        list($header, $payload, $signature) = explode('.', $jwt->getToken());
-        $headerData = base64_decode($header);
-        $this->assertNotNull($headerData);
+        $headerData = $jwt->getHeader();
         $headerData = json_decode($headerData);
         $this->assertNotNull($headerData);
-        $payloadData = base64_decode($payload);
-        $this->assertNotNull($payloadData);
 
+        $payloadData = json_decode($jwt->getPayload());
+        $this->assertNotNull($payloadData);
 
         $this->assertEquals($headerData->alg, self::JWT_HMAC_ALG);
         $this->assertEquals($headerData->typ, self::JWT_HMAC_TYP);
-        $this->assertEquals($headerData->payload_hash, PbjxSignature::getPayloadHash($payloadData, (string)$secret));
+
         //Firebase\JWT assigns key id to 'kid' property
         //$this->assertEquals($headerData->kid, $keyid);
-        $payloadData = json_decode($payloadData, false);
-        $this->assertNotNull($payloadData);
-        $this->assertEquals($payloadData, $message);
+        $this->assertEquals($payloadData->host, $message['host']);
 
-        $this->assertContains(strlen($signature), self::JWT_SIGNATURE_SIZE);
+        $this->assertContains(strlen($jwt->getSignature()), self::JWT_SIGNATURE_SIZE);
 
         $this->assertNotFalse($jwt->validate($secret));
 
