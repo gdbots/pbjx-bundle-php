@@ -192,6 +192,11 @@ class PbjxToken
                 // If this token has a iat/nbf claim it may have been invalid before and
                 // has now become possibly valid.  Otherwise an exception will be thrown.
                 $decoded = JWT::decode($this->token, $secret, [self::DEFAULT_ALGO]);
+
+                if (!$decoded->exp) {
+                    throw new \Exception("Expiration date was not found on this token");
+                }
+
                 return $decoded;
             }
             catch(ExpiredException $e) {
