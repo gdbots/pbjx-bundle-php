@@ -74,16 +74,24 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @dataProvider expiredTokenProvider
      * @expectedException Firebase\JWT\ExpiredException
      */
-    public function testExpiredToken()
+    public function testExpiredToken($secret, $token)
     {
-        $secret = 'af3o8ahf3a908faasdaofiahaefar3u';
-        $content = $this->getFakePayload();
+        $jwt = PbjxToken::fromString($token, $secret);
+        $ret = $jwt->validate($secret);
+    }
 
-        // Pin the expiration date on this token to 15 seconds ago
-        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $content, $secret, -15);
-        $jwt->validate($secret);
+    public function expiredTokenProvider()
+    {
+        return [
+            // {"host":"tmzdev.com","exp":1508467231,"content":"{\"host\":\"tmzdev.com\"}","content_signature":"MAVzkM3qu5DERObiBE2kSnB6VPgPCjoSC209fHUmIoc="}
+            ["43", 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJob3N0IjoidG16ZGV2LmNvbSIsImV4cCI6MTUwODQ2NzIzMSwiY29udGVudCI6IntcImhvc3RcIjpcInRtemRldi5jb21cIn0iLCJjb250ZW50X3NpZ25hdHVyZSI6Ik1BVnprTTNxdTVERVJPYmlCRTJrU25CNlZQZ1BDam9TQzIwOWZIVW1Jb2M9In0.CS-sn2eYgOAiRNuCJ11V12MS0VmenY6d_lLMQ-1H7_c'],
+            // {"host":"tmzdev.com","exp":1508467773,"content":"{\"host\":\"tmzdev.com\"}","content_signature":"MAVzkM3qu5DERObiBE2kSnB6VPgPCjoSC209fHUmIoc="}
+            ["43", 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJob3N0IjoidG16ZGV2LmNvbSIsImV4cCI6MTUwODQ2Nzc3MywiY29udGVudCI6IntcImhvc3RcIjpcInRtemRldi5jb21cIn0iLCJjb250ZW50X3NpZ25hdHVyZSI6Ik1BVnprTTNxdTVERVJPYmlCRTJrU25CNlZQZ1BDam9TQzIwOWZIVW1Jb2M9In0.Wyz10AkTFOn3hHkusGv4Ih9mIPEmmG5URzsaRYjznK4']
+
+        ];
     }
 
     public function staticTokenProvider()

@@ -39,7 +39,12 @@ class PbjxToken
         return base64_encode(hash_hmac($algo, $payload, $secret, true));
     }
 
-    public static function generatePayload($host, $exp = false)
+    /**
+     * @param string $host The host or endpoint that this payload is being sent to
+     * @param bool $exp Set to true to create a JWT token that expires
+     * @return array
+     */
+    public static function generatePayload($host, bool $exp = false)
     {
         $ret = [
             "host" => $host
@@ -51,6 +56,14 @@ class PbjxToken
         return $ret;
     }
 
+    /**
+     * @param string $host Pbjx host or service name
+     * @param $content Pbjx content
+     * @param string $secret Shared secret
+     * @return PbjxToken
+     * @throws \Exception If the token could not be created
+     * @throws DomainException If the content cannot be json encoded using json_encode
+     */
     public static function create(string $host, $content, string $secret)
     {
         if(!is_string($content)) {
@@ -80,6 +93,15 @@ class PbjxToken
         return $pbjxToken;
     }
 
+    /**
+     * Parse a JWT token and attempt to decode it using the user supplied secret
+     *
+     * @param string $jwt A JWT formatted token
+     * @param string $secret Shared secret
+     * @return bool|PbjxToken
+     * @throws \Exception If the token could not be decoded
+     * @throws UnexpectedValueException If the token could not be parsed
+     */
     public static function fromString($jwt, $secret) {
         $pbjxToken = new self();
         try {
@@ -95,6 +117,7 @@ class PbjxToken
 
         return false;
     }
+
 
     public function __construct($token = false)
     {
@@ -144,13 +167,26 @@ class PbjxToken
         return $this->token;
     }
 
+    /**
+     * Create just the signature portion for a JWT payload
+     *
+     * @param string $secret Shared secret
+     * @return string
+     */
     public function sign($secret)
     {
         return JWT::sign($this->payload, $secret, self::DEFAULT_ALGO);
     }
 
+    /**
+     * Attempts to decode the current jwt token using the supplied secret.
+     *
+     * @param string $secret Shared secret
+     * @return bool|object False is the token is invalid, otherwise the decoded payload object.
+     * @throws ExpiredException If the token has expired
+     */
     public function validate($secret) {
-        if( $this->token) {
+        if($this->token) {
             try {
                 $defaultLeeway = JWT::$leeway;
                 JWT::$leeway = self::DEFAULT_LEEWAY;
@@ -174,9 +210,5 @@ class PbjxToken
 
         return false;
     }
-
-
-
-
 
 }
