@@ -155,6 +155,14 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
         $this->assertContains(strlen($jwt->getSignature()), self::JWT_SIGNATURE_SIZE);
 
         $this->assertNotFalse($jwt->validate($secret));
+    }
 
+    public function testJsonSerialization()
+    {
+        $message = $this->getFakePayload();
+        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, 'secret');
+        $json = json_encode($jwt);
+        $jsonData = json_decode($json);
+        $this->assertEquals($jsonData->signature, $jwt->getSignature());
     }
 }

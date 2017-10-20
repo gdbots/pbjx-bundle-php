@@ -7,7 +7,7 @@ use Firebase\JWT\ExpiredException;
 use Gdbots\Pbjx\Exception\UnexpectedValueException;;
 use Firebase\JWT\JWT;
 
-class PbjxToken
+class PbjxToken implements \JsonSerializable
 {
     private const DEFAULT_ALGO = 'HS256';
     private const DEFAULT_TYPE = 'JWT';
@@ -214,4 +214,17 @@ class PbjxToken
         return false;
     }
 
+    public function toJson() : string
+    {
+        return json_encode($this);
+    }
+
+    public function jsonSerialize() : array
+    {
+        return [
+            'header' => $this->getHeader(),
+            'payload' => $this->getPayload(),
+            'signature' => $this->getSignature()
+        ];
+    }
 }
