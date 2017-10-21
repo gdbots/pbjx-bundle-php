@@ -3,14 +3,13 @@ declare(strict_types = 1);
 
 namespace Gdbots\Bundle\PbjxBundle;
 
-use Firebase\JWT\ExpiredException;
-use Gdbots\Pbjx\Exception\UnexpectedValueException;;
 use Firebase\JWT\JWT;
+use Firebase\JWT\ExpiredException;
+use Gdbots\Pbjx\Exception\UnexpectedValueException;
 use Symfony\Component\Config\Definition\Exception\Exception;
 
 /**
  * Represents a signed PBJX-JWT token.  PBJX-JWT is a type of JWS.
- *
  *
  * Class PbjxToken
  * @package Gdbots\Bundle\PbjxBundle
@@ -46,15 +45,12 @@ class PbjxToken implements \JsonSerializable
     }
 
     /**
-     * @param mixed $payload The content to hash
+     * @param string $payload The content to hash
      * @param string $secret Shared secret
      * @return string A base64-encoded hmac
      */
-    public static function getPayloadHash($payload, string $secret) : string
+    public static function getPayloadHash(string $payload, string $secret) : string
     {
-        if(!is_string($payload)) {
-            $payload = json_encode($payload);
-        }
         return base64_encode(hash_hmac('sha256', $payload, $secret, true));
     }
 
@@ -63,7 +59,7 @@ class PbjxToken implements \JsonSerializable
      * @param mixed $content The content to include in the payload.
      * @return array The default structure for all PBJX tokens
      */
-    public static function generatePayload(string $host, $content, string $secret): array
+    public static function generatePayload(string $host, string $content, string $secret): array
     {
         $ret = [
             "host" => $host,
@@ -135,12 +131,12 @@ class PbjxToken implements \JsonSerializable
 
     /**
      * PbjxToken constructor.
-     * @param bool $token Optional JWT token string to parse on construction of this object.
+     * @param string $token Optional JWT token string to parse on construction of this object.
      * @return PbjxToken
      */
-    public function __construct($token = false)
+    public function __construct(string $token = null)
     {
-        if ($token !== false) {
+        if (!empty($token)) {
             $this->parseJwtToken($token);
         }
     }
@@ -150,10 +146,10 @@ class PbjxToken implements \JsonSerializable
      * No validation of signatures, claims or any other cryptographic function is done here.  If the string does
      * not contain 2 '.' characters, false will be returned.
      *
-     * @param $token JWT formatted token
+     * @param string $token JWT formatted token
      * @return bool
      */
-    private function parseJwtToken($token): bool
+    private function parseJwtToken(string $token): bool
     {
 
         if(substr_count($token, '.') != 2) {
@@ -204,6 +200,7 @@ class PbjxToken implements \JsonSerializable
      *
      * @param string $secret Shared secret
      * @return string
+     * @throws DomainException Unsupported algorithm was specified
      */
     public function sign($secret): string
     {
@@ -214,14 +211,15 @@ class PbjxToken implements \JsonSerializable
      * Attempts to decode the current jwt token using the supplied secret.
      *
      * @param string $secret Shared secret
-     * @return mixed False is the token is invalid, otherwise the decoded payload object.
+     * @return bool False is the token is invalid, otherwise True
      * @throws ExpiredException If the token has expired
      * @throws Exception The token was malformed or could not be decoded
      */
-    public function validate($secret)
+    public function validate(string $secret): bool
     {
         if($this->token) {
             try {
+                //since JWT::$leeway is static, we only set it when needed then reset it to the default (0)
                 $defaultLeeway = JWT::$leeway;
                 JWT::$leeway = self::DEFAULT_LEEWAY;
 
@@ -233,7 +231,7 @@ class PbjxToken implements \JsonSerializable
                     throw new Exception("Expiration date was not found on this token");
                 }
 
-                return $decoded;
+                return true;
             }
             catch(ExpiredException $e) {
                 $this->expired = true;
@@ -254,7 +252,7 @@ class PbjxToken implements \JsonSerializable
      * Returns a string representation of an encoded JWT Token
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getToken();
     }
