@@ -87,11 +87,9 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
 
     public function staticTokenProvider()
     {
+        //content set to 'lo'
         return [
-            ['af3o8ahf3a908faasdaofiahaefar3u', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImhvc3QiOiJ0bXpkZXYuY29tIiwiY29udGVudCI6ImxvIiwiY29udGVudF9zaWduYXR1cmUiOiJjS2FFUXNjUkJUNEpRTExzVjFDSmwwRGNGSzhhR3g3U3YwSkdnSDA3OHFNPSJ9.B5Wo4phTTqbmcpTSHwbPO5cehzqZjDxFAOKbk7TxviI'],
-            ['af3o8ahf3a908faasdaofiahaefar3u', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJob3N0IjoidG16ZGV2LmNvbSIsImNvbnRlbnQiOiIxNTA4NDYxNDgwIiwiY29udGVudF9zaWduYXR1cmUiOiJqQm9jV29iYnlpNTQ2M01WNUV5QzBpMHNqU1ZhbEdRQzY2Vk9YVXA3QWtrPSJ9.jQahNNEP1FGynnvt-CNF7moaOPw7Ex3t8JGhMVVdNwQ'],
-            ['sup33haefou8g2k', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJob3N0IjoidG16bGFicy5jb20iLCJjb250ZW50IjoiMTUwODQ2MTU2MSIsImNvbnRlbnRfc2lnbmF0dXJlIjoibVU1WlFpUlJLUU9NNEVHRDFJV3F4dGF4NXY4VkFkV1wvSDFnYUJkVmV6SG89In0.JsCJOSsyRPZWOoOMfDaWE7q8beWgQD-tVEdn8_gI69Q'],
-            ['sup33haefou8g2k', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJob3N0IjoidG16bGFicy5jb20iLCJjb250ZW50IjoiMTUwODQ2MTU4OCIsImNvbnRlbnRfc2lnbmF0dXJlIjoiTGpIcG5VZ25EZTl5ZDVxOXZhOUt4K1RkaXg0bEJTNnd5NHZwYlNGZmlJND0ifQ.C0pq0hUMvaBtuaa-4TAitDrCsRjUo4y-MjPNJCALeLA']
+            ['secret1', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJob3N0IjoidG16ZGV2LmNvbSIsInBiangiOiJETUpYanY3QXphWDk2cUJyaWh5bkFWM0tCV1hhNGdWblNQTHFmVm50M3FrIn0.NOrrfDBnSCnJndO2fa-BKepzAsGLcsHcIwvk8cl-OOA'],
         ];
     }
 
@@ -102,8 +100,8 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
     {
         $jwt = PbjxToken::fromString($token, $secret);
         $this->assertEquals(mb_strlen($jwt->getSignature()), 43);
-        $this->assertEquals($jwt->getPayload()->content_signature,
-                            PbjxToken::getPayloadHash($jwt->getPayload()->content, $secret));
+        $this->assertEquals($jwt->getPayload()->pbjx,
+                            PbjxToken::getPayloadHash('lo', $secret));
     }
 
     /**

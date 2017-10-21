@@ -51,7 +51,7 @@ class PbjxToken implements \JsonSerializable
      */
     public static function getPayloadHash(string $payload, string $secret) : string
     {
-        return base64_encode(hash_hmac('sha256', $payload, $secret, true));
+        return JWT::urlsafeB64Encode(hash_hmac('sha256', $payload, $secret, true));
     }
 
     /**
@@ -158,8 +158,8 @@ class PbjxToken implements \JsonSerializable
         $this->token = $token;
         list($header, $payload, $sig) = explode('.', $this->token);
         $this->signature = $sig;
-        $this->header = base64_decode($header);
-        $this->payload = base64_decode($payload);
+        $this->header = JWT::urlsafeB64Decode($header);
+        $this->payload = JWT::urlsafeB64Decode($payload);
         return true;
     }
 
@@ -227,7 +227,7 @@ class PbjxToken implements \JsonSerializable
                 // has now become possibly valid.  Otherwise an exception will be thrown.
                 $decoded = JWT::decode($this->token, $secret, [self::DEFAULT_ALGO]);
 
-                if (!$decoded->exp) {
+                if (!isset($decoded->exp) || empty($decoded->exp)) {
                     throw new Exception("Expiration date was not found on this token");
                 }
 
