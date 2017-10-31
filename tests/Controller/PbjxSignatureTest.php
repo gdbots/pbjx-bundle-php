@@ -123,7 +123,8 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
     public function testValidSignatureCreation($secret)
     {
         $message = $this->getFakePayload();
-        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, 'kid', $secret);
+        $myKid = 'kid123';
+        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, $myKid, $secret);
 
         $headerData = $jwt->getHeader();
         $headerData = json_decode($headerData);
@@ -134,6 +135,7 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($headerData->alg, self::JWT_HMAC_ALG);
         $this->assertEquals($headerData->typ, self::JWT_HMAC_TYP);
+        $this->assertEquals($headerData->kid, $myKid);
 
         $this->assertEquals($payloadData->host, $message['host']);
 
