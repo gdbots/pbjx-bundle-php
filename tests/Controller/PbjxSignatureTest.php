@@ -11,7 +11,7 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
 {
     private const JWT_HMAC_ALG = 'HS256';
     private const JWT_HMAC_TYP = 'JWT';
-    private const JWT_DEFAULT_HOST = 'tmzdev.com';
+    private const JWT_DEFAULT_HOST = 'mydev.dev';
     // String length of the base64 encoded binary signature
     //  accounting for base64 padding
     private const JWT_SIGNATURE_SIZE = [43, 44];
@@ -77,9 +77,9 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
     public function expiredTokenProvider()
     {
         return [
-            // {"host":"tmzdev.com","exp":1508467231,"content":"{\"host\":\"tmzdev.com\"}","content_signature":"MAVzkM3qu5DERObiBE2kSnB6VPgPCjoSC209fHUmIoc="}
+            // {"host":"mydev.com","exp":1508467231,"content":"{\"host\":\"mydev.com\"}","content_signature":"MAVzkM3qu5DERObiBE2kSnB6VPgPCjoSC209fHUmIoc="}
             ["43", 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJob3N0IjoidG16ZGV2LmNvbSIsImV4cCI6MTUwODQ2NzIzMSwiY29udGVudCI6IntcImhvc3RcIjpcInRtemRldi5jb21cIn0iLCJjb250ZW50X3NpZ25hdHVyZSI6Ik1BVnprTTNxdTVERVJPYmlCRTJrU25CNlZQZ1BDam9TQzIwOWZIVW1Jb2M9In0.CS-sn2eYgOAiRNuCJ11V12MS0VmenY6d_lLMQ-1H7_c'],
-            // {"host":"tmzdev.com","exp":1508467773,"content":"{\"host\":\"tmzdev.com\"}","content_signature":"MAVzkM3qu5DERObiBE2kSnB6VPgPCjoSC209fHUmIoc="}
+            // {"host":"mydev.com","exp":1508467773,"content":"{\"host\":\"mydev.com\"}","content_signature":"MAVzkM3qu5DERObiBE2kSnB6VPgPCjoSC209fHUmIoc="}
             ["43", 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJob3N0IjoidG16ZGV2LmNvbSIsImV4cCI6MTUwODQ2Nzc3MywiY29udGVudCI6IntcImhvc3RcIjpcInRtemRldi5jb21cIn0iLCJjb250ZW50X3NpZ25hdHVyZSI6Ik1BVnprTTNxdTVERVJPYmlCRTJrU25CNlZQZ1BDam9TQzIwOWZIVW1Jb2M9In0.Wyz10AkTFOn3hHkusGv4Ih9mIPEmmG5URzsaRYjznK4']
 
         ];
