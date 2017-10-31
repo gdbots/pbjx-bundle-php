@@ -111,7 +111,7 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
     public function testInvalidSignatureDecode($secret)
     {
         $message = $this->getFakePayload();
-        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, $secret);
+        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, 'kid', $secret);
         $jwt->validate('badkey');
     }
 
@@ -123,7 +123,7 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
     public function testValidSignatureCreation($secret)
     {
         $message = $this->getFakePayload();
-        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, $secret);
+        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, 'kid', $secret);
 
         $headerData = $jwt->getHeader();
         $headerData = json_decode($headerData);
@@ -145,7 +145,7 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
     public function testJsonSerialization()
     {
         $message = $this->getFakePayload();
-        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, 'secret');
+        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, 'kid', 'secret');
         $json = json_encode($jwt);
         $jsonData = json_decode($json);
         $this->assertEquals($jsonData->signature, $jwt->getSignature());
@@ -154,7 +154,7 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
     public function testToString()
     {
         $message = $this->getFakePayload();
-        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, 'secret');
+        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, 'kid','secret');
         $this->assertEquals((string)$jwt, $jwt->getToken());
     }
 }

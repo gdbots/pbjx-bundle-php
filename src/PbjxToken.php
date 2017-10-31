@@ -78,7 +78,7 @@ class PbjxToken implements \JsonSerializable
      * @throws \Exception If the token could not be created
      * @throws DomainException If the content cannot be json encoded using json_encode
      */
-    public static function create(string $host, $content, string $secret) : PbjxToken
+    public static function create(string $host, $content, string $kId, string $secret) : PbjxToken
     {
         if(!is_string($content)) {
             $content = json_encode($content);
@@ -96,7 +96,7 @@ class PbjxToken implements \JsonSerializable
                 throw new \DomainException('Could not encode payload');
             }
 
-            $pbjxToken->token = JWT::encode($payload, $secret, self::DEFAULT_ALGO, null);
+            $pbjxToken->token = JWT::encode($payload, $secret, self::DEFAULT_ALGO, $kId);
             $pbjxToken->parseJwtToken($pbjxToken->token);
         } catch (Exception $e) {
             throw $e;
