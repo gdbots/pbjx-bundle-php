@@ -80,7 +80,7 @@ class PbjxToken implements \JsonSerializable
      */
     public static function create(string $host, string $content, string $kId, string $secret) : PbjxToken
     {
-        if (!kId || empty($kId)) {
+        if (!$kId || empty($kId)) {
             throw \Gdbots\Pbjx\Exception\InvalidArgumentException('$kId Value is a required parameter');
         }
 

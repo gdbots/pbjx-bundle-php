@@ -37,13 +37,13 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Generates the most basic JWT token payload and returns it as an associative array.
-     * @return array
+     * @return string
      */
     private function getFakePayload()
     {
-        return [
+        return json_encode([
             "host" => self::JWT_DEFAULT_HOST
-        ];
+        ]);
     }
 
     /**
@@ -111,7 +111,7 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
     public function testInvalidSignatureDecode($secret)
     {
         $message = $this->getFakePayload();
-        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, 'kid', $secret);
+        $jwt = PbjxToken::create(self::JWT_DEFAULT_HOST, $message, 'kId', $secret);
         $jwt->validate('badkey');
     }
 
@@ -137,7 +137,7 @@ class PbjxTokenTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($headerData->typ, self::JWT_HMAC_TYP);
         $this->assertEquals($headerData->kid, $myKid);
 
-        $this->assertEquals($payloadData->host, $message['host']);
+        $this->assertEquals($payloadData->host,json_decode($message)->host);
 
         $this->assertContains(strlen($jwt->getSignature()), self::JWT_SIGNATURE_SIZE);
 
