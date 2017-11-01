@@ -78,15 +78,18 @@ class PbjxToken implements \JsonSerializable
      * @throws \Exception If the token could not be created
      * @throws DomainException If the content cannot be json encoded using json_encode
      */
-    public static function create(string $host, $content, string $kId, string $secret) : PbjxToken
+    public static function create(string $host, string $content, string $kId, string $secret) : PbjxToken
     {
-        if(!is_string($content)) {
-            $content = json_encode($content);
+        if (!kId || empty($kId)) {
+            throw \Gdbots\Pbjx\Exception\InvalidArgumentException('$kId Value is a required parameter');
+        }
+
+        if (!$content || empty($content)) {
+            throw \Gdbots\Pbjx\Exception\InvalidArgumentException('$content Value is a required parameter');
         }
 
         $pbjxToken = new self();
         $pbjxToken->payload = $content;
-
         $payload = self::generatePayload($host, $content, $secret);
 
         try {
