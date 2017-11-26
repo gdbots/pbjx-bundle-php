@@ -1,12 +1,16 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form\EventListener;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated Our goal is to move all form functionality to the client (react/angular)
+ *             and use server side validation with pbjx lifecycle events.
+ */
 class CollectionTypeSubscriber implements EventSubscriberInterface
 {
     /**

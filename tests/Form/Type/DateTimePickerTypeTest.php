@@ -32,22 +32,22 @@ class DateTimePickerTypeTest extends TypeTestCase
     {
         $expectedOptions = [
             'model_timezone' => 'UTC',
-            'view_timezone' => 'UTC',
-            'widget' => 'single_text',
-            'group_icon' => null,
-            'clear_label' => null,
-            'clear_icon' => null,
-            'js_options' => [
-                'singleDatePicker' => true,
-                'autoApply' => true,
-                'timePicker' => true,
+            'view_timezone'  => 'UTC',
+            'widget'         => 'single_text',
+            'group_icon'     => null,
+            'clear_label'    => null,
+            'clear_icon'     => null,
+            'js_options'     => [
+                'singleDatePicker'    => true,
+                'autoApply'           => true,
+                'timePicker'          => true,
                 'timePickerIncrement' => 15,
-                'locale' => ['format' => 'YYYY-MM-DDTHH:mm:ss.SSSSSS\Z'],
-                'opens' => 'left',
-                'applyClass' => 'bg-slate',
-                'cancelClass' => 'btn-default'
+                'locale'              => ['format' => 'YYYY-MM-DDTHH:mm:ss.SSSSSS\Z'],
+                'opens'               => 'left',
+                'applyClass'          => 'bg-slate',
+                'cancelClass'         => 'btn-default',
             ],
-            'js_callback' => 'function(start, end, label) {}'
+            'js_callback'    => 'function(start, end, label) {}',
         ];
 
         $form = $this->factory->create(get_class($this->type));
@@ -84,12 +84,12 @@ class DateTimePickerTypeTest extends TypeTestCase
             [
                 ['js_callback' => 'function(start, end, label) {}'],
                 'js_callback',
-                'function(start, end, label) {}'
+                'function(start, end, label) {}',
             ],
             [
                 ['js_options' => ['locale' => ['format' => 'MM/DD/YYYY h:mm a']]],
                 'js_options',
-                ['locale' => ['format' => 'MM/DD/YYYY h:mm a']]
+                ['locale' => ['format' => 'MM/DD/YYYY h:mm a']],
             ],
         ];
     }
@@ -112,16 +112,16 @@ class DateTimePickerTypeTest extends TypeTestCase
         return [
             [
                 '2002-10-02T15:00:00+00:00',
-                new \DateTime('2002-10-02T15:00:00+00:00')
+                new \DateTime('2002-10-02T15:00:00+00:00'),
             ],
             [
                 '2002-10-02T15:00:00Z',
-                new \DateTime('2002-10-02T15:00:00Z')
+                new \DateTime('2002-10-02T15:00:00Z'),
             ],
             [
                 '2002-10-02T15:00:00.05Z',
-                new \DateTime('2002-10-02T15:00:00.05Z')
-            ]
+                new \DateTime('2002-10-02T15:00:00.05Z'),
+            ],
         ];
     }
 }

@@ -1,14 +1,14 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle;
 
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\AliasHandlersPass;
+use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\FormCompilerPass;
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\RegisterListenersPass;
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\ValidateEventSearchPass;
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\ValidateEventStorePass;
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\ValidateTransportsPass;
-use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\FormCompilerPass;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;

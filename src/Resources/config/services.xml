@@ -4,62 +4,62 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
   <services>
-    <service id="pbjx" class="Gdbots\Pbjx\SimplePbjx">
+    <service id="pbjx" class="Gdbots\Pbjx\SimplePbjx" public="true">
       <argument type="service" id="gdbots_pbjx.service_locator"/>
     </service>
 
-    <service id="gdbots_pbjx.service_locator" class="%gdbots_pbjx.service_locator.class%">
+    <service id="gdbots_pbjx.service_locator" class="%gdbots_pbjx.service_locator.class%" public="true">
       <argument type="service" id="service_container"/>
     </service>
 
-    <service id="gdbots_pbjx.handler_guesser" class="%gdbots_pbjx.handler_guesser.class%"/>
+    <service id="gdbots_pbjx.handler_guesser" class="%gdbots_pbjx.handler_guesser.class%" public="true"/>
 
-    <service id="gdbots_pbjx.event_dispatcher" class="Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher">
+    <service id="gdbots_pbjx.event_dispatcher" class="Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher" public="true">
       <argument type="service" id="service_container"/>
     </service>
 
-    <service id="gdbots_pbjx.exception_handler" class="Gdbots\Pbjx\LogAndDispatchExceptionHandler">
+    <service id="gdbots_pbjx.exception_handler" class="Gdbots\Pbjx\LogAndDispatchExceptionHandler" public="true">
       <argument type="service" id="gdbots_pbjx.service_locator"/>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <tag name="monolog.logger" channel="pbjx"/>
     </service>
 
-    <service id="gdbots_pbjx.event_execution_failure_logger" class="Gdbots\Bundle\PbjxBundle\EventExecutionFailureLogger">
+    <service id="gdbots_pbjx.event_execution_failure_logger" class="Gdbots\Bundle\PbjxBundle\EventExecutionFailureLogger" public="true">
       <argument type="service" id="logger"/>
       <tag name="monolog.logger" channel="pbjx"/>
       <tag name="pbjx.event_subscriber"/>
     </service>
 
     <!-- binders -->
-    <service id="gdbots_pbjx.command_binder" class="Gdbots\Bundle\PbjxBundle\Binder\CommandBinder">
+    <service id="gdbots_pbjx.command_binder" class="Gdbots\Bundle\PbjxBundle\Binder\CommandBinder" public="true">
       <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
     </service>
 
-    <service id="gdbots_pbjx.event_binder" class="Gdbots\Bundle\PbjxBundle\Binder\EventBinder">
+    <service id="gdbots_pbjx.event_binder" class="Gdbots\Bundle\PbjxBundle\Binder\EventBinder" public="true">
       <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
     </service>
 
-    <service id="gdbots_pbjx.query_parsing_binder" class="Gdbots\Bundle\PbjxBundle\Binder\QueryParsingBinder">
+    <service id="gdbots_pbjx.query_parsing_binder" class="Gdbots\Bundle\PbjxBundle\Binder\QueryParsingBinder" public="true">
       <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
     </service>
 
-    <service id="gdbots_pbjx.request_binder" class="Gdbots\Bundle\PbjxBundle\Binder\RequestBinder">
+    <service id="gdbots_pbjx.request_binder" class="Gdbots\Bundle\PbjxBundle\Binder\RequestBinder" public="true">
       <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
     </service>
 
     <!-- command handlers -->
-    <service id="gdbots_pbjx.check_health_handler" class="Gdbots\Bundle\PbjxBundle\CheckHealthHandler">
+    <service id="gdbots_pbjx.check_health_handler" class="Gdbots\Bundle\PbjxBundle\CheckHealthHandler" public="true">
       <argument type="service" id="logger"/>
       <tag name="monolog.logger" channel="pbjx"/>
       <tag name="pbjx.handler"/>
     </service>
 
     <!-- request handlers -->
-    <service id="gdbots_pbjx.echo_request_handler" class="Gdbots\Bundle\PbjxBundle\EchoRequestHandler">
+    <service id="gdbots_pbjx.echo_request_handler" class="Gdbots\Bundle\PbjxBundle\EchoRequestHandler" public="true">
       <tag name="pbjx.handler"/>
     </service>
 

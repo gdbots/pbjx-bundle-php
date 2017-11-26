@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle;
 
@@ -10,8 +10,8 @@ use Gdbots\Pbjx\CommandHandler;
 use Gdbots\Pbjx\EventBus;
 use Gdbots\Pbjx\EventSearch\EventSearch;
 use Gdbots\Pbjx\EventStore\EventStore;
-use Gdbots\Pbjx\ExceptionHandler;
 use Gdbots\Pbjx\Exception\HandlerNotFound;
+use Gdbots\Pbjx\ExceptionHandler;
 use Gdbots\Pbjx\Pbjx;
 use Gdbots\Pbjx\RequestBus;
 use Gdbots\Pbjx\RequestHandler;

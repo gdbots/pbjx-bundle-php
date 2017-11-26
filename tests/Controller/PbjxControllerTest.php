@@ -1,17 +1,18 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gdbots\Tests\Bundle\PbjxBundle\Controller;
 
 use Gdbots\Bundle\PbjxBundle\Controller\PbjxController;
 use Gdbots\Pbjx\RegisteringServiceLocator;
 use Gdbots\Tests\Bundle\PbjxBundle\Fixtures\FakeCommand;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
 // todo: setup test kernel so we can use WebTestCase
 //use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class PbjxControllerTest extends \PHPUnit_Framework_TestCase
+class PbjxControllerTest extends TestCase
 {
     public function test()
     {

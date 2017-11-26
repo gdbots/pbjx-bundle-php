@@ -3,11 +3,12 @@
 namespace Gdbots\Tests\Bundle\PbjxBundle\Form\EventListener;
 
 use Gdbots\Bundle\PbjxBundle\Form\EventListener\CollectionTypeSubscriber;
-use Symfony\Component\Form\Test\FormInterface;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\Test\FormInterface;
 
-class CollectionTypeSubscriberTest extends \PHPUnit_Framework_TestCase
+class CollectionTypeSubscriberTest extends TestCase
 {
     /**
      * @var CollectionTypeSubscriber
@@ -56,7 +57,7 @@ class CollectionTypeSubscriberTest extends \PHPUnit_Framework_TestCase
     {
         return [
             [null, []],
-            [[], []]
+            [[], []],
         ];
     }
 
@@ -68,7 +69,7 @@ class CollectionTypeSubscriberTest extends \PHPUnit_Framework_TestCase
      */
     public function testPreSubmit(array $data, array $expected)
     {
-        $form = $this->getMock('Symfony\Component\Form\Test\FormInterface');
+        $form = $this->getMockBuilder('Symfony\Component\Form\Test\FormInterface')->getMock();
         $event = $this->createEvent($data, $form);
         $this->subscriber->preSubmit($event);
         $this->assertEquals($expected, $event->getData());
@@ -77,14 +78,14 @@ class CollectionTypeSubscriberTest extends \PHPUnit_Framework_TestCase
     public function preSubmitDataProvider()
     {
         return [
-            'simple_data_array' => [
-                'data' => [['k' => 'v']],
-                'expected' => [['k' => 'v']]
+            'simple_data_array'     => [
+                'data'     => [['k' => 'v']],
+                'expected' => [['k' => 'v']],
             ],
             'skip_empty_data_array' => [
-                'data' => [[[]], [], ['k' => 'v'], []],
-                'expected' => ['2' => ['k' => 'v']]
-            ]
+                'data'     => [[[]], [], ['k' => 'v'], []],
+                'expected' => ['2' => ['k' => 'v']],
+            ],
         ];
     }
 
@@ -114,19 +115,19 @@ class CollectionTypeSubscriberTest extends \PHPUnit_Framework_TestCase
     {
         return [
             [[]],
-            ['foo']
+            ['foo'],
         ];
     }
 
     /**
-     * @param mixed $data
+     * @param mixed              $data
      * @param FormInterface|null $form
      *
      * @return FormEvent
      */
     protected function createEvent($data, FormInterface $form = null)
     {
-        $form = $form ? $form : $this->getMock('Symfony\Component\Form\Test\FormInterface');
+        $form = $form ? $form : $this->getMockBuilder('Symfony\Component\Form\Test\FormInterface')->getMock();
         return new FormEvent($form, $data);
     }
 }

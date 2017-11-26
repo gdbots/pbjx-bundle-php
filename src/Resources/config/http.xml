@@ -4,18 +4,18 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
   <services>
-    <service id="gdbots_pbjx.pbjx_controller" class="Gdbots\Bundle\PbjxBundle\Controller\PbjxController">
+    <service id="gdbots_pbjx.pbjx_controller" class="Gdbots\Bundle\PbjxBundle\Controller\PbjxController" public="true">
       <argument type="service" id="pbjx"/>
       <argument>%gdbots_pbjx.pbjx_controller.allow_get_request%</argument>
     </service>
 
-    <service id="gdbots_pbjx.pbjx_receive_controller" class="Gdbots\Bundle\PbjxBundle\Controller\PbjxReceiveController">
+    <service id="gdbots_pbjx.pbjx_receive_controller" class="Gdbots\Bundle\PbjxBundle\Controller\PbjxReceiveController" public="true">
       <argument type="service" id="gdbots_pbjx.service_locator"/>
       <argument>%gdbots_pbjx.pbjx_receive_controller.receive_key%</argument>
       <argument>%gdbots_pbjx.pbjx_receive_controller.enabled%</argument>
     </service>
 
-    <service id="gdbots_pbjx.envelope_listener" class="Gdbots\Bundle\PbjxBundle\EventListener\EnvelopeListener">
+    <service id="gdbots_pbjx.envelope_listener" class="Gdbots\Bundle\PbjxBundle\EventListener\EnvelopeListener" public="true">
       <argument type="service" id="pbjx"/>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <tag name="monolog.logger" channel="pbjx"/>

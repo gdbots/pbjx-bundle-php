@@ -1,13 +1,14 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gdbots\Tests\Bundle\PbjxBundle\DependencyInjection\Compiler;
 
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\ValidateTransportsPass;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
-class ValidateTransportsPassTest extends \PHPUnit_Framework_TestCase
+class ValidateTransportsPassTest extends TestCase
 {
     /**
      * @expectedException \LogicException

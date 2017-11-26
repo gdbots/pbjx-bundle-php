@@ -3,15 +3,15 @@
 namespace Gdbots\Tests\Bundle\PbjxBundle\Form;
 
 use Gdbots\Bundle\PbjxBundle\Form\FormFieldFactory;
-use Gdbots\Bundle\PbjxBundle\Form\FormField;
 use Gdbots\Bundle\PbjxBundle\Form\Type;
 use Gdbots\Pbj\Enum\Format;
-use Gdbots\Pbj\FieldBuilder as Fb;
 use Gdbots\Pbj\Field;
+use Gdbots\Pbj\FieldBuilder as Fb;
 use Gdbots\Pbj\Type as T;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\Type as sfT;
 
-class FormFieldFactoryTest extends \PHPUnit_Framework_TestCase
+class FormFieldFactoryTest extends TestCase
 {
     /** @var FormFieldFactory */
     private $formFieldFactory;
@@ -76,7 +76,7 @@ class FormFieldFactoryTest extends \PHPUnit_Framework_TestCase
             ['name' => 'timestamp', 'type' => T\TimestampType::create()],
             ['name' => 'tiny_int', 'type' => T\TinyIntType::create()],
             ['name' => 'trinary', 'type' => T\TrinaryType::create()],
-            ['name' => 'uuid', 'type' => T\UuidType::create()]
+            ['name' => 'uuid', 'type' => T\UuidType::create()],
         ];
     }
 
@@ -114,25 +114,25 @@ class FormFieldFactoryTest extends \PHPUnit_Framework_TestCase
         return [
             [
                 'pbjField' => Fb::create('string', T\StringType::create())->build(),
-                'type' => sfT\TextType::class
+                'type'     => sfT\TextType::class,
             ],
             [
                 'pbjField' => Fb::create('boolean', T\BooleanType::create())->build(),
-                'type' => Type\SwitcheryType::class
+                'type'     => Type\SwitcheryType::class,
             ],
             [
                 'pbjField' => Fb::create('emails', T\StringType::create())
-                                ->format(Format::EMAIL())
-                                ->asAMap()
-                                ->build(),
-                'type' => Type\CollectionType::class,
-                'options' => [
-                    'entry_type' => Type\KeyValueType::class,
+                    ->format(Format::EMAIL())
+                    ->asAMap()
+                    ->build(),
+                'type'     => Type\CollectionType::class,
+                'options'  => [
+                    'entry_type'    => Type\KeyValueType::class,
                     'entry_options' => [
-                        'value_type' => sfT\EmailType::class
-                    ]
-                ]
-            ]
+                        'value_type' => sfT\EmailType::class,
+                    ],
+                ],
+            ],
         ];
     }
 }

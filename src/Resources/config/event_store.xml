@@ -4,7 +4,7 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
   <services>
-    <service id="gdbots_pbjx.event_store.dynamodb" class="%gdbots_pbjx.event_store.dynamodb.class%">
+    <service id="gdbots_pbjx.event_store.dynamodb" class="%gdbots_pbjx.event_store.dynamodb.class%" public="true">
       <argument type="service" id="pbjx"/>
       <argument type="service" id="aws.dynamodb" on-invalid="ignore"/>
       <argument>%gdbots_pbjx.event_store.dynamodb.table_name%</argument>

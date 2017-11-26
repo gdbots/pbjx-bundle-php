@@ -3,10 +3,10 @@
 namespace Gdbots\Tests\Bundle\PbjxBundle\Form\Type;
 
 use Gdbots\Bundle\PbjxBundle\Form\DataTransformer\DynamicFieldToArrayTransformer;
-use Gdbots\Pbj\Enum\DynamicFieldKind;
 use Gdbots\Pbj\WellKnown\DynamicField;
+use PHPUnit\Framework\TestCase;
 
-class DynamicFieldToArrayTransformerTest extends \PHPUnit_Framework_TestCase
+class DynamicFieldToArrayTransformerTest extends TestCase
 {
     /**
      * @dataProvider transformDataProvider
@@ -25,11 +25,11 @@ class DynamicFieldToArrayTransformerTest extends \PHPUnit_Framework_TestCase
         return [
             'default' => [
                 ['name' => 'foo', 'bool_val' => true],
-                DynamicField::fromArray(['name' => 'foo', 'bool_val' => true])
+                DynamicField::fromArray(['name' => 'foo', 'bool_val' => true]),
             ],
-            'null' => [
+            'null'    => [
                 null,
-                null
+                null,
             ],
         ];
     }
@@ -61,15 +61,15 @@ class DynamicFieldToArrayTransformerTest extends \PHPUnit_Framework_TestCase
         return [
             'default' => [
                 ['name' => 'foo', 'kind' => 'bool_val', 'value' => true],
-                ['name' => 'foo', 'bool_val' => true]
+                ['name' => 'foo', 'bool_val' => true],
             ],
-            'null' => [
+            'null'    => [
                 null,
-                null
+                null,
             ],
-            'empty' => [
+            'empty'   => [
                 [],
-                null
+                null,
             ],
         ];
     }

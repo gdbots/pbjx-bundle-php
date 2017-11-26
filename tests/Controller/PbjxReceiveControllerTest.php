@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gdbots\Tests\Bundle\PbjxBundle\Controller;
 
@@ -8,9 +8,10 @@ use Gdbots\Pbj\Message;
 use Gdbots\Pbjx\RegisteringServiceLocator;
 use Gdbots\Pbjx\Transport\TransportEnvelope;
 use Gdbots\Tests\Bundle\PbjxBundle\Fixtures\FakeCommand;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
-class PbjxReceiveControllerTest extends \PHPUnit_Framework_TestCase
+class PbjxReceiveControllerTest extends TestCase
 {
     public function testValidReceive()
     {

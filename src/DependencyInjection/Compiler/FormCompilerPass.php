@@ -1,10 +1,15 @@
 <?php
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @deprecated Our goal is to move all form functionality to the client (react/angular)
+ *             and use server side validation with pbjx lifecycle events.
+ */
 class FormCompilerPass implements CompilerPassInterface
 {
     const GDBOTS_FORM_LAYOUT = 'GdbotsPbjxBundle:Form:fields.html.twig';

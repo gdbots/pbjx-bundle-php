@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form\DataTransformer;
 
@@ -8,6 +8,10 @@ use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
 
+/**
+ * @deprecated Our goal is to move all form functionality to the client (react/angular)
+ *             and use server side validation with pbjx lifecycle events.
+ */
 class DynamicFieldToArrayTransformer implements DataTransformerInterface
 {
     /**

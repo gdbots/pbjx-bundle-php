@@ -11,8 +11,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  *
  * widgetco_blog.add_comment_handler:
  *   class: WidgetCo\Blog\AddCommentHandler
- *     tags:
- *       - {name: pbjx.handler, alias: '%app_vendor%_blog.add_comment_handler'}
+ *   public: true
+ *   tags:
+ *     - {name: pbjx.handler, alias: '%app_vendor%_blog.add_comment_handler'}
  *
  * @link https://github.com/gdbots/pbjx-bundle-php/tree/beta#library-development
  *

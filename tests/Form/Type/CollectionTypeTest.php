@@ -3,10 +3,11 @@
 namespace Gdbots\Tests\Bundle\PbjxBundle\Form\Type;
 
 use Gdbots\Bundle\PbjxBundle\Form\Type\CollectionType;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class CollectionTypeTest extends \PHPUnit_Framework_TestCase
+class CollectionTypeTest extends TestCase
 {
     /** @var CollectionType */
     protected $type;
@@ -21,7 +22,7 @@ class CollectionTypeTest extends \PHPUnit_Framework_TestCase
 
     public function testBuildForm()
     {
-        $builder = $this->getMock('Symfony\Component\Form\Test\FormBuilderInterface');
+        $builder = $this->getMockBuilder('Symfony\Component\Form\Test\FormBuilderInterface')->getMock();
 
         $builder->expects($this->once())
             ->method('addEventSubscriber')
@@ -36,7 +37,7 @@ class CollectionTypeTest extends \PHPUnit_Framework_TestCase
      */
     public function testBuildView($options, $expectedVars)
     {
-        $form = $this->getMock('Symfony\Component\Form\Test\FormInterface');
+        $form = $this->getMockBuilder('Symfony\Component\Form\Test\FormInterface')->getMock();
         $view = new FormView();
 
         $this->type->buildView($view, $form, $options);
@@ -51,47 +52,47 @@ class CollectionTypeTest extends \PHPUnit_Framework_TestCase
     {
         return [
             [
-                'options' => [
+                'options'      => [
                     'show_form_when_empty' => false,
-                    'prototype_name' => '__name__',
-                    'row_count_add' => 1,
-                    'row_count_initial' => 1,
-                    'add_label' => 'Add',
-                    'add_icon' => 'icon-plus',
-                    'remove_label' => 'Remove',
-                    'remove_icon' => 'icon-minus'
+                    'prototype_name'       => '__name__',
+                    'row_count_add'        => 1,
+                    'row_count_initial'    => 1,
+                    'add_label'            => 'Add',
+                    'add_icon'             => 'icon-plus',
+                    'remove_label'         => 'Remove',
+                    'remove_icon'          => 'icon-minus',
                 ],
                 'expectedVars' => [
                     'show_form_when_empty' => false,
-                    'prototype_name' => '__name__',
-                    'row_count_initial' => 1,
-                    'add_label' => 'Add',
-                    'add_icon' => 'icon-plus',
-                    'remove_label' => 'Remove',
-                    'remove_icon' => 'icon-minus'
-                ]
+                    'prototype_name'       => '__name__',
+                    'row_count_initial'    => 1,
+                    'add_label'            => 'Add',
+                    'add_icon'             => 'icon-plus',
+                    'remove_label'         => 'Remove',
+                    'remove_icon'          => 'icon-minus',
+                ],
             ],
             [
-                'options' => [
+                'options'      => [
                     'show_form_when_empty' => true,
-                    'prototype_name' => '__custom_name__',
-                    'row_count_add' => 1,
-                    'row_count_initial' => 5,
-                    'add_label' => 'Add',
-                    'add_icon' => 'icon-plus',
-                    'remove_label' => 'Remove',
-                    'remove_icon' => 'icon-minus'
+                    'prototype_name'       => '__custom_name__',
+                    'row_count_add'        => 1,
+                    'row_count_initial'    => 5,
+                    'add_label'            => 'Add',
+                    'add_icon'             => 'icon-plus',
+                    'remove_label'         => 'Remove',
+                    'remove_icon'          => 'icon-minus',
                 ],
                 'expectedVars' => [
                     'show_form_when_empty' => true,
-                    'prototype_name' => '__custom_name__',
-                    'row_count_initial' => 5,
-                    'add_label' => 'Add',
-                    'add_icon' => 'icon-plus',
-                    'remove_label' => 'Remove',
-                    'remove_icon' => 'icon-minus'
-                ]
-            ]
+                    'prototype_name'       => '__custom_name__',
+                    'row_count_initial'    => 5,
+                    'add_label'            => 'Add',
+                    'add_icon'             => 'icon-plus',
+                    'remove_label'         => 'Remove',
+                    'remove_icon'          => 'icon-minus',
+                ],
+            ],
         ];
     }
 
@@ -112,23 +113,23 @@ class CollectionTypeTest extends \PHPUnit_Framework_TestCase
         $this->type->configureOptions($resolver);
 
         $options = [
-            'entry_type' => 'test_type'
+            'entry_type' => 'test_type',
         ];
         $resolvedOptions = $resolver->resolve($options);
         $this->assertEquals(
             [
-                'entry_type' => 'test_type',
-                'allow_add' => true,
-                'allow_delete' => true,
-                'prototype' => true,
-                'prototype_name' => '__name__',
+                'entry_type'           => 'test_type',
+                'allow_add'            => true,
+                'allow_delete'         => true,
+                'prototype'            => true,
+                'prototype_name'       => '__name__',
                 'show_form_when_empty' => true,
-                'row_count_add' => 1,
-                'row_count_initial' => 1,
-                'add_label' => null,
-                'add_icon' => null,
-                'remove_label' => null,
-                'remove_icon' => null
+                'row_count_add'        => 1,
+                'row_count_initial'    => 1,
+                'add_label'            => null,
+                'add_icon'             => null,
+                'remove_label'         => null,
+                'remove_icon'          => null,
             ],
             $resolvedOptions
         );
@@ -141,23 +142,23 @@ class CollectionTypeTest extends \PHPUnit_Framework_TestCase
 
         $options = [
             'entry_type' => 'test_type',
-            'allow_add' => false
+            'allow_add'  => false,
         ];
         $resolvedOptions = $resolver->resolve($options);
         $this->assertEquals(
             [
-                'entry_type' => 'test_type',
-                'allow_add' => false,
-                'allow_delete' => true,
-                'prototype' => true,
-                'prototype_name' => '__name__',
+                'entry_type'           => 'test_type',
+                'allow_add'            => false,
+                'allow_delete'         => true,
+                'prototype'            => true,
+                'prototype_name'       => '__name__',
                 'show_form_when_empty' => false,
-                'row_count_add' => 1,
-                'row_count_initial' => 1,
-                'add_label' => null,
-                'add_icon' => null,
-                'remove_label' => null,
-                'remove_icon' => null
+                'row_count_add'        => 1,
+                'row_count_initial'    => 1,
+                'add_label'            => null,
+                'add_icon'             => null,
+                'remove_label'         => null,
+                'remove_icon'          => null,
             ],
             $resolvedOptions
         );
@@ -169,24 +170,24 @@ class CollectionTypeTest extends \PHPUnit_Framework_TestCase
         $this->type->configureOptions($resolver);
 
         $options = [
-            'entry_type' => 'test_type',
-            'show_form_when_empty' => false
+            'entry_type'           => 'test_type',
+            'show_form_when_empty' => false,
         ];
         $resolvedOptions = $resolver->resolve($options);
         $this->assertEquals(
             [
-                'entry_type' => 'test_type',
-                'allow_add' => true,
-                'allow_delete' => true,
-                'prototype' => true,
-                'prototype_name' => '__name__',
+                'entry_type'           => 'test_type',
+                'allow_add'            => true,
+                'allow_delete'         => true,
+                'prototype'            => true,
+                'prototype_name'       => '__name__',
                 'show_form_when_empty' => false,
-                'row_count_add' => 1,
-                'row_count_initial' => 1,
-                'add_label' => null,
-                'add_icon' => null,
-                'remove_label' => null,
-                'remove_icon' => null
+                'row_count_add'        => 1,
+                'row_count_initial'    => 1,
+                'add_label'            => null,
+                'add_icon'             => null,
+                'remove_label'         => null,
+                'remove_icon'          => null,
             ],
             $resolvedOptions
         );

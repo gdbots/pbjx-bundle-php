@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
@@ -177,7 +177,6 @@ EOF
                 }
 
                 ++$replayed;
-
             } catch (\Exception $e) {
                 $io->error(sprintf('%d. %s', $i, $e->getMessage()));
                 $io->note(sprintf('%d. Failed event "%s" json below:', $i, $event->get('event_id')));

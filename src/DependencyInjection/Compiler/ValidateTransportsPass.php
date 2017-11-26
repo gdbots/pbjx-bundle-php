@@ -1,10 +1,10 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * Checks the container to ensure that transports that have been configured
@@ -93,7 +93,7 @@ class ValidateTransportsPass implements CompilerPassInterface
             throw new \LogicException(
                 'The service "gdbots_pbjx.transport.firehose" has a dependency on a non-existent ' .
                 'service "aws.firehose". This expects the Firehose Client that comes from ' .
-                'composer package "aws/aws-sdk-php-symfony": "~1.0".'
+                'composer package "aws/aws-sdk-php-symfony": "^1.0".'
             );
         }
     }
@@ -141,7 +141,7 @@ class ValidateTransportsPass implements CompilerPassInterface
             throw new \LogicException(
                 'The service "gdbots_pbjx.transport.kinesis" has a dependency on a non-existent ' .
                 'service "aws.kinesis". This expects the Kinesis Client that comes from ' .
-                'composer package "aws/aws-sdk-php-symfony": "~1.0".'
+                'composer package "aws/aws-sdk-php-symfony": "^1.0".'
             );
         }
     }

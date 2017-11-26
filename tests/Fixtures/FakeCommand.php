@@ -5,7 +5,6 @@ namespace Gdbots\Tests\Bundle\PbjxBundle\Fixtures;
 use Gdbots\Pbj\AbstractMessage;
 use Gdbots\Pbj\MessageResolver;
 use Gdbots\Pbj\Schema;
-use Gdbots\Pbj\Type as T;
 use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1;
 use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1Mixin;
 use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1Trait;

@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Twig;
 
@@ -58,6 +58,8 @@ final class PbjxExtension extends \Twig_Extension
     }
 
     /**
+     * @deprecated All symfony form features will be removed in
+     *
      * Creates a form view and returns it.  Typically used in pbj templates that require
      * a form but may not have one provided in all scenarios so this is used as a default.
      *
