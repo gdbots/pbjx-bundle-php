@@ -225,9 +225,6 @@ The template will have `pbj` as a variable which is the message object itself.
 
 > __TIP:__ {{ pbj }} will dump the message to yaml for easy debugging in twig, or {{ pbj|json_encode(constant('JSON_PRETTY_PRINT')) }}
 
-### PbjxAwareControllerTrait::renderPbjForm (deprecated)
-Does the same thing as `renderPbj` but includes a Symfony `FormView` which will be provided to the template as `pbj_form`.
-
 ### PbjxAwareControllerTrait::pbjTemplate
 Returns a reference to a twig template based on the schema of the provided message (pbj schema).  This allows for component style development for pbj messages.  You are asking for a template that can render your message (e.g. Article) as a "card", "modal", "page", etc.
 
@@ -262,111 +259,9 @@ What you end up with is a [namespaced path](http://symfony.com/doc/current/templ
 </tr>
 </table>
 
-### PbjxAwareControllerTrait::handlePbjForm (deprecated)
-Creates a pbj form, handles it and returns the form instance.  This makes use standard [Symfony form processing](http://symfony.com/doc/current/best_practices/forms.html) flow.  For example:
-
-```php
-/**
- * @Route("/users/create")
- * @Security("is_granted('acme:users:command:create-user')")
- *
- * @param Request $request
- *
- * @return Response
- *
- * @throws \Exception
- */
-public function createAction(Request $request): Response
-{
-    $form = $this->handlePbjForm($request, CreateUserType::class);
-    /** @var CreateUserV1 $command */
-    $command = CreateUserType::pbjSchema()->createMessage($form->getData());
-
-    if ($form->isSubmitted() && $form->isValid()) {
-        try {
-            $this->getPbjx()->send($command);
-            $this->addFlash('success', 'User was created');
-            return $this->redirectToRoute('app_user_list');
-        } catch (\Exception $e) {
-            $form->addError(new FormError($e->getMessage()));
-        }
-    }
-
-    return $this->renderPbjForm($command, $form->createView());
-}
-```
-
-# Symfony Form Types (deprecated)
-Pbj is itself a schema definition so it's able to be converted into a Symfony form type.  There will always be customizations in form controls, default options, validations, etc.  This library provides `Gdbots\Bundle\PbjxBundle\Form\AbstractPbjType` and `Gdbots\Bundle\PbjxBundle\Form\FormFieldFactory` to get you most of the way there.
-
-> Pbj is concerned with data types and schema rules (sets, lists, maps, etc.), Symfony forms are the user interface.
-
-All types created using the `AbstractPbjType` or fields created using the `FormFieldFactory` are Symfony components, there is nothing special about them so all usual Symfony capabilities apply.
-
-__Example Pbj form type:__
-
-```php
-declare(strict_types = 1);
-
-namespace AppBundle\Form;
-
-use Gdbots\Bundle\PbjxBundle\Form\AbstractPbjType;
-use Gdbots\Pbj\Schema;
-use Gdbots\Schemas\Geo\AddressV1;
-use Symfony\Component\Form\Extension\Core\Type\CountryType;
-use Symfony\Component\Form\FormBuilderInterface;
-
-final class AddressType extends AbstractPbjType
-{
-    /**
-     * {@inheritdoc}
-     */
-    public static function pbjSchema(): Schema
-    {
-        return AddressV1::schema();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function buildForm(FormBuilderInterface $builder, array $options)
-    {
-        $this->buildPbjForm($builder, $options);
-        $schema = self::pbjSchema();
-
-        $countryField = $this->getFormFieldFactory()->create($schema->getField('country'));
-        $countryField
-            ->setOption('preferred_choices', ['US', 'CA', 'GB'])
-            ->setOption('placeholder', 'Select country');
-        $builder->add($countryField->getName(), CountryType::class, $countryField->getOptions());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getHiddenFields(): array
-    {
-        return ['geo_hash', 'geo_point', 'verified', 'is_verified', 'continent'];
-    }
-}
-```
-
 
 # Twig Extension
 A few twig functions are provided to expose most of what controllers can do to your twig templates.
-
-### Twig Function: pbj_form_view (deprecated)
-Creates a form view and returns it.  Typically used in pbj templates that require a form but may not have one provided in all scenarios so this is used as a default.
-
-__DO NOT__ use this function with the `some_var|default(...)` option as this will run even when `some_var` is defined.
-
-__Example:__
-
-```txt
-{% if pbj_form is not defined %}
-  {% set pbj_form = pbj_form_view('AppBundle\\Form\\SomeType') %}
-{% endif %}
-```
 
 ### Twig Function: pbj_template
 Returns a reference to a twig template based on the schema of the provided message (pbj schema).  This allows for component style development for pbj messages.  You are asking for a template that can render your message (e.g. Article) as a "card", "modal", "slack_post", etc. and optionally that template can be device view specific _(card.smartphone.html.twig)_.

@@ -19,7 +19,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
-use Symfony\Component\Intl\Exception\NotImplementedException;
 
 /**
  * An endpoint to receive a transport envelope.  This is typically not used externally as it
@@ -50,6 +49,7 @@ final class PbjxReceiveController
     public function __construct(ServiceLocator $locator, ?string $receiveKey, bool $enabled = false)
     {
         $this->locator = $locator;
+        // fixme: replace this with PbjxToken validation
         $this->receiveKey = trim((string)$receiveKey);
         $this->enabled = $enabled;
     }
@@ -127,7 +127,7 @@ final class PbjxReceiveController
     /**
      * @param Message $message
      *
-     * @throws NotImplementedException
+     * @throws BadRequestHttpException
      */
     private function receiveMessage(Message $message): void
     {

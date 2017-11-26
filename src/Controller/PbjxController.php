@@ -370,35 +370,8 @@ final class PbjxController
             ->set('code', Code::INVALID_ARGUMENT)
             ->set('http_code', HttpCode::HTTP_UNSUPPORTED_MEDIA_TYPE())
             ->set('error_name', 'UnsupportedMediaType')
-            ->set('error_message', 'Invalid json: ' . $this->getLastJsonErrorMessage());
+            ->set('error_message', 'Invalid json: ' . json_last_error_msg());
 
         return false;
-    }
-
-    /**
-     * Resolves json_last_error message.
-     *
-     * @return string
-     */
-    private function getLastJsonErrorMessage(): string
-    {
-        if (function_exists('json_last_error_msg')) {
-            return json_last_error_msg();
-        }
-
-        switch (json_last_error()) {
-            case JSON_ERROR_DEPTH:
-                return 'Maximum stack depth exceeded';
-            case JSON_ERROR_STATE_MISMATCH:
-                return 'Underflow or the modes mismatch';
-            case JSON_ERROR_CTRL_CHAR:
-                return 'Unexpected control character found';
-            case JSON_ERROR_SYNTAX:
-                return 'Syntax error, malformed JSON';
-            case JSON_ERROR_UTF8:
-                return 'Malformed UTF-8 characters, possibly incorrectly encoded';
-            default:
-                return 'Unknown error';
-        }
     }
 }

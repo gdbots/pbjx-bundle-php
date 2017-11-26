@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Gdbots\Bundle\PbjxBundle;
 
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\AliasHandlersPass;
-use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\FormCompilerPass;
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\RegisterListenersPass;
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\ValidateEventSearchPass;
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\ValidateEventStorePass;
@@ -21,7 +20,6 @@ class GdbotsPbjxBundle extends Bundle
     public function build(ContainerBuilder $container)
     {
         parent::build($container);
-        $container->addCompilerPass(new FormCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
         $container->addCompilerPass(new ValidateTransportsPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
         $container->addCompilerPass(new ValidateEventSearchPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
         $container->addCompilerPass(new ValidateEventStorePass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
