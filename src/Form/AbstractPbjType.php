@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form;
 
@@ -16,6 +16,10 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 
+/**
+ * @deprecated Our goal is to move all form functionality to the client (react/angular)
+ *             and use server side validation with pbjx lifecycle events.
+ */
 abstract class AbstractPbjType extends AbstractType implements PbjFormType, DataMapperInterface
 {
     /** @var FormFieldFactory */

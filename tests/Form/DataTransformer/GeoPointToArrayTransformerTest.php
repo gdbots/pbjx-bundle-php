@@ -4,8 +4,9 @@ namespace Gdbots\Tests\Bundle\PbjxBundle\Form\Type;
 
 use Gdbots\Bundle\PbjxBundle\Form\DataTransformer\GeoPointToArrayTransformer;
 use Gdbots\Pbj\WellKnown\GeoPoint;
+use PHPUnit\Framework\TestCase;
 
-class GeoPointToArrayTransformerTest extends \PHPUnit_Framework_TestCase
+class GeoPointToArrayTransformerTest extends TestCase
 {
     /**
      * @dataProvider transformDataProvider
@@ -24,11 +25,11 @@ class GeoPointToArrayTransformerTest extends \PHPUnit_Framework_TestCase
         return [
             'default' => [
                 ['coordinates' => [1, 2]],
-                GeoPoint::fromArray(['coordinates' => [1, 2]])
+                GeoPoint::fromArray(['coordinates' => [1, 2]]),
             ],
-            'null' => [
+            'null'    => [
                 null,
-                null
+                null,
             ],
         ];
     }
@@ -60,15 +61,15 @@ class GeoPointToArrayTransformerTest extends \PHPUnit_Framework_TestCase
         return [
             'default' => [
                 ['latitude' => 1, 'longitude' => 2],
-                ['coordinates' => [2, 1]]
+                ['coordinates' => [2, 1]],
             ],
-            'null' => [
+            'null'    => [
                 null,
-                null
+                null,
             ],
-            'empty' => [
+            'empty'   => [
                 [],
-                null
+                null,
             ],
         ];
     }

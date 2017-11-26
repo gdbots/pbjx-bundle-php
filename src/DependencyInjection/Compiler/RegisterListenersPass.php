@@ -1,10 +1,10 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * Compiler pass to register tagged services for an event dispatcher.
@@ -59,7 +59,7 @@ class RegisterListenersPass implements CompilerPassInterface
                 $definition->addMethodCall('addListenerService', [
                     $event['event'],
                     [$id, $container->getParameterBag()->resolveValue($event['method'])],
-                    $priority
+                    $priority,
                 ]);
             }
         }

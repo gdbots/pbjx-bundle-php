@@ -1,21 +1,21 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Form;
 
-use Gdbots\Common\Enum;
-use Gdbots\Pbj\Enum\Format;
-use Gdbots\Pbj\Enum\TypeName;
-use Gdbots\Pbj\Field;
-use Gdbots\Pbj\Schema;
+use Gdbots\Bundle\PbjxBundle\Form\Type\CollectionType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\DatePickerType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\DateTimePickerType;
-use Gdbots\Bundle\PbjxBundle\Form\Type\CollectionType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\DynamicFieldType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\GeoPointType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\KeyValueType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\SwitcheryType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\TrinaryType;
+use Gdbots\Common\Enum;
+use Gdbots\Pbj\Enum\Format;
+use Gdbots\Pbj\Enum\TypeName;
+use Gdbots\Pbj\Field;
+use Gdbots\Pbj\Schema;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -31,6 +31,10 @@ use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Regex;
 
+/**
+ * @deprecated Our goal is to move all form functionality to the client (react/angular)
+ *             and use server side validation with pbjx lifecycle events.
+ */
 final class FormFieldFactory
 {
     /**

@@ -4,10 +4,10 @@ namespace Gdbots\Tests\Bundle\PbjxBundle\Form\Type;
 
 use Gdbots\Bundle\PbjxBundle\Form\Type\CollectionType;
 use Gdbots\Bundle\PbjxBundle\Form\Type\KeyValueType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Test\TypeTestCase;
 
 class KeyValueTypeTest extends TypeTestCase
@@ -43,7 +43,7 @@ class KeyValueTypeTest extends TypeTestCase
         );
 
         $form->submit([
-            'key' => 'key1',
+            'key'   => 'key1',
             'value' => 'string-value',
         ]);
 
@@ -54,7 +54,7 @@ class KeyValueTypeTest extends TypeTestCase
     public function testWithChoiceType()
     {
         $obj1 = (object)[
-            'id' => 1,
+            'id'   => 1,
             'name' => 'choice1',
         ];
 
@@ -62,17 +62,17 @@ class KeyValueTypeTest extends TypeTestCase
             get_class($this->type),
             null,
             [
-                'value_type' => ChoiceType::class,
+                'value_type'    => ChoiceType::class,
                 'value_options' => [
-                    'choices' => [$obj1],
+                    'choices'      => [$obj1],
                     'choice_value' => 'id',
-                    'choice_name' => 'name',
+                    'choice_name'  => 'name',
                 ],
             ]
         );
 
         $form->submit([
-            'key' => 'key1',
+            'key'   => 'key1',
             'value' => '1',
         ]);
 
@@ -86,13 +86,13 @@ class KeyValueTypeTest extends TypeTestCase
             get_class($this->type),
             null,
             [
-                'key_type' => CountryType::class,
+                'key_type'   => CountryType::class,
                 'value_type' => IntegerType::class,
             ]
         );
 
         $form->submit([
-            'key' => 'US',
+            'key'   => 'US',
             'value' => '1',
         ]);
 
@@ -106,9 +106,9 @@ class KeyValueTypeTest extends TypeTestCase
             CollectionType::class,
             null,
             [
-                'entry_type' => get_class($this->type),
+                'entry_type'    => get_class($this->type),
                 'entry_options' => [
-                    'value_type' => ChoiceType::class,
+                    'value_type'    => ChoiceType::class,
                     'value_options' => [
                         'choices' => ['US', 'GB'],
                     ],
@@ -118,11 +118,11 @@ class KeyValueTypeTest extends TypeTestCase
 
         $form->submit([
             [
-                'key' => 'state',
+                'key'   => 'state',
                 'value' => 'US',
             ],
             [
-                'key' => 'state',
+                'key'   => 'state',
                 'value' => 'GB',
             ],
         ]);

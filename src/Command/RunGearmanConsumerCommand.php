@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
@@ -75,7 +75,9 @@ EOF
         $workerId = $id ? sprintf('%s-%s%s', $instanceId, $prefix, $id) : null;
 
         if (!empty($prefix)) {
-            $channels = array_map(function ($channel) use ($prefix) { return $prefix . $channel; }, $channels);
+            $channels = array_map(function ($channel) use ($prefix) {
+                return $prefix . $channel;
+            }, $channels);
         }
 
         $this->createConsoleRequest();

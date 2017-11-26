@@ -5,7 +5,7 @@ pbjx-bundle-php
 [![Code Climate](https://codeclimate.com/github/gdbots/pbjx-bundle-php/badges/gpa.svg)](https://codeclimate.com/github/gdbots/pbjx-bundle-php)
 [![Test Coverage](https://codeclimate.com/github/gdbots/pbjx-bundle-php/badges/coverage.svg)](https://codeclimate.com/github/gdbots/pbjx-bundle-php/coverage)
 
-Symfony3 bundle that integrates [gdbots/pbjx](https://github.com/gdbots/pbjx-php) library.
+Symfony bundle that integrates [gdbots/pbjx](https://github.com/gdbots/pbjx-php) library.
 
 
 # Configuration
@@ -99,6 +99,7 @@ services:
   # If you are using AWS ElasticSearch service, use AwsAuthV4ClientManager
   gdbots_pbjx.event_search.elastica.client_manager:
     class: Gdbots\Pbjx\EventSearch\Elastica\AwsAuthV4ClientManager
+    public: true
     arguments:
       - '@aws_credentials'
       - '%cloud_region%'
@@ -132,7 +133,7 @@ monolog:
 # Pbjx HTTP Endpoints
 Pbjx is ready to be used within your app and console commands but it's not yet available via HTTP.  __Providing the HTTP features is very powerful but can be very dangerous if you don't secure it correctly.__
 
-All of the usual rules apply when securing your app, authentication and authorization is up to you, however, Symfony3 makes this fairly easy using the [security components](http://symfony.com/doc/current/components/security.html).
+All of the usual rules apply when securing your app, authentication and authorization is up to you, however, Symfony makes this fairly easy using the [security components](http://symfony.com/doc/current/components/security.html).
 
 __Example security configuration:__
 
@@ -149,6 +150,7 @@ pbjx_permission_voter:
 # use the Gdbots\Bundle\PbjxBundle\Validator\PermissionValidatorTrait to provide some boilerplate.
 gdbots_pbjx.pbjx_permission_validator:
   class: AppBundle\Security\PbjxPermissionValidator
+  public: true
   arguments: ['@request_stack', '@security.authorization_checker']
   tags:
     - {name: pbjx.event_subscriber}
@@ -223,7 +225,7 @@ The template will have `pbj` as a variable which is the message object itself.
 
 > __TIP:__ {{ pbj }} will dump the message to yaml for easy debugging in twig, or {{ pbj|json_encode(constant('JSON_PRETTY_PRINT')) }}
 
-### PbjxAwareControllerTrait::renderPbjForm
+### PbjxAwareControllerTrait::renderPbjForm (deprecated)
 Does the same thing as `renderPbj` but includes a Symfony `FormView` which will be provided to the template as `pbj_form`.
 
 ### PbjxAwareControllerTrait::pbjTemplate
@@ -260,7 +262,7 @@ What you end up with is a [namespaced path](http://symfony.com/doc/current/templ
 </tr>
 </table>
 
-### PbjxAwareControllerTrait::handlePbjForm
+### PbjxAwareControllerTrait::handlePbjForm (deprecated)
 Creates a pbj form, handles it and returns the form instance.  This makes use standard [Symfony form processing](http://symfony.com/doc/current/best_practices/forms.html) flow.  For example:
 
 ```php
@@ -294,7 +296,7 @@ public function createAction(Request $request): Response
 }
 ```
 
-# Symfony Form Types
+# Symfony Form Types (deprecated)
 Pbj is itself a schema definition so it's able to be converted into a Symfony form type.  There will always be customizations in form controls, default options, validations, etc.  This library provides `Gdbots\Bundle\PbjxBundle\Form\AbstractPbjType` and `Gdbots\Bundle\PbjxBundle\Form\FormFieldFactory` to get you most of the way there.
 
 > Pbj is concerned with data types and schema rules (sets, lists, maps, etc.), Symfony forms are the user interface.
@@ -353,7 +355,7 @@ final class AddressType extends AbstractPbjType
 # Twig Extension
 A few twig functions are provided to expose most of what controllers can do to your twig templates.
 
-### Twig Function: pbj_form_view
+### Twig Function: pbj_form_view (deprecated)
 Creates a form view and returns it.  Typically used in pbj templates that require a form but may not have one provided in all scenarios so this is used as a default.
 
 __DO NOT__ use this function with the `some_var|default(...)` option as this will run even when `some_var` is defined.
@@ -509,6 +511,7 @@ parameters:
 services:
   widgetco_blog.add_comment_handler:
     class: WidgetCo\Blog\AddCommentHandler
+    public: true
     tags:
       - {name: pbjx.handler, alias: '%app_vendor%_blog.add_comment_handler'}
 ```
@@ -523,6 +526,7 @@ __Example service configuration (in acme app):__
 services:
   acme_blog.add_comment_handler:
     class: Acme\Blog\AddCommentHandler
+    public: true
 ```
 
 > You can of course provide concrete schemas and implementations in libraries as well.  There are pros and cons to both strategies, the biggest issue is that the schema is not as easily customized at the application level if the library is not developed using mixins.
