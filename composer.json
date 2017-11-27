@@ -4,11 +4,12 @@
   "description": "Symfony bundle that integrates gdbots/pbjx messaging tools.",
   "type": "library",
   "license": "Apache-2.0",
+  "minimum-stability": "dev",
   "require": {
     "php": ">=7.1",
     "gdbots/pbjx": "^2.1",
-    "symfony/console": "^3.3 || ^4.0",
-    "symfony/framework-bundle": "^3.3 || ^4.0",
+    "symfony/console": "^4.0",
+    "symfony/framework-bundle": "^4.0",
     "twig/twig": "^2.4"
   },
   "require-dev": {

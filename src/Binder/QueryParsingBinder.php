@@ -10,7 +10,7 @@ use Gdbots\QueryParser\QueryParser;
 final class QueryParsingBinder implements EventSubscriber
 {
     /** @var QueryParser */
-    protected $queryParser;
+    private $queryParser;
 
     public function __construct()
     {

@@ -18,10 +18,13 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * @link https://github.com/gdbots/pbjx-bundle-php/tree/beta#library-development
  *
  */
-class AliasHandlersPass implements CompilerPassInterface
+// todo: figure out a way to lazy load handlers and have them as private services
+// only the ContainerAwareServiceLocator needs to know about them but they
+// MUST be lazy loaded and support this aliasing pass
+final class AliasHandlersPass implements CompilerPassInterface
 {
     /** @var string */
-    protected $handlerTag = 'pbjx.handler';
+    private $handlerTag = 'pbjx.handler';
 
     /**
      * @param ContainerBuilder $container

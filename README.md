@@ -150,7 +150,7 @@ pbjx_permission_voter:
 # use the Gdbots\Bundle\PbjxBundle\Validator\PermissionValidatorTrait to provide some boilerplate.
 gdbots_pbjx.pbjx_permission_validator:
   class: AppBundle\Security\PbjxPermissionValidator
-  public: true
+  public: false
   arguments: ['@request_stack', '@security.authorization_checker']
   tags:
     - {name: pbjx.event_subscriber}
@@ -289,17 +289,17 @@ __Example:__
 This library provides quite a few commands to make managing the services of Pbjx simple. Run the Symfony console and look for __pbjx__ commands.
 
 ```txt
-  pbjx                                [pbjx:message] Handles pbjx messages (command, event, request) and returns an envelope with the result.
-  pbjx:batch                          [pbjx:lines] Reads messages from a newline-delimited JSON file and processes them.
-  pbjx:create-event-search-storage    Creates the EventSearch storage.
-  pbjx:create-event-store-storage     Creates the EventStore storage.
-  pbjx:describe-event-search-storage  Describes the EventSearch storage.
-  pbjx:describe-event-store-storage   Describes the EventStore storage.
-  pbjx:export-events                  Pipes events from the EventStore to STDOUT.
-  pbjx:reindex-events                 Pipes events from the EventStore and reindexes them.
-  pbjx:replay-events                  Pipes events from the EventStore and replays them through pbjx->publish.
-  pbjx:run-gearman-consumer           Runs a gearman consumer up to the max-runtime.
-  pbjx:tail-events                    Tails events from the EventStore for a given stream id and writes them to STDOUT.
+pbjx                                [pbjx:message] Handles pbjx messages (command, event, request) and returns an envelope with the result.
+pbjx:batch                          [pbjx:lines] Reads messages from a newline-delimited JSON file and processes them.
+pbjx:create-event-search-storage    Creates the EventSearch storage.
+pbjx:create-event-store-storage     Creates the EventStore storage.
+pbjx:describe-event-search-storage  Describes the EventSearch storage.
+pbjx:describe-event-store-storage   Describes the EventStore storage.
+pbjx:export-events                  Pipes events from the EventStore to STDOUT.
+pbjx:reindex-events                 Pipes events from the EventStore and reindexes them.
+pbjx:replay-events                  Pipes events from the EventStore and replays them through pbjx->publish.
+pbjx:run-gearman-consumer           Runs a gearman consumer up to the max-runtime.
+pbjx:tail-events                    Tails events from the EventStore for a given stream id and writes them to STDOUT.
 ```
 
 The most useful is probably going to be the __pbjx__ and __pbjx:batch__ commands.  These run pbjx just like you do in your application code and return the resulting pbj.
