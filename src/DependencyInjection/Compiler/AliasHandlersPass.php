@@ -52,11 +52,13 @@ final class AliasHandlersPass implements CompilerPassInterface
                 }
 
                 $alias = $container->getParameterBag()->resolveValue($attribute['alias']);
+                $container->removeDefinition($id);
+
                 if ($container->hasDefinition($alias) || $container->hasAlias($alias)) {
                     continue;
                 }
 
-                $container->setAlias($alias, $id);
+                $container->setDefinition($alias, $def);
             }
         }
     }
