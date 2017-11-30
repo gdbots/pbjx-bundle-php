@@ -18,6 +18,8 @@ class ExportEventsCommand extends ContainerAwareCommand
 {
     use PbjxAwareCommandTrait;
 
+    protected static $defaultName = 'pbjx:export-events';
+
     /**
      * {@inheritdoc}
      */

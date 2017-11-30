@@ -147,19 +147,35 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
      */
     protected function getHandler(SchemaCurie $curie)
     {
-        $id = $this->curieToServiceId($curie);
+        $id = $curie->toString();
 
-        try {
-            return $this->container->get($id);
-        } catch (\Exception $e) {
+        if (isset($this->handlers[$id])) {
+            return $this->handlers[$id]();
+        }
+
+
+//        try {
+//            return $this->container->get($id);
+//        } catch (\Exception $e) {
             $guesser = $this->getHandlerGuesser();
             $className = $guesser->guessHandler($curie);
             if (class_exists($className)) {
                 return $guesser->createHandler($curie, $className, $this->container);
             }
 
-            throw new HandlerNotFound($curie, $e);
-        }
+            //throw new HandlerNotFound($curie, $e);
+            throw new HandlerNotFound($curie);
+        //}
+    }
+
+    protected $handlers = [];
+    /**
+     * @param SchemaCurie    $curie
+     * @param mixed $handler
+     */
+    public function registerHandler(string $curie, callable $handler): void
+    {
+        $this->handlers[$curie] = $handler;
     }
 
     /**

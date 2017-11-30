@@ -4,6 +4,10 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
   <services>
+    <prototype namespace="Gdbots\Bundle\PbjxBundle\Command\" resource="../../Command/*">
+      <tag name="console.command"/>
+    </prototype>
+
     <service id="pbjx" class="Gdbots\Pbjx\SimplePbjx" public="true">
       <argument type="service" id="gdbots_pbjx.service_locator"/>
     </service>
@@ -52,15 +56,15 @@
     </service>
 
     <!-- command handlers -->
-    <service id="gdbots_pbjx.check_health_handler" class="Gdbots\Bundle\PbjxBundle\CheckHealthHandler" public="true">
+    <service id="gdbots_pbjx.check_health_handler" class="Gdbots\Bundle\PbjxBundle\CheckHealthHandler" public="false">
       <argument type="service" id="logger"/>
       <tag name="monolog.logger" channel="pbjx"/>
-      <tag name="pbjx.handler"/>
+      <tag name="pbjx.handler" curie="gdbots:pbjx:command:check-health"/>
     </service>
 
     <!-- request handlers -->
-    <service id="gdbots_pbjx.echo_request_handler" class="Gdbots\Bundle\PbjxBundle\EchoRequestHandler" public="true">
-      <tag name="pbjx.handler"/>
+    <service id="gdbots_pbjx.echo_request_handler" class="Gdbots\Bundle\PbjxBundle\EchoRequestHandler" public="false">
+      <tag name="pbjx.handler" curie="gdbots:pbjx:request:echo-request"/>
     </service>
 
   </services>

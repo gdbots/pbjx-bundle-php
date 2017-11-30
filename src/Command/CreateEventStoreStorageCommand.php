@@ -13,6 +13,8 @@ class CreateEventStoreStorageCommand extends ContainerAwareCommand
 {
     use PbjxAwareCommandTrait;
 
+    protected static $defaultName = 'pbjx:create-event-store-storage';
+
     /**
      * {@inheritdoc}
      */

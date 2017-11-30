@@ -13,6 +13,8 @@ class RunGearmanConsumerCommand extends ContainerAwareCommand
 {
     use PbjxAwareCommandTrait;
 
+    protected static $defaultName = 'pbjx:run-gearman-consumer';
+
     /**
      * {@inheritdoc}
      */

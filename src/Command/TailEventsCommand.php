@@ -18,6 +18,8 @@ class TailEventsCommand extends ContainerAwareCommand
 {
     use PbjxAwareCommandTrait;
 
+    protected static $defaultName = 'pbjx:tail-events';
+
     /**
      * {@inheritdoc}
      */

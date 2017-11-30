@@ -3,8 +3,11 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler;
 
+use Gdbots\Pbj\SchemaCurie;
+use Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Example use (services.yml)
@@ -33,11 +36,12 @@ final class AliasHandlersPass implements CompilerPassInterface
     {
         foreach ($container->findTaggedServiceIds($this->handlerTag) as $id => $attributes) {
             $def = $container->getDefinition($id);
+            $def->setPublic(false)->setPrivate(true);
 
             if (!$def->isPublic()) {
-                throw new \InvalidArgumentException(
-                    sprintf('The service "%s" must be public as pbjx request/command handlers are lazy-loaded.', $id)
-                );
+//                throw new \InvalidArgumentException(
+//                    sprintf('The service "%s" must be public as pbjx request/command handlers are lazy-loaded.', $id)
+//                );
             }
 
             if ($def->isAbstract()) {
@@ -46,7 +50,16 @@ final class AliasHandlersPass implements CompilerPassInterface
                 );
             }
 
+            $locator = $container->getDefinition('gdbots_pbjx.service_locator');
+
             foreach ($attributes as $attribute) {
+
+                if (isset($attribute['curie'])) {
+                    $curie = SchemaCurie::fromString($container->getParameterBag()->resolveValue($attribute['curie']));
+                    $args = [$curie->toString(), new ServiceClosureArgument(new Reference($id))];
+                    $locator->addMethodCall('registerHandler', $args);
+                }
+
                 if (!isset($attribute['alias'])) {
                     continue;
                 }
