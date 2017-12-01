@@ -13,8 +13,6 @@ class CreateEventSearchStorageCommand extends ContainerAwareCommand
 {
     use PbjxAwareCommandTrait;
 
-    protected static $defaultName = 'pbjx:create-event-search-storage';
-
     /**
      * {@inheritdoc}
      */

@@ -19,8 +19,6 @@ class ReindexEventsCommand extends ContainerAwareCommand
 {
     use PbjxAwareCommandTrait;
 
-    protected static $defaultName = 'pbjx:reindex-events';
-
     /**
      * {@inheritdoc}
      */

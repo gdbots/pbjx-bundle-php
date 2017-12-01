@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle;
 
-use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\AliasHandlersPass;
+use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\RegisterHandlersPass;
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\ValidateEventSearchPass;
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\ValidateEventStorePass;
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\ValidateTransportsPass;
@@ -31,6 +31,6 @@ final class GdbotsPbjxBundle extends Bundle
             ),
             PassConfig::TYPE_BEFORE_REMOVING
         );
-        $container->addCompilerPass(new AliasHandlersPass(), PassConfig::TYPE_BEFORE_REMOVING);
+        $container->addCompilerPass(new RegisterHandlersPass(), PassConfig::TYPE_BEFORE_REMOVING);
     }
 }

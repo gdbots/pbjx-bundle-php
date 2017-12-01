@@ -24,7 +24,7 @@
       <tag name="monolog.logger" channel="pbjx.event_search"/>
     </service>
 
-    <service id="gdbots_pbjx.event_search.event_indexer" class="Gdbots\Pbjx\EventSearch\EventIndexer" public="true">
+    <service id="gdbots_pbjx.event_search.event_indexer" class="Gdbots\Pbjx\EventSearch\EventIndexer" public="false">
       <argument>%gdbots_pbjx.event_search.tenant_id_field%</argument>
       <tag name="pbjx.event_subscriber"/>
     </service>

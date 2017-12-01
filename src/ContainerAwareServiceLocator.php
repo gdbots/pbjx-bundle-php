@@ -27,6 +27,21 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
     /** @var ContainerInterface */
     protected $container;
 
+    /**
+     * An array of handlers keyed by the curie.
+     *
+     * @var CommandHandler|RequestHandler[]
+     */
+    protected $handlers = [];
+
+    /**
+     * An array of functions keyed by the curie that
+     * return a handler for the given curie.
+     *
+     * @var callable[]
+     */
+    protected $registeredHandlers = [];
+
     /** @var HandlerGuesser */
     protected $handlerGuesser;
 
@@ -147,47 +162,39 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
      */
     protected function getHandler(SchemaCurie $curie)
     {
-        $id = $curie->toString();
+        $key = $curie->toString();
 
-        if (isset($this->handlers[$id])) {
-            return $this->handlers[$id]();
+        if (isset($this->handlers[$key])) {
+            return $this->handlers[$key];
         }
 
+        if (isset($this->registeredHandlers[$key])) {
+            $this->handlers[$key] = $this->registeredHandlers[$key]();
+            unset($this->registeredHandlers[$key]);
+            return $this->handlers[$key];
+        }
 
-//        try {
-//            return $this->container->get($id);
-//        } catch (\Exception $e) {
-            $guesser = $this->getHandlerGuesser();
-            $className = $guesser->guessHandler($curie);
-            if (class_exists($className)) {
-                return $guesser->createHandler($curie, $className, $this->container);
-            }
+        $guesser = $this->getHandlerGuesser();
+        $className = $guesser->guessHandler($curie);
+        if (class_exists($className)) {
+            $this->handlers[$key] = $guesser->createHandler($curie, $className, $this->container);
+            return $this->handlers[$key];
+        }
 
-            //throw new HandlerNotFound($curie, $e);
-            throw new HandlerNotFound($curie);
-        //}
+        throw new HandlerNotFound($curie);
     }
 
-    protected $handlers = [];
     /**
-     * @param SchemaCurie    $curie
-     * @param mixed $handler
+     * @see RegisterHandlersPass uses this method for all services tagged with "pbjx.handler"
+     *
+     * @internal
+     *
+     * @param string   $curie
+     * @param callable $handler
      */
     public function registerHandler(string $curie, callable $handler): void
     {
-        $this->handlers[$curie] = $handler;
-    }
-
-    /**
-     * @param SchemaCurie $curie
-     *
-     * @return string
-     */
-    protected function curieToServiceId(SchemaCurie $curie): string
-    {
-        return str_replace('-', '_', sprintf('%s_%s.%s_handler',
-                $curie->getVendor(), $curie->getPackage(), $curie->getMessage())
-        );
+        $this->registeredHandlers[$curie] = $handler;
     }
 
     /**
@@ -197,7 +204,7 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
      *
      * @throws \Exception
      */
-    protected function getTransportForBus($name): Transport
+    protected function getTransportForBus(string $name): Transport
     {
         if ($this->forceTransportsToInMemory) {
             return $this->container->get('gdbots_pbjx.transport.in_memory');

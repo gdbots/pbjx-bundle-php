@@ -406,9 +406,9 @@ parameters:
 services:
   widgetco_blog.add_comment_handler:
     class: WidgetCo\Blog\AddCommentHandler
-    public: true
+    public: false
     tags:
-      - {name: pbjx.handler, alias: '%app_vendor%_blog.add_comment_handler'}
+      - {name: pbjx.handler, curie: '%app_vendor%:blog:command:add-comment'}
 ```
 
 Now pbjx will automatically call the service provided by the library with no additional configuration on the acme application.
@@ -419,9 +419,11 @@ __Example service configuration (in acme app):__
 
 ```yaml
 services:
-  acme_blog.add_comment_handler:
+  widgetco_blog.add_comment_handler:
     class: Acme\Blog\AddCommentHandler
-    public: true
+    public: false
+    tags:
+      - {name: pbjx.handler, curie: 'acme:blog:command:add-comment'}
 ```
 
 > You can of course provide concrete schemas and implementations in libraries as well.  There are pros and cons to both strategies, the biggest issue is that the schema is not as easily customized at the application level if the library is not developed using mixins.

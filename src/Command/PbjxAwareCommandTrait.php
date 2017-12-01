@@ -136,7 +136,7 @@ trait PbjxAwareCommandTrait
         $curie = $mixin->getId()->getCurieMajor();
 
         if (null === $qname) {
-            $schemas = MessageResolver::findAllUsingMixin($mixin);
+            $schemas = $mixin::findAll();
         } else {
             /** @var Message $class */
             $class = MessageResolver::resolveCurie(

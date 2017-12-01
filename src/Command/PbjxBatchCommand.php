@@ -20,8 +20,6 @@ class PbjxBatchCommand extends ContainerAwareCommand
 {
     use PbjxAwareCommandTrait;
 
-    protected static $defaultName = 'pbjx:batch';
-
     /**
      * {@inheritdoc}
      */

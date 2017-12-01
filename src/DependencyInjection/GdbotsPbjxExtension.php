@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection;
 
+use Gdbots\Pbjx\Pbjx;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -62,6 +63,8 @@ final class GdbotsPbjxExtension extends Extension
         } else {
             $container->removeDefinition('gdbots_pbjx.event_search.event_indexer');
         }
+
+        $container->setAlias(Pbjx::class, 'pbjx');
     }
 
     /**

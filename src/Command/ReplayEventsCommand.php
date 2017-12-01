@@ -18,8 +18,6 @@ class ReplayEventsCommand extends ContainerAwareCommand
 {
     use PbjxAwareCommandTrait;
 
-    protected static $defaultName = 'pbjx:replay-events';
-
     /**
      * {@inheritdoc}
      */

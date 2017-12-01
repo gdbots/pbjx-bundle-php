@@ -13,6 +13,7 @@ use Gdbots\Pbj\SchemaCurie;
 use Gdbots\Pbj\SchemaId;
 use Gdbots\Pbjx\Exception\RequestHandlingFailed;
 use Gdbots\Pbjx\Pbjx;
+use Gdbots\Pbjx\PbjxToken;
 use Gdbots\Pbjx\Util\StatusCodeConverter;
 use Gdbots\Schemas\Pbjx\Enum\Code;
 use Gdbots\Schemas\Pbjx\Enum\HttpCode;
@@ -60,7 +61,7 @@ final class PbjxController
         }
 
         if ($request->isMethod('GET')) {
-            $json = base64_decode($request->query->get('pbj'));
+            $json = PbjxToken::urlsafeB64Decode($request->query->get('pbj'));
         } elseif (0 === strpos($request->headers->get('Content-Type'), 'multipart/form-data')) {
             $json = $request->request->get('pbj');
         } else {

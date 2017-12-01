@@ -15,7 +15,7 @@
       <argument>%gdbots_pbjx.pbjx_receive_controller.enabled%</argument>
     </service>
 
-    <service id="gdbots_pbjx.envelope_listener" class="Gdbots\Bundle\PbjxBundle\EventListener\EnvelopeListener" public="true">
+    <service id="gdbots_pbjx.envelope_listener" class="Gdbots\Bundle\PbjxBundle\EventListener\EnvelopeListener" public="false">
       <argument type="service" id="pbjx"/>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <tag name="monolog.logger" channel="pbjx"/>

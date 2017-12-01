@@ -18,8 +18,6 @@ class PbjxCommand extends ContainerAwareCommand
 {
     use PbjxAwareCommandTrait;
 
-    protected static $defaultName = 'pbjx';
-
     /**
      * {@inheritdoc}
      */
