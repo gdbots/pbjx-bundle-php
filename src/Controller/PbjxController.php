@@ -95,16 +95,6 @@ final class PbjxController
             return $envelope;
         }
 
-        /*
-        if (empty($data)) {
-            return $envelope
-                ->set('code', Code::INVALID_ARGUMENT)
-                ->set('http_code', HttpCode::HTTP_UNSUPPORTED_MEDIA_TYPE())
-                ->set('error_name', 'UnsupportedMediaType')
-                ->set('error_message', 'Empty payload is not supported.');
-        }
-        */
-
         $pbjxCategory = $request->attributes->get('pbjx_category');
         if (false !== strpos($pbjxCategory, '_')) {
             $pbjxCategory = str_replace('_', '', $pbjxCategory);
@@ -356,6 +346,15 @@ final class PbjxController
             return false;
         }
 
+        if ($request->headers->has('Authorization')) {
+            $bearer = trim(str_ireplace('bearer ', '', $request->headers->get('Authorization')));
+            $this->signer->addKey('bearer', $bearer);
+        }
+
+        if ($request->headers->has('x-pbjx-nonce')) {
+            $this->signer->addKey('nonce', $request->headers->get('x-pbjx-nonce'));
+        }
+
         try {
             $this->signer->validate($content, $request->getUri(), $token);
             return true;
@@ -366,6 +365,9 @@ final class PbjxController
                 ->set('error_name', 'BadRequest')
                 ->set('error_message', $e->getMessage());
             return false;
+        } finally {
+            $this->signer->removeKey('bearer');
+            $this->signer->removeKey('nonce');
         }
     }
 

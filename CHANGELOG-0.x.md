@@ -11,7 +11,7 @@ __BREAKING CHANGES__
   validation with pbjx lifecycle events.
 * Implement `x-pbjx-token` header validation using `PbjxToken`.
 * Remove use of `ContainerAwareEventDispatcher` as it no longer exists in Symfony 4.
-* Require `curie` attribute on all service tags, e.g. `<tag name="pbjx.handler" curie="gdbots:pbjx:command:check-health"/>`.
+* Require `curie` attribute on all `pbjx.handler` service tags, e.g. `<tag name="pbjx.handler" curie="gdbots:pbjx:command:check-health"/>`.
 * Change `AliasHandlersPass` to `RegisterHandlersPass` and use new `curie` attribute on `pbjx.handler`
   tag to automatically register handlers with closure for lazy loading.
 * Register `Gdbots\Pbjx\Pbjx` interface as alias to service `pbjx` so autowiring works.
@@ -22,7 +22,7 @@ __BREAKING CHANGES__
 
 
 ## v0.1.1
-* issue #7 :: BUG :: DI tag 'pbjx.handler' doesn't process all tags.
+* issue #7 :: BUG :: DI tag `pbjx.handler` doesn't process all tags.
 
 
 ## v0.1.0

@@ -6,8 +6,6 @@ namespace Gdbots\Tests\Bundle\PbjxBundle;
 use Gdbots\Bundle\PbjxBundle\PbjxTokenSigner;
 use Gdbots\Pbjx\PbjxToken;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Security\Core\Authentication\Token\PreAuthenticatedToken;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 
 class PbjxTokenSignerTest extends TestCase
 {
@@ -63,7 +61,7 @@ class PbjxTokenSignerTest extends TestCase
         }
         $this->assertFalse($validated, 'Invalid token validated');
 
-        $signer = new PbjxTokenSigner([], 'kid');
+        $signer = new PbjxTokenSigner([]);
         try {
             $signer->validate($content, $aud, $token->toString());
             $validated = true;
@@ -73,22 +71,33 @@ class PbjxTokenSignerTest extends TestCase
         $this->assertFalse($validated, 'signer with no keys validated');
     }
 
-    public function testValidateWithBearer()
+    public function testAddKey()
     {
         $content = 'content';
         $aud = 'http://localhost/pbjx';
         $kid = 'bearer';
-        $secret = 'ajwtvalueisexpectedhere';
+        $secret = 'secret';
 
-        $tokenStorage = new TokenStorage();
-        $tokenStorage->setToken(
-            new PreAuthenticatedToken('user', "Bearer $secret", 'test')
-        );
-
-        $signer = new PbjxTokenSigner([], null, $tokenStorage);
+        $signer = new PbjxTokenSigner([]);
+        $signer->addKey($kid, $secret);
         $token = PbjxToken::create($content, $aud, $kid, $secret);
 
         $signer->validate($content, $aud, $token->toString());
         $this->assertTrue(true);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testRemoveKey()
+    {
+        $content = 'content';
+        $aud = 'http://localhost/pbjx';
+        $kid = 'kid';
+        $secret = 'secret';
+
+        $signer = new PbjxTokenSigner([['kid' => $kid, 'secret' => $secret]]);
+        $signer->removeKey($kid);
+        $signer->sign($content, $aud, $kid);
     }
 }

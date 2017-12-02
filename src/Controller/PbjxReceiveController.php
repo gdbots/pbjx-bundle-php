@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Controller;
 
+use Gdbots\Bundle\PbjxBundle\PbjxTokenSigner;
 use Gdbots\Common\Util\ClassUtils;
 use Gdbots\Pbj\Exception\GdbotsPbjException;
 use Gdbots\Pbj\Exception\HasEndUserMessage;
@@ -21,13 +22,14 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 /**
- * An endpoint to receive a transport envelope.  This is typically not used externally as it
- * would be a security hole to allow unauthorized clients to submit their own messages.
+ * This endpoint receives a transport envelope which is directly
+ * processed through the associated pbjx transport bus (command/event).
  *
- * The 'gdbots_pbjx.pbjx_receive_controller.receive_key' container parameter is used to authorize this endpoint.
- * The key should be provided as header "x-pbjx-receive-key: YOUR_KEY".
+ * A @see PbjxToken MUST be provided in the "x-pbjx-token" header
+ * to ensure the security of this endpoint.
  *
- * However, it is still highly recommended to limit the access to this endpoint.
+ * This endpoint is ideally secured in a VPC and only called by
+ * internal services.
  *
  */
 final class PbjxReceiveController
@@ -35,22 +37,21 @@ final class PbjxReceiveController
     /** @var ServiceLocator */
     private $locator;
 
-    /** @var string */
-    private $receiveKey;
+    /** @var PbjxTokenSigner */
+    private $signer;
 
     /** @var bool */
     private $enabled = false;
 
     /**
-     * @param ServiceLocator $locator
-     * @param string         $receiveKey
-     * @param bool           $enabled
+     * @param ServiceLocator  $locator
+     * @param PbjxTokenSigner $signer
+     * @param bool            $enabled
      */
-    public function __construct(ServiceLocator $locator, ?string $receiveKey, bool $enabled = false)
+    public function __construct(ServiceLocator $locator, PbjxTokenSigner $signer, bool $enabled = false)
     {
         $this->locator = $locator;
-        // fixme: replace this with PbjxToken validation
-        $this->receiveKey = trim((string)$receiveKey);
+        $this->signer = $signer;
         $this->enabled = $enabled;
     }
 
@@ -63,14 +64,27 @@ final class PbjxReceiveController
      */
     public function receiveAction(Request $request): JsonResponse
     {
-        // fixme: don't allow bearer token to be used on pbjx receive endpoint
-
-        if (false === $this->enabled) {
-            throw new AccessDeniedHttpException('The receive endpoint is not enabled.', null, Code::PERMISSION_DENIED);
+        if (!$this->enabled) {
+            throw new AccessDeniedHttpException(
+                'The receive endpoint is not enabled.',
+                null,
+                Code::UNIMPLEMENTED
+            );
         }
 
-        if (empty($this->receiveKey) || $this->receiveKey !== $request->headers->get('x-pbjx-receive-key')) {
-            throw new AccessDeniedHttpException('Receive key is not valid.', null, Code::UNAUTHENTICATED);
+        $token = $request->headers->get('x-pbjx-token');
+        if (empty($token)) {
+            throw new AccessDeniedHttpException(
+                'The receive endpoint requires the "x-pbjx-token" header.',
+                null,
+                Code::PERMISSION_DENIED
+            );
+        }
+
+        try {
+            $this->signer->validate($request->getContent(), $request->getUri(), $token);
+        } catch (\Throwable $e) {
+            throw new AccessDeniedHttpException($e->getMessage(), $e, Code::PERMISSION_DENIED);
         }
 
         $handle = $request->getContent(true);
@@ -111,7 +125,7 @@ final class PbjxReceiveController
                 $result['ok'] = true;
                 $result['code'] = Code::OK;
                 $result['message_ref'] = $message->generateMessageRef()->toString();
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 ++$data['lines']['failed'];
                 $this->handleException($result, $e);
 
@@ -143,7 +157,11 @@ final class PbjxReceiveController
             return;
         }
 
-        throw new BadRequestHttpException('The receive endpoint cannot process requests.', null, Code::INVALID_ARGUMENT);
+        throw new BadRequestHttpException(
+            'The receive endpoint cannot process requests.',
+            null,
+            Code::INVALID_ARGUMENT
+        );
     }
 
     /**

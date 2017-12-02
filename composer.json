@@ -9,7 +9,6 @@
     "gdbots/pbjx": "^2.1",
     "symfony/console": "^4.0",
     "symfony/framework-bundle": "^4.0",
-    "symfony/security": "^4.0",
     "twig/twig": "^2.4"
   },
   "require-dev": {

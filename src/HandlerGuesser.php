@@ -104,7 +104,6 @@ class HandlerGuesser
     protected function package(SchemaCurie $curie): string
     {
         $package = str_replace('.', '. ', $curie->getPackage());
-
         return str_replace('.', '\\', StringUtils::toCamelFromSlug($package));
     }
 

@@ -15,7 +15,7 @@ class ConfigurationTest extends TestCase
 
         $processor = new Processor();
         $config = $processor->processConfiguration(new Configuration(), [self::getBundleDefaultConfig()]);
-//
+
 //        echo json_encode($config, JSON_PRETTY_PRINT);
 //        exit;
     }

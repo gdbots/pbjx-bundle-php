@@ -19,7 +19,6 @@
     <service id="gdbots_pbjx.pbjx_token_signer" class="Gdbots\Bundle\PbjxBundle\PbjxTokenSigner" public="false">
       <argument>%gdbots_pbjx.pbjx_token_signer.keys%</argument>
       <argument>%gdbots_pbjx.pbjx_token_signer.default_kid%</argument>
-      <argument type="service" id="security.token_storage" on-invalid="ignore"/>
     </service>
 
     <service id="gdbots_pbjx.handler_guesser" class="%gdbots_pbjx.handler_guesser.class%" public="true"/>

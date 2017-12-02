@@ -5,7 +5,6 @@ namespace Gdbots\Bundle\PbjxBundle;
 
 use Gdbots\Pbjx\PbjxToken;
 use Gdbots\Schemas\Pbjx\Enum\Code;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 final class PbjxTokenSigner
 {
@@ -24,15 +23,11 @@ final class PbjxTokenSigner
      */
     private $keys = [];
 
-    /** @var TokenStorageInterface */
-    private $tokenStorage;
-
     /**
-     * @param array                 $keys
-     * @param string                $defaultKid
-     * @param TokenStorageInterface $tokenStorage
+     * @param array  $keys
+     * @param string $defaultKid
      */
-    public function __construct(array $keys, ?string $defaultKid = null, ?TokenStorageInterface $tokenStorage = null)
+    public function __construct(array $keys, ?string $defaultKid = null)
     {
         $backupKid = null;
         foreach ($keys as $key) {
@@ -41,15 +36,35 @@ final class PbjxTokenSigner
         }
 
         $this->defaultKid = $defaultKid ?: $backupKid;
-        $this->tokenStorage = $tokenStorage;
+    }
+
+    /**
+     * Adds a signing key (will overwrite existing kid if present).
+     *
+     * @param string $kid
+     * @param string $secret
+     */
+    public function addKey(string $kid, string $secret): void
+    {
+        $this->keys[$kid] = $secret;
+    }
+
+    /**
+     * Removes a signing key
+     *
+     * @param string $kid
+     */
+    public function removeKey(string $kid): void
+    {
+        unset($this->keys[$kid]);
     }
 
     /**
      * Creates a new signed token for the provided content.
      *
-     * @param string $content Pbjx content that is been signed
+     * @param string $content Pbjx content that is being signed
      * @param string $aud     Pbjx endpoint this token will be sent to
-     * @param string $kid     Key ID used to sign the token.
+     * @param string $kid     Key ID to use to sign the token.
      *
      * @return PbjxToken
      */
@@ -96,42 +111,16 @@ final class PbjxTokenSigner
      * @param string $kid
      *
      * @return string
+     *
+     * @throws \InvalidArgumentException
      */
     private function getSecret(string $kid): string
     {
-        if (isset($this->keys[$kid])) {
-            return $this->keys[$kid];
-        }
-
-        if ('bearer' === $kid) {
-            $secret = $this->getAccessToken();
-            if (null !== $secret) {
-                return $secret;
-            }
+        $secret = $this->keys[$kid] ?? null;
+        if (null !== $secret) {
+            return $secret;
         }
 
         throw new \InvalidArgumentException('PbjxTokenSigner given unknown kid.', Code::INVALID_ARGUMENT);
-    }
-
-    /**
-     * Attempts to get the access token from the bearer
-     * which would have been populated into symfony's
-     * TokenStorage service during authentication.
-     *
-     * @return string
-     */
-    private function getAccessToken(): ?string
-    {
-        if (null === $this->tokenStorage) {
-            return null;
-        }
-
-        $token = $this->tokenStorage->getToken();
-        if (null === $token) {
-            return null;
-        }
-
-        $accessToken = trim(str_replace('Bearer ', '', (string)$token->getCredentials()));
-        return empty($accessToken) ? null : $accessToken;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Gdbots\Tests\Bundle\PbjxBundle\Controller;
 
 use Gdbots\Bundle\PbjxBundle\Controller\PbjxReceiveController;
+use Gdbots\Bundle\PbjxBundle\PbjxTokenSigner;
 use Gdbots\Pbj\Message;
 use Gdbots\Pbjx\RegisteringServiceLocator;
 use Gdbots\Pbjx\Transport\TransportEnvelope;
@@ -16,7 +17,8 @@ class PbjxReceiveControllerTest extends TestCase
     public function testValidReceive()
     {
         $locator = new RegisteringServiceLocator();
-        $controller = new PbjxReceiveController($locator, 'test', true);
+        $signer = new PbjxTokenSigner([['kid' => 'kid', 'secret' => 'secret']]);
+        $controller = new PbjxReceiveController($locator, $signer, true);
 
         $messages = [
             FakeCommand::create(),
@@ -28,7 +30,8 @@ class PbjxReceiveControllerTest extends TestCase
             return (new TransportEnvelope($message, 'json'))->toString();
         }, $messages));
 
-        $request = new Request([], [], [], [], [], ['HTTP_x-pbjx-receive-key' => 'test'], $lines);
+        $token = $signer->sign($lines, 'http://:/');
+        $request = new Request([], [], [], [], [], ['HTTP_x-pbjx-token' => $token->toString()], $lines);
         $request->setMethod('POST');
         $response = $controller->receiveAction($request);
 
@@ -49,7 +52,8 @@ class PbjxReceiveControllerTest extends TestCase
     public function testInvalidReceive()
     {
         $locator = new RegisteringServiceLocator();
-        $controller = new PbjxReceiveController($locator, 'test', true);
+        $signer = new PbjxTokenSigner([['kid' => 'kid', 'secret' => 'secret']]);
+        $controller = new PbjxReceiveController($locator, $signer, true);
 
         $messages = [
             FakeCommand::create(),
@@ -64,7 +68,8 @@ class PbjxReceiveControllerTest extends TestCase
         $lines .= PHP_EOL . 'invalid json';
         $lines .= PHP_EOL . PHP_EOL;
 
-        $request = new Request([], [], [], [], [], ['HTTP_x-pbjx-receive-key' => 'test'], $lines);
+        $token = $signer->sign($lines, 'http://:/');
+        $request = new Request([], [], [], [], [], ['HTTP_x-pbjx-token' => $token->toString()], $lines);
         $request->setMethod('POST');
         $response = $controller->receiveAction($request);
 

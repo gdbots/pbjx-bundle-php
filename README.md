@@ -9,24 +9,22 @@ Symfony bundle that integrates [gdbots/pbjx](https://github.com/gdbots/pbjx-php)
 
 
 # Configuration
-Follow the standard [bundle install](http://symfony.com/doc/current/bundles/installation.html) using __gdbots/pbjx-bundle__ as the composer package name.  The default configuration provides in memory processing for all send, publish, request operations.  The EventStore and EventSearch are not configured by default.
+Follow the standard [bundle install](http://symfony.com/doc/current/bundles/installation.html) using 
+__gdbots/pbjx-bundle__ as the composer package name.  The default configuration provides in memory 
+processing for all send, publish, request operations.  The EventStore and EventSearch are not 
+configured by default.
 
-> The examples below assume you're running the DynamoDb EventStore and Elastica EventSearch.  These are optional configurations.
+> The examples below assume you're running the DynamoDb EventStore and Elastica EventSearch.
+> These are optional configurations.
 
-__config.yml:__
+__config/packages/pbjx.yml:__
 
 ```yaml
 # many of the configurations below are defaults so you can remove them
 # from your configuration, added here for reference
 
-# these parameters would likely be in your parameters.yml file, not here
 parameters:
-  # in some cases you want to display 2pc (running console commands for example)
-  env(DISABLE_PBJX_2PC_EVENT_STORE): false
-  # if you are accepting transport messages from http (AWS Lambda -> your app for example)
-  # then you'll need to set the key
-  pbjx_receive_key: SomePrivateSecretThatIsNotStoredInVCS
-  cloud_region: 'us-west-2'
+  # optionally defined as parameter here to allow reuse
   es_clusters:
     default:
       debug: '%kernel.debug%'
@@ -37,15 +35,26 @@ parameters:
         - {host: '127.0.0.1', port: 9200} # default
 
 gdbots_pbjx:
+  # ensure tamper proof messaging by signing all pbjx messages
+  # e.g. AWS Lambda to your API servers (signed with shared secret)
+  # or by using bearer tokens in SPA to sign messages
+  pbjx_token_signer:
+    default_kid: '%env(PBJX_TOKEN_CURRENT_SIGNING_KID)%'
+    # multiple keys allow for seamless key rotation
+    keys:
+      - {kid: '%env(PBJX_TOKEN_NEXT_SIGNING_KID)%', secret: '%env(PBJX_TOKEN_NEXT_SIGNING_SECRET)%'}
+      - {kid: '%env(PBJX_TOKEN_CURRENT_SIGNING_KID)%', secret: '%env(PBJX_TOKEN_CURRENT_SIGNING_SECRET)%'}
   pbjx_controller:
     # if accepting commands from web trackers (analytics, click tracking, etc.)
-    # then you'd want to enable "GET" requests
+    # then you may want to enable "GET" requests
     allow_get_request: false # default
-  # the receive controller accepts transport messages.  Any app enabling this
-  # endpoint should be secured in a VPC if in AWS or at least have IP restrictions.
+    # array of curies or regex patterns that will not
+    # requires x-pbjx-token validation
+    bypass_token_validation: ['gdbots:pbjx:request:echo-request'] # default
+  # the receive controller accepts transport messages.  it is ideally secured
+  # in a VPC and only called by internal services.
   pbjx_receive_controller:
-    enabled: false # set to true, after you've secured your app and set the key.
-    receive_key: '%pbjx_receive_key%'
+    enabled: false # default, ensure pbjx_token_signer.keys are set prior to enabling
   command_bus:
     transport: ~ # in_memory, firehose, gearman, kinesis
   event_bus:
@@ -111,7 +120,7 @@ services:
 
 > In your local environment, it is highly recommended to configure the PbjxDebugger.
 
-__config_local.yml:__
+__config/services_local.yml:__
 
 ```yaml
 services:
@@ -131,9 +140,11 @@ monolog:
 
 
 # Pbjx HTTP Endpoints
-Pbjx is ready to be used within your app and console commands but it's not yet available via HTTP.  __Providing the HTTP features is very powerful but can be very dangerous if you don't secure it correctly.__
+Pbjx is ready to be used within your app and console commands but it's not yet available via HTTP.  
+__Providing the HTTP features is very powerful but can be very dangerous if you don't secure it correctly.__
 
-All of the usual rules apply when securing your app, authentication and authorization is up to you, however, Symfony makes this fairly easy using the [security components](http://symfony.com/doc/current/components/security.html).
+All of the usual rules apply when securing your app.  Authentication and authorization is up to you, however, 
+Symfony makes this fairly easy using the [security components](http://symfony.com/doc/current/components/security.html).
 
 __Example security configuration:__
 
@@ -164,14 +175,19 @@ pbjx:
   prefix: /pbjx
 ```
 
-Once this is in place __ANY__ pbjx messages can be sent to the endpoint  `/pbjx/vendor/package/category/message`.  This url is the configured prefix and then the `SchemaCurie` resolved to a url.
+Once this is in place __ANY__ pbjx messages can be sent to the endpoint `/pbjx/vendor/package/category/message`.
+This url is the configured prefix and then the `SchemaCurie` resolved to a url.
 
-> Why not just use `/pbjx`?  It is a huge benefit to have the full path to the `SchemaCurie` for logging, authorization, load balancing, debugging, etc.
+> Why not just use `/pbjx`?  It is a huge benefit to have the full path to the `SchemaCurie` for logging, 
+> authorization, load balancing, debugging, etc.
 
 __Example curl request:__
 
 ```bash
 curl -X POST -s -H "Content-Type: application/json" "https://yourdomain.com/pbjx/gdbots/pbjx/request/echo-request" -d '{"msg":"test"}'
+
+# with PbjxToken signature (use composer package gdbots/pbjx or npm package @gdbots/pbjx to create tokens)
+curl -X POST -s -H "Content-Type: application/json" -H "x-pbjx-token: TOKENHERE" "https://yourdomain.com/pbjx/acme/blog/command/publish-article" -d '{"id":"123"}'
 ```
 
 __Example ajax request:__
@@ -193,7 +209,8 @@ $.ajax({
 
 
 # Controllers
-The recommended way to use Pbjx in a controller is to import the `PbjxAwareControllerTrait` into your controller and use the methods provided.
+The recommended way to use Pbjx in a controller is to import the `PbjxAwareControllerTrait` 
+into your controller and use the methods provided.
 
 ```php
 final class ArticleController extends Controller
@@ -219,18 +236,25 @@ final class ArticleController extends Controller
 ```
 
 ### PbjxAwareControllerTrait::renderPbj
-This is a convenience method that accepts a pbj message and derives the template name using `pbjTemplate` and calls Symfony `render` method.
+This is a convenience method that accepts a pbj message and derives the template name 
+using `pbjTemplate` and calls Symfony `render` method.
 
 The template will have `pbj` as a variable which is the message object itself.
 
-> __TIP:__ {{ pbj }} will dump the message to yaml for easy debugging in twig, or {{ pbj|json_encode(constant('JSON_PRETTY_PRINT')) }}
+> __TIP:__ {{ pbj }} will dump the message to yaml for easy debugging in twig,
+> or {{ pbj|json_encode(constant('JSON_PRETTY_PRINT')) }}
 
 ### PbjxAwareControllerTrait::pbjTemplate
-Returns a reference to a twig template based on the schema of the provided message (pbj schema).  This allows for component style development for pbj messages.  You are asking for a template that can render your message (e.g. Article) as a "card", "modal", "page", etc.
+Returns a reference to a twig template based on the schema of the provided message (pbj schema).  
+This allows for component style development for pbj messages.  You are asking for a template that 
+can render your message (e.g. Article) as a "card", "modal", "page", etc.
 
-> This can be combined with __gdbots/app-bundle__ `DeviceViewRendererTrait::renderUsingDeviceView` _(renderPbj* methods do this)_.
+> This can be combined with __gdbots/app-bundle__ `DeviceViewRendererTrait::renderUsingDeviceView`
+> _(renderPbj* methods do this)_.
 
-What you end up with is a [namespaced path](http://symfony.com/doc/current/templating/namespaced_paths.html) reference to a template which conforms to the [Symfony template naming best practices](http://symfony.com/doc/current/best_practices/templates.html#template-locations).  Examples:
+What you end up with is a [namespaced path](http://symfony.com/doc/current/templating/namespaced_paths.html) 
+reference to a template which conforms to the [Symfony template naming best practices](http://symfony.com/doc/current/best_practices/templates.html#template-locations).
+Examples:
 
 <table>
 <tr>
@@ -264,7 +288,10 @@ What you end up with is a [namespaced path](http://symfony.com/doc/current/templ
 A few twig functions are provided to expose most of what controllers can do to your twig templates.
 
 ### Twig Function: pbj_template
-Returns a reference to a twig template based on the schema of the provided message (pbj schema).  This allows for component style development for pbj messages.  You are asking for a template that can render your message (e.g. Article) as a "card", "modal", "slack_post", etc. and optionally that template can be device view specific _(card.smartphone.html.twig)_.
+Returns a reference to a twig template based on the schema of the provided message (pbj schema).
+This allows for component style development for pbj messages.  You are asking for a template that
+can render your message (e.g. Article) as a "card", "modal", "slack_post", etc. and optionally
+that template can be device view specific _(card.smartphone.html.twig)_.
 
 __Example:__
 
@@ -273,7 +300,10 @@ __Example:__
 ```
 
 ### Twig Function: pbjx_request
-In the same way that you can [embed a Symfony controller within twig](https://symfony.com/doc/current/templating/embedding_controllers.html) you can embed a pbjx request in twig.  This function performs a `$pbjx->request($request);` and returns the response.  If debugging is enabled an exception will be thrown (generally in dev), otherwise it will be logged and null will be returned.
+In the same way that you can [embed a Symfony controller within twig](https://symfony.com/doc/current/templating/embedding_controllers.html) 
+you can embed a pbjx request in twig.  This function performs a `$pbjx->request($request);`
+and returns the response.  If debugging is enabled an exception will be thrown
+(generally in dev), otherwise it will be logged and null will be returned.
 
 __Example:__
 
@@ -286,7 +316,8 @@ __Example:__
 
 
 # Console Commands
-This library provides quite a few commands to make managing the services of Pbjx simple. Run the Symfony console and look for __pbjx__ commands.
+This library provides quite a few commands to make managing the services of Pbjx simple.
+Run the Symfony console and look for __pbjx__ commands.
 
 ```txt
 pbjx                                [pbjx:message] Handles pbjx messages (command, event, request) and returns an envelope with the result.
@@ -302,7 +333,8 @@ pbjx:run-gearman-consumer           Runs a gearman consumer up to the max-runtim
 pbjx:tail-events                    Tails events from the EventStore for a given stream id and writes them to STDOUT.
 ```
 
-The most useful is probably going to be the __pbjx__ and __pbjx:batch__ commands.  These run pbjx just like you do in your application code and return the resulting pbj.
+The most useful is probably going to be the __pbjx__ and __pbjx:batch__ commands.
+These run pbjx just like you do in your application code and return the resulting pbj.
 
 > Pbjx is designed to run the the same way via cli, application code and http.
 
@@ -374,28 +406,36 @@ Review the `--help` on the pbjx commands for more details.
 
 
 # Library Development
-Pbj has a concept of [mixins](https://github.com/gdbots/pbjc-php) which is just a schema that can be added to other schemas.  This strategy is useful for creating consistent data structures and allowing for library development to be done against mixins and not concrete schemas.
+Pbj has a concept of [mixins](https://github.com/gdbots/pbjc-php) which is just a schema that can 
+be added to other schemas.  This strategy is useful for creating consistent data structures and 
+allowing for library development to be done against mixins and not concrete schemas.
 
 > A mixin cannot be used by itself to create messages, it must be added to a schema.
 
-This bundle provides a [compiler pass](http://symfony.com/doc/current/service_container/compiler_passes.html) that automatically creates aliases for pbjx handlers for concrete services IF they are not defined by the application already.
+This bundle provides a [compiler pass](http://symfony.com/doc/current/service_container/compiler_passes.html)
+that automatically registers handlers for pbjx command and requests.
 
 __Example:__
 
-> Fictional __WidgetCo__ makes widgets for websites by creating mixins and libraries to provide implementations for those mixins.
+> Fictional __WidgetCo__ makes widgets for websites by creating mixins and libraries to provide implementations for 
+those mixins.
 
 - WidgetCo has a pbj mixin called `widgetco:blog:mixin:add-comment`
 - WidgetCo has a handler called `WidgetCo\Blog\AddCommentHandler`
 - WidgetCo implementation only knows about its mixin
 - WidgetCoBlogBundle provides symfony integration
 
-> Your company __Acme__ now has a blog and wants to use __WidgetCo__ mixins _AND_ the implementation provided by __WidgetCoBlogBundle__.
+> Your company __Acme__ now has a blog and wants to use __WidgetCo__ mixins _AND_ the implementation
+> provided by __WidgetCoBlogBundle__.
 
 - Acme creates a concrete schema called `acme:blog:command:add-comment` that uses the mixin `widgetco:blog:mixin:add-comment`
-- When pbjx goes to send the command it will look for a handler called `acme_blog.add_comment_handler`
+- When pbjx goes to send the command it will look for a handler for `acme:blog:command:add-comment` curie.
 - That service doesn't exist so you'll get a __"HandlerNotFound"__ exception with message __"ServiceLocator did not find a handler for curie [acme:blog:command:add-comment]"__.
 
-Using the `pbjx.handler` [service tag](http://symfony.com/doc/current/service_container/tags.html) allows a library developer to automatically handle both its original service id (likely never called directly unless decorated) AND your concrete service.  This is made possible by aliasing itself to the symfony service tag _alias_ attribute provided, if the alias cannot be found in the container already.
+Using the `pbjx.handler` [service tag](http://symfony.com/doc/current/service_container/tags.html)
+allows a library developer to automatically handle your concrete message.  This is made possible
+by processing kernel parameters in the curie attribute of the tag and registering those services
+with the pbjx service locator _(these are lazy-loaded)_ for the provided curie.
 
 __Example service configuration (in library):__
 
@@ -411,7 +451,8 @@ services:
       - {name: pbjx.handler, curie: '%app_vendor%:blog:command:add-comment'}
 ```
 
-Now pbjx will automatically call the service provided by the library with no additional configuration on the acme application.
+Now pbjx will automatically call the service provided by the library with no additional configuration
+on the acme application.
 
 You can still override if you want to extend or replace what __widgetco_blog.add_comment_handler__ provides.
 
@@ -424,8 +465,12 @@ services:
     public: false
     tags:
       - {name: pbjx.handler, curie: 'acme:blog:command:add-comment'}
+      # multiple pbjx.handler tags are supported
 ```
 
-> You can of course provide concrete schemas and implementations in libraries as well.  There are pros and cons to both strategies, the biggest issue is that the schema is not as easily customized at the application level if the library is not developed using mixins.
+> You can of course provide concrete schemas and implementations in libraries.
+> There are pros and cons to both strategies, the biggest issue is that the schema
+> is not as easily customized at the application level if the library is not
+> developed using mixins.
 
 __Pbjx__ itself is a library built on mixins for `Command`, `Request` and `Event` messages.
