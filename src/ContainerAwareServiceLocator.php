@@ -202,7 +202,7 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
      *
      * @return Transport
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     protected function getTransportForBus(string $name): Transport
     {

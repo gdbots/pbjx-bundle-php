@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Controller;
 
+use Gdbots\Bundle\PbjxBundle\PbjxTokenSigner;
 use Gdbots\Common\Util\ClassUtils;
 use Gdbots\Pbj\Exception\GdbotsPbjException;
 use Gdbots\Pbj\Exception\HasEndUserMessage;
@@ -30,16 +31,36 @@ final class PbjxController
     /** @var Pbjx */
     private $pbjx;
 
+    /** @var PbjxTokenSigner */
+    private $signer;
+
     /** @var string[] */
     private $allowedMethods = ['POST'];
 
     /**
-     * @param Pbjx $pbjx
-     * @param bool $allowGetRequest
+     * An array of curies (or regexes) that will
+     * NOT require PbjxToken validation.
+     *
+     * @var string[]
      */
-    public function __construct(Pbjx $pbjx, bool $allowGetRequest = false)
-    {
+    private $bypassTokenValidation = [];
+
+    /**
+     * @param Pbjx            $pbjx
+     * @param PbjxTokenSigner $signer
+     * @param bool            $allowGetRequest
+     * @param string[]        $bypassTokenValidation
+     */
+    public function __construct(
+        Pbjx $pbjx,
+        PbjxTokenSigner $signer,
+        bool $allowGetRequest = false,
+        array $bypassTokenValidation = []
+    ) {
         $this->pbjx = $pbjx;
+        $this->signer = $signer;
+        $this->bypassTokenValidation = $bypassTokenValidation;
+
         if ($allowGetRequest) {
             $this->allowedMethods = ['GET', 'POST'];
         }
@@ -50,7 +71,7 @@ final class PbjxController
      *
      * @return Envelope
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function handleAction(Request $request): Envelope
     {
@@ -68,7 +89,8 @@ final class PbjxController
             $json = $request->getContent();
         }
 
-        $data = json_decode((string)$json, true) ?: [];
+        $json = (string)$json;
+        $data = json_decode($json, true) ?: [];
         if (!$this->isJsonOk($envelope, $request)) {
             return $envelope;
         }
@@ -146,6 +168,10 @@ final class PbjxController
             'pbjx_redact_error_message',
             !$request->attributes->getBoolean('pbjx_console')
         );
+
+        if (!$this->isPbjxTokenOk($envelope, $request, $json)) {
+            return $envelope;
+        }
 
         if ($message instanceof Command) {
             return $this->handleCommand($envelope, $request, $message);
@@ -293,6 +319,54 @@ final class PbjxController
             ->set('http_code', HttpCode::create($httpCode))
             ->set('error_name', $errorName)
             ->set('error_message', $errorMessage);
+    }
+
+    /**
+     * @param Envelope $envelope
+     * @param Request  $request
+     * @param string   $content
+     *
+     * @return bool
+     */
+    private function isPbjxTokenOk(Envelope $envelope, Request $request, string $content): bool
+    {
+        if ($request->attributes->getBoolean('pbjx_console')) {
+            // no tokens used on the console
+            return true;
+        }
+
+        $curie = $request->attributes->get('pbjx_curie');
+        foreach ($this->bypassTokenValidation as $pattern) {
+            if ('all' === $pattern || $curie === $pattern) {
+                return true;
+            }
+
+            if (preg_match('/' . trim($pattern, '/') . '/', $curie)) {
+                return true;
+            }
+        }
+
+        $token = $request->headers->get('x-pbjx-token');
+        if (empty($token)) {
+            $envelope
+                ->set('code', Code::INVALID_ARGUMENT)
+                ->set('http_code', HttpCode::HTTP_BAD_REQUEST())
+                ->set('error_name', 'BadRequest')
+                ->set('error_message', 'Missing x-pbjx-token header.');
+            return false;
+        }
+
+        try {
+            $this->signer->validate($content, $request->getUri(), $token);
+            return true;
+        } catch (\Throwable $e) {
+            $envelope
+                ->set('code', Code::INVALID_ARGUMENT)
+                ->set('http_code', HttpCode::HTTP_BAD_REQUEST())
+                ->set('error_name', 'BadRequest')
+                ->set('error_message', $e->getMessage());
+            return false;
+        }
     }
 
     /**

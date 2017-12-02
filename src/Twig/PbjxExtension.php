@@ -107,7 +107,7 @@ final class PbjxExtension extends \Twig_Extension
      *
      * @return Response|null
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function pbjxRequest(string $curie, array $data = []): ?Response
     {
@@ -125,7 +125,7 @@ final class PbjxExtension extends \Twig_Extension
             }
 
             return $response;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             if ($this->debug) {
                 throw $e;
             }

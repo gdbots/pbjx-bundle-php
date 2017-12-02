@@ -14,19 +14,17 @@ class ConfigurationTest extends TestCase
         $this->markTestSkipped();
 
         $processor = new Processor();
-        $config = $processor->processConfiguration(new Configuration(), [['transport' => []]]);
-
-        $this->assertEquals(
-            array_merge(['transport' => []], self::getBundleDefaultConfig()),
-            $config
-        );
+        $config = $processor->processConfiguration(new Configuration(), [self::getBundleDefaultConfig()]);
+//
+//        echo json_encode($config, JSON_PRETTY_PRINT);
+//        exit;
     }
 
     public function testDefaultTransportGearmanConfig()
     {
         $this->markTestSkipped();
 
-        $options = [
+        $configs = array_merge(self::getBundleDefaultConfig(), [
             'transport' => [
                 'gearman' => [
                     'servers'        => [
@@ -39,15 +37,10 @@ class ConfigurationTest extends TestCase
                     'channel_prefix' => null,
                 ],
             ],
-        ];
+        ]);
 
         $processor = new Processor();
-        $config = $processor->processConfiguration(new Configuration(), [$options]);
-
-        $this->assertEquals(
-            array_merge($options, self::getBundleDefaultConfig()),
-            $config
-        );
+        $config = $processor->processConfiguration(new Configuration(), $configs);
     }
 
     protected static function getBundleDefaultConfig()
@@ -56,12 +49,18 @@ class ConfigurationTest extends TestCase
             'service_locator'         => [
                 'class' => 'Gdbots\Bundle\PbjxBundle\ContainerAwareServiceLocator',
             ],
+            'pbjx_token_signer'       => [
+                'default_kid' => 'kid',
+                'keys'        => [
+                    ['kid' => 'kid1', 'secret' => 'secret1'],
+                    ['kid' => 'kid2', 'secret' => 'secret2'],
+                ],
+            ],
             'pbjx_controller'         => [
                 'allow_get_request' => false,
             ],
             'pbjx_receive_controller' => [
-                'enabled'     => false,
-                'receive_key' => null,
+                'enabled' => false,
             ],
             'handler_guesser'         => [
                 'class' => 'Gdbots\Bundle\PbjxBundle\HandlerGuesser',

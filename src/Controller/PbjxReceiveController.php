@@ -59,10 +59,12 @@ final class PbjxReceiveController
      *
      * @return JsonResponse
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function receiveAction(Request $request): JsonResponse
     {
+        // fixme: don't allow bearer token to be used on pbjx receive endpoint
+
         if (false === $this->enabled) {
             throw new AccessDeniedHttpException('The receive endpoint is not enabled.', null, Code::PERMISSION_DENIED);
         }

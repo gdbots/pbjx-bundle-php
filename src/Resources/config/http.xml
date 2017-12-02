@@ -6,12 +6,14 @@
   <services>
     <service id="gdbots_pbjx.pbjx_controller" class="Gdbots\Bundle\PbjxBundle\Controller\PbjxController" public="true">
       <argument type="service" id="pbjx"/>
+      <argument type="service" id="gdbots_pbjx.pbjx_token_signer"/>
       <argument>%gdbots_pbjx.pbjx_controller.allow_get_request%</argument>
+      <argument>%gdbots_pbjx.pbjx_controller.bypass_token_validation%</argument>
     </service>
 
     <service id="gdbots_pbjx.pbjx_receive_controller" class="Gdbots\Bundle\PbjxBundle\Controller\PbjxReceiveController" public="true">
       <argument type="service" id="gdbots_pbjx.service_locator"/>
-      <argument>%gdbots_pbjx.pbjx_receive_controller.receive_key%</argument>
+      <argument type="service" id="gdbots_pbjx.pbjx_token_signer"/>
       <argument>%gdbots_pbjx.pbjx_receive_controller.enabled%</argument>
     </service>
 
