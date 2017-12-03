@@ -48,8 +48,7 @@ gdbots_pbjx:
     # if accepting commands from web trackers (analytics, click tracking, etc.)
     # then you may want to enable "GET" requests
     allow_get_request: false # default
-    # array of curies or regex patterns that will not
-    # requires x-pbjx-token validation
+    # array of curies or regex patterns that will not require x-pbjx-token validation
     bypass_token_validation: ['gdbots:pbjx:request:echo-request'] # default
   # the receive controller accepts transport messages.  it is ideally secured
   # in a VPC and only called by internal services.
@@ -167,7 +166,7 @@ gdbots_pbjx.pbjx_permission_validator:
     - {name: pbjx.event_subscriber}
 ```
 
-To enable Pbjx http endpoints you must include the routes.  In __routing.yml__:
+To enable Pbjx http endpoints you must include the routes.  In __config/routes.yml__:
 
 ```yaml
 pbjx:
