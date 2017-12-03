@@ -12,13 +12,11 @@ use Gdbots\Schemas\Pbjx\Mixin\Request\Request;
 use Gdbots\Schemas\Pbjx\Mixin\Response\Response;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Form\FormView;
 
 final class PbjxExtension extends \Twig_Extension
 {
-    /** @var ContainerInterface */
-    private $container;
+    /** @var Pbjx */
+    private $pbjx;
 
     /** @var LoggerInterface */
     private $logger;
@@ -27,14 +25,15 @@ final class PbjxExtension extends \Twig_Extension
     private $debug = false;
 
     /**
-     * @param ContainerInterface $container
-     * @param LoggerInterface    $logger
+     * @param Pbjx            $pbjx
+     * @param LoggerInterface $logger
+     * @param bool            $debug
      */
-    public function __construct(ContainerInterface $container, ?LoggerInterface $logger = null)
+    public function __construct(Pbjx $pbjx, ?LoggerInterface $logger = null, bool $debug = false)
     {
-        $this->container = $container;
+        $this->pbjx = $pbjx;
         $this->logger = $logger ?: new NullLogger();
-        $this->debug = $container->getParameter('kernel.debug');
+        $this->debug = $debug;
     }
 
     /**
@@ -43,7 +42,6 @@ final class PbjxExtension extends \Twig_Extension
     public function getFunctions()
     {
         return [
-            new \Twig_SimpleFunction('pbj_form_view', [$this, 'pbjFormView']),
             new \Twig_SimpleFunction('pbj_template', [$this, 'pbjTemplate']),
             new \Twig_SimpleFunction('pbjx_request', [$this, 'pbjxRequest']),
         ];
@@ -55,31 +53,6 @@ final class PbjxExtension extends \Twig_Extension
     public function getName()
     {
         return 'gdbots_pbjx_extension';
-    }
-
-    /**
-     * @deprecated All symfony form features will be removed in
-     *
-     * Creates a form view and returns it.  Typically used in pbj templates that require
-     * a form but may not have one provided in all scenarios so this is used as a default.
-     *
-     * DO NOT use this function with the "some_var|default(...)" option as this will run
-     * even when "some_var" is defined.
-     *
-     * Example:
-     *  {% if pbj_form is not defined %}
-     *      {% set pbj_form = pbj_form_view('AppBundle\\Form\\SomeType') %}
-     *  {% endif %}
-     *
-     * @param string $type    The fully qualified class name of the pbj form type
-     * @param array  $input   The initial data for the form
-     * @param array  $options Options for the form
-     *
-     * @return FormView
-     */
-    public function pbjFormView(string $type, array $input = [], array $options = []): FormView
-    {
-        return $this->container->get('form.factory')->create($type, $input, $options)->createView();
     }
 
     /**
@@ -134,7 +107,7 @@ final class PbjxExtension extends \Twig_Extension
      *
      * @return Response|null
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function pbjxRequest(string $curie, array $data = []): ?Response
     {
@@ -146,13 +119,13 @@ final class PbjxExtension extends \Twig_Extension
                 throw new InvalidArgumentException(sprintf('The provided curie [%s] is not a request.', $curie));
             }
 
-            $response = $this->getPbjx()->request($request);
+            $response = $this->pbjx->request($request);
             if (!$response->has('ctx_request')) {
                 $response->set('ctx_request', $request);
             }
 
             return $response;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             if ($this->debug) {
                 throw $e;
             }
@@ -164,13 +137,5 @@ final class PbjxExtension extends \Twig_Extension
         }
 
         return null;
-    }
-
-    /**
-     * @return Pbjx
-     */
-    private function getPbjx(): Pbjx
-    {
-        return $this->container->get('pbjx');
     }
 }

@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * Checks the container to ensure that the event store has the provider defined
  * and that it's valid.
  */
-class ValidateEventStorePass implements CompilerPassInterface
+final class ValidateEventStorePass implements CompilerPassInterface
 {
     /**
      * @param ContainerBuilder $container

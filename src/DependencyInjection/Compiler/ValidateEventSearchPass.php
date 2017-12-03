@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * Checks the container to ensure that the event search has the provider defined
  * and that it's valid.
  */
-class ValidateEventSearchPass implements CompilerPassInterface
+final class ValidateEventSearchPass implements CompilerPassInterface
 {
     /**
      * @param ContainerBuilder $container

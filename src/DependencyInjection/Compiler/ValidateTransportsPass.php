@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * for the buses are actually defined and have their dependencies defined.
  *
  */
-class ValidateTransportsPass implements CompilerPassInterface
+final class ValidateTransportsPass implements CompilerPassInterface
 {
     /**
      * @param ContainerBuilder $container

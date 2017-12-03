@@ -4,6 +4,10 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
   <services>
+    <prototype namespace="Gdbots\Bundle\PbjxBundle\Command\" resource="../../Command/*">
+      <tag name="console.command"/>
+    </prototype>
+
     <service id="pbjx" class="Gdbots\Pbjx\SimplePbjx" public="true">
       <argument type="service" id="gdbots_pbjx.service_locator"/>
     </service>
@@ -12,9 +16,12 @@
       <argument type="service" id="service_container"/>
     </service>
 
-    <service id="gdbots_pbjx.handler_guesser" class="%gdbots_pbjx.handler_guesser.class%" public="true"/>
+    <service id="gdbots_pbjx.pbjx_token_signer" class="Gdbots\Bundle\PbjxBundle\PbjxTokenSigner" public="false">
+      <argument>%gdbots_pbjx.pbjx_token_signer.keys%</argument>
+      <argument>%gdbots_pbjx.pbjx_token_signer.default_kid%</argument>
+    </service>
 
-    <service id="gdbots_pbjx.event_dispatcher" class="Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher" public="true">
+    <service id="gdbots_pbjx.event_dispatcher" class="Symfony\Component\EventDispatcher\EventDispatcher" public="true">
       <argument type="service" id="service_container"/>
     </service>
 
@@ -24,43 +31,43 @@
       <tag name="monolog.logger" channel="pbjx"/>
     </service>
 
-    <service id="gdbots_pbjx.event_execution_failure_logger" class="Gdbots\Bundle\PbjxBundle\EventExecutionFailureLogger" public="true">
+    <service id="gdbots_pbjx.event_execution_failure_logger" class="Gdbots\Bundle\PbjxBundle\EventExecutionFailureLogger" public="false">
       <argument type="service" id="logger"/>
       <tag name="monolog.logger" channel="pbjx"/>
       <tag name="pbjx.event_subscriber"/>
     </service>
 
     <!-- binders -->
-    <service id="gdbots_pbjx.command_binder" class="Gdbots\Bundle\PbjxBundle\Binder\CommandBinder" public="true">
+    <service id="gdbots_pbjx.command_binder" class="Gdbots\Bundle\PbjxBundle\Binder\CommandBinder" public="false">
       <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
     </service>
 
-    <service id="gdbots_pbjx.event_binder" class="Gdbots\Bundle\PbjxBundle\Binder\EventBinder" public="true">
+    <service id="gdbots_pbjx.event_binder" class="Gdbots\Bundle\PbjxBundle\Binder\EventBinder" public="false">
       <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
     </service>
 
-    <service id="gdbots_pbjx.query_parsing_binder" class="Gdbots\Bundle\PbjxBundle\Binder\QueryParsingBinder" public="true">
+    <service id="gdbots_pbjx.query_parsing_binder" class="Gdbots\Bundle\PbjxBundle\Binder\QueryParsingBinder" public="false">
       <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
     </service>
 
-    <service id="gdbots_pbjx.request_binder" class="Gdbots\Bundle\PbjxBundle\Binder\RequestBinder" public="true">
+    <service id="gdbots_pbjx.request_binder" class="Gdbots\Bundle\PbjxBundle\Binder\RequestBinder" public="false">
       <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
     </service>
 
     <!-- command handlers -->
-    <service id="gdbots_pbjx.check_health_handler" class="Gdbots\Bundle\PbjxBundle\CheckHealthHandler" public="true">
+    <service id="gdbots_pbjx.check_health_handler" class="Gdbots\Bundle\PbjxBundle\CheckHealthHandler" public="false">
       <argument type="service" id="logger"/>
       <tag name="monolog.logger" channel="pbjx"/>
-      <tag name="pbjx.handler"/>
+      <tag name="pbjx.handler" curie="gdbots:pbjx:command:check-health"/>
     </service>
 
     <!-- request handlers -->
-    <service id="gdbots_pbjx.echo_request_handler" class="Gdbots\Bundle\PbjxBundle\EchoRequestHandler" public="true">
-      <tag name="pbjx.handler"/>
+    <service id="gdbots_pbjx.echo_request_handler" class="Gdbots\Bundle\PbjxBundle\EchoRequestHandler" public="false">
+      <tag name="pbjx.handler" curie="gdbots:pbjx:request:echo-request"/>
     </service>
 
   </services>

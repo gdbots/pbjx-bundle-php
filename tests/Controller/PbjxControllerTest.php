@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Gdbots\Tests\Bundle\PbjxBundle\Controller;
 
 use Gdbots\Bundle\PbjxBundle\Controller\PbjxController;
+use Gdbots\Bundle\PbjxBundle\PbjxTokenSigner;
 use Gdbots\Pbjx\RegisteringServiceLocator;
 use Gdbots\Tests\Bundle\PbjxBundle\Fixtures\FakeCommand;
 use PHPUnit\Framework\TestCase;
@@ -17,7 +18,8 @@ class PbjxControllerTest extends TestCase
     public function test()
     {
         $pbjx = (new RegisteringServiceLocator())->getPbjx();
-        $controller = new PbjxController($pbjx);
+        $signer = new PbjxTokenSigner([['kid' => 'kid', 'secret' => 'secret']]);
+        $controller = new PbjxController($pbjx, $signer);
 
         $command = FakeCommand::create();
         $schema = $command::schema();

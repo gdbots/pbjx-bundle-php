@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Controller;
 
+use Gdbots\Bundle\PbjxBundle\PbjxTokenSigner;
 use Gdbots\Common\Util\ClassUtils;
 use Gdbots\Pbj\Exception\GdbotsPbjException;
 use Gdbots\Pbj\Exception\HasEndUserMessage;
@@ -13,6 +14,7 @@ use Gdbots\Pbj\SchemaCurie;
 use Gdbots\Pbj\SchemaId;
 use Gdbots\Pbjx\Exception\RequestHandlingFailed;
 use Gdbots\Pbjx\Pbjx;
+use Gdbots\Pbjx\PbjxToken;
 use Gdbots\Pbjx\Util\StatusCodeConverter;
 use Gdbots\Schemas\Pbjx\Enum\Code;
 use Gdbots\Schemas\Pbjx\Enum\HttpCode;
@@ -29,16 +31,36 @@ final class PbjxController
     /** @var Pbjx */
     private $pbjx;
 
+    /** @var PbjxTokenSigner */
+    private $signer;
+
     /** @var string[] */
     private $allowedMethods = ['POST'];
 
     /**
-     * @param Pbjx $pbjx
-     * @param bool $allowGetRequest
+     * An array of curies (or regexes) that will
+     * NOT require PbjxToken validation.
+     *
+     * @var string[]
      */
-    public function __construct(Pbjx $pbjx, bool $allowGetRequest = false)
-    {
+    private $bypassTokenValidation = [];
+
+    /**
+     * @param Pbjx            $pbjx
+     * @param PbjxTokenSigner $signer
+     * @param bool            $allowGetRequest
+     * @param string[]        $bypassTokenValidation
+     */
+    public function __construct(
+        Pbjx $pbjx,
+        PbjxTokenSigner $signer,
+        bool $allowGetRequest = false,
+        array $bypassTokenValidation = []
+    ) {
         $this->pbjx = $pbjx;
+        $this->signer = $signer;
+        $this->bypassTokenValidation = $bypassTokenValidation;
+
         if ($allowGetRequest) {
             $this->allowedMethods = ['GET', 'POST'];
         }
@@ -49,7 +71,7 @@ final class PbjxController
      *
      * @return Envelope
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function handleAction(Request $request): Envelope
     {
@@ -60,27 +82,18 @@ final class PbjxController
         }
 
         if ($request->isMethod('GET')) {
-            $json = base64_decode($request->query->get('pbj'));
+            $json = PbjxToken::urlsafeB64Decode($request->query->get('pbj'));
         } elseif (0 === strpos($request->headers->get('Content-Type'), 'multipart/form-data')) {
             $json = $request->request->get('pbj');
         } else {
             $json = $request->getContent();
         }
 
-        $data = json_decode((string)$json, true) ?: [];
+        $json = (string)$json;
+        $data = json_decode($json, true) ?: [];
         if (!$this->isJsonOk($envelope, $request)) {
             return $envelope;
         }
-
-        /*
-        if (empty($data)) {
-            return $envelope
-                ->set('code', Code::INVALID_ARGUMENT)
-                ->set('http_code', HttpCode::HTTP_UNSUPPORTED_MEDIA_TYPE())
-                ->set('error_name', 'UnsupportedMediaType')
-                ->set('error_message', 'Empty payload is not supported.');
-        }
-        */
 
         $pbjxCategory = $request->attributes->get('pbjx_category');
         if (false !== strpos($pbjxCategory, '_')) {
@@ -145,6 +158,10 @@ final class PbjxController
             'pbjx_redact_error_message',
             !$request->attributes->getBoolean('pbjx_console')
         );
+
+        if (!$this->isPbjxTokenOk($envelope, $request, $json)) {
+            return $envelope;
+        }
 
         if ($message instanceof Command) {
             return $this->handleCommand($envelope, $request, $message);
@@ -297,6 +314,66 @@ final class PbjxController
     /**
      * @param Envelope $envelope
      * @param Request  $request
+     * @param string   $content
+     *
+     * @return bool
+     */
+    private function isPbjxTokenOk(Envelope $envelope, Request $request, string $content): bool
+    {
+        if ($request->attributes->getBoolean('pbjx_console')) {
+            // no tokens used on the console
+            return true;
+        }
+
+        $curie = $request->attributes->get('pbjx_curie');
+        foreach ($this->bypassTokenValidation as $pattern) {
+            if ('all' === $pattern || $curie === $pattern) {
+                return true;
+            }
+
+            if (preg_match('/' . trim($pattern, '/') . '/', $curie)) {
+                return true;
+            }
+        }
+
+        $token = $request->headers->get('x-pbjx-token');
+        if (empty($token)) {
+            $envelope
+                ->set('code', Code::INVALID_ARGUMENT)
+                ->set('http_code', HttpCode::HTTP_BAD_REQUEST())
+                ->set('error_name', 'MissingPbjxToken')
+                ->set('error_message', 'Missing x-pbjx-token header.');
+            return false;
+        }
+
+        if ($request->headers->has('Authorization')) {
+            $bearer = trim(str_ireplace('bearer ', '', $request->headers->get('Authorization')));
+            $this->signer->addKey('bearer', $bearer);
+        }
+
+        if ($request->headers->has('x-pbjx-nonce')) {
+            $this->signer->addKey('nonce', $request->headers->get('x-pbjx-nonce'));
+        }
+
+        try {
+            $this->signer->validate($content, $request->getUri(), $token);
+            return true;
+        } catch (\Throwable $e) {
+            $envelope
+                ->set('code', Code::INVALID_ARGUMENT)
+                ->set('http_code', HttpCode::HTTP_BAD_REQUEST())
+                ->set('error_name', 'InvalidPbjxToken')
+                ->set('error_message', $e->getMessage());
+            return false;
+        } finally {
+            $this->signer->removeKey('bearer');
+            $this->signer->removeKey('nonce');
+        }
+    }
+
+    /**
+     * @param Envelope $envelope
+     * @param Request  $request
      *
      * @return bool
      */
@@ -370,35 +447,8 @@ final class PbjxController
             ->set('code', Code::INVALID_ARGUMENT)
             ->set('http_code', HttpCode::HTTP_UNSUPPORTED_MEDIA_TYPE())
             ->set('error_name', 'UnsupportedMediaType')
-            ->set('error_message', 'Invalid json: ' . $this->getLastJsonErrorMessage());
+            ->set('error_message', 'Invalid json: ' . json_last_error_msg());
 
         return false;
-    }
-
-    /**
-     * Resolves json_last_error message.
-     *
-     * @return string
-     */
-    private function getLastJsonErrorMessage(): string
-    {
-        if (function_exists('json_last_error_msg')) {
-            return json_last_error_msg();
-        }
-
-        switch (json_last_error()) {
-            case JSON_ERROR_DEPTH:
-                return 'Maximum stack depth exceeded';
-            case JSON_ERROR_STATE_MISMATCH:
-                return 'Underflow or the modes mismatch';
-            case JSON_ERROR_CTRL_CHAR:
-                return 'Unexpected control character found';
-            case JSON_ERROR_SYNTAX:
-                return 'Syntax error, malformed JSON';
-            case JSON_ERROR_UTF8:
-                return 'Malformed UTF-8 characters, possibly incorrectly encoded';
-            default:
-                return 'Unknown error';
-        }
     }
 }
