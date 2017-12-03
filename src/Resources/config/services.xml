@@ -21,8 +21,6 @@
       <argument>%gdbots_pbjx.pbjx_token_signer.default_kid%</argument>
     </service>
 
-    <service id="gdbots_pbjx.handler_guesser" class="%gdbots_pbjx.handler_guesser.class%" public="true"/>
-
     <service id="gdbots_pbjx.event_dispatcher" class="Symfony\Component\EventDispatcher\EventDispatcher" public="true">
       <argument type="service" id="service_container"/>
     </service>

@@ -42,9 +42,6 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
      */
     protected $registeredHandlers = [];
 
-    /** @var HandlerGuesser */
-    protected $handlerGuesser;
-
     /**
      * In some cases (console commands for example) we want to force
      * the system to use the in memory transports.
@@ -174,13 +171,6 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
             return $this->handlers[$key];
         }
 
-        $guesser = $this->getHandlerGuesser();
-        $className = $guesser->guessHandler($curie);
-        if (class_exists($className)) {
-            $this->handlers[$key] = $guesser->createHandler($curie, $className, $this->container);
-            return $this->handlers[$key];
-        }
-
         throw new HandlerNotFound($curie);
     }
 
@@ -216,17 +206,5 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
         }
 
         return $this->container->get('gdbots_pbjx.transport.' . $transport);
-    }
-
-    /**
-     * @return HandlerGuesser
-     */
-    protected function getHandlerGuesser(): HandlerGuesser
-    {
-        if (null === $this->handlerGuesser) {
-            $this->handlerGuesser = $this->container->get('gdbots_pbjx.handler_guesser');
-        }
-
-        return $this->handlerGuesser;
     }
 }

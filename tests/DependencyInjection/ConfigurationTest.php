@@ -62,9 +62,6 @@ class ConfigurationTest extends TestCase
             'pbjx_receive_controller' => [
                 'enabled' => false,
             ],
-            'handler_guesser'         => [
-                'class' => 'Gdbots\Bundle\PbjxBundle\HandlerGuesser',
-            ],
             'command_bus'             => [
                 'transport' => 'in_memory',
             ],

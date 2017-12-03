@@ -68,10 +68,6 @@ gdbots_pbjx:
       channel_prefix: my_channel_ # defaults to "%kernel.environment%_"
       servers:
         - {host: '127.0.0.1', port: 4730} # default
-  # to provide your own logic to guess handlers
-  # be sure to extend Gdbots\Bundle\PbjxBundle\HandlerGuesser
-  #handler_guesser:
-    #class: Acme\MyPbjxHandlerGuesser
   event_store:
     provider: dynamodb
     dynamodb:

@@ -15,6 +15,8 @@ __BREAKING CHANGES__
 * Change `AliasHandlersPass` to `RegisterHandlersPass` and use new `curie` attribute on `pbjx.handler`
   tag to automatically register handlers with closure for lazy loading.
 * Register `Gdbots\Pbjx\Pbjx` interface as alias to service `pbjx` so autowiring works.
+* Remove the `HandlerGuesser` class and service configurations.  This will be replaced
+  in the future with auto tagging based on interfaces.
 
 
 ## v0.1.2
