@@ -341,7 +341,7 @@ final class PbjxController
             $envelope
                 ->set('code', Code::INVALID_ARGUMENT)
                 ->set('http_code', HttpCode::HTTP_BAD_REQUEST())
-                ->set('error_name', 'BadRequest')
+                ->set('error_name', 'MissingPbjxToken')
                 ->set('error_message', 'Missing x-pbjx-token header.');
             return false;
         }
@@ -362,7 +362,7 @@ final class PbjxController
             $envelope
                 ->set('code', Code::INVALID_ARGUMENT)
                 ->set('http_code', HttpCode::HTTP_BAD_REQUEST())
-                ->set('error_name', 'BadRequest')
+                ->set('error_name', 'InvalidPbjxToken')
                 ->set('error_message', $e->getMessage());
             return false;
         } finally {

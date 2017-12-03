@@ -39,11 +39,11 @@ gdbots_pbjx:
   # e.g. AWS Lambda to your API servers (signed with shared secret)
   # or by using bearer tokens in SPA to sign messages
   pbjx_token_signer:
-    default_kid: '%env(PBJX_TOKEN_CURRENT_SIGNING_KID)%'
+    default_kid: '%env(PBJX_CURRENT_SIGNING_KID)%'
     # multiple keys allow for seamless key rotation
     keys:
-      - {kid: '%env(PBJX_TOKEN_NEXT_SIGNING_KID)%', secret: '%env(PBJX_TOKEN_NEXT_SIGNING_SECRET)%'}
-      - {kid: '%env(PBJX_TOKEN_CURRENT_SIGNING_KID)%', secret: '%env(PBJX_TOKEN_CURRENT_SIGNING_SECRET)%'}
+      - {kid: '%env(PBJX_NEXT_SIGNING_KID)%', secret: '%env(PBJX_NEXT_SIGNING_SECRET)%'}
+      - {kid: '%env(PBJX_CURRENT_SIGNING_KID)%', secret: '%env(PBJX_CURRENT_SIGNING_SECRET)%'}
   pbjx_controller:
     # if accepting commands from web trackers (analytics, click tracking, etc.)
     # then you may want to enable "GET" requests

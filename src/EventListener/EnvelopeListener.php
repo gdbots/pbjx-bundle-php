@@ -79,7 +79,7 @@ final class EnvelopeListener
         $response = new JsonResponse($array, $httpCode, [
             'Content-Type'       => 'application/json',
             'ETag'               => $envelope->get('etag'),
-            'x-pbjx-envelope-id' => $envelope->get('envelope_id'),
+            'x-pbjx-envelope-id' => (string)$envelope->get('envelope_id'),
         ]);
 
         if ($request->attributes->getBoolean('_jsonp_enabled') && $request->query->has('callback')) {
