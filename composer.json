@@ -2,7 +2,7 @@
   "name": "gdbots/pbjx-bundle",
   "homepage": "https://github.com/gdbots/pbjx-bundle-php",
   "description": "Symfony bundle that integrates gdbots/pbjx messaging tools.",
-  "type": "library",
+  "type": "symfony-bundle",
   "license": "Apache-2.0",
   "require": {
     "php": ">=7.1",
