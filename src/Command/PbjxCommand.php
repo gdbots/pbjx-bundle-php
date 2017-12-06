@@ -6,6 +6,7 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 use Gdbots\Bundle\PbjxBundle\Controller\PbjxController;
 use Gdbots\Pbj\SchemaCurie;
 use Gdbots\Schemas\Pbjx\Enum\Code;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,9 +15,18 @@ use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class PbjxCommand extends ContainerAwareCommand
+final class PbjxCommand extends ContainerAwareCommand
 {
     use PbjxAwareCommandTrait;
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function __construct(LoggerInterface $logger)
+    {
+        parent::__construct(null);
+        $this->logger = $logger;
+    }
 
     /**
      * {@inheritdoc}
