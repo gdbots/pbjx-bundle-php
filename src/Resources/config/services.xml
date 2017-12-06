@@ -4,8 +4,11 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
   <services>
-    <prototype namespace="Gdbots\Bundle\PbjxBundle\Command\" resource="../../Command/*">
+    <defaults public="false"/>
+
+    <prototype namespace="Gdbots\Bundle\PbjxBundle\Command\" resource="../../Command/*" autowire="true" public="false">
       <tag name="console.command"/>
+      <bind key="$logger" type="service" id="monolog.logger.pbjx" />
     </prototype>
 
     <service id="pbjx" class="Gdbots\Pbjx\SimplePbjx" public="true">
@@ -16,7 +19,7 @@
       <argument type="service" id="service_container"/>
     </service>
 
-    <service id="gdbots_pbjx.pbjx_token_signer" class="Gdbots\Bundle\PbjxBundle\PbjxTokenSigner" public="false">
+    <service id="gdbots_pbjx.pbjx_token_signer" class="Gdbots\Bundle\PbjxBundle\PbjxTokenSigner">
       <argument>%gdbots_pbjx.pbjx_token_signer.keys%</argument>
       <argument>%gdbots_pbjx.pbjx_token_signer.default_kid%</argument>
     </service>
@@ -31,42 +34,46 @@
       <tag name="monolog.logger" channel="pbjx"/>
     </service>
 
-    <service id="gdbots_pbjx.event_execution_failure_logger" class="Gdbots\Bundle\PbjxBundle\EventExecutionFailureLogger" public="false">
+    <service id="gdbots_pbjx.event_execution_failure_logger" class="Gdbots\Bundle\PbjxBundle\EventExecutionFailureLogger">
       <argument type="service" id="logger"/>
       <tag name="monolog.logger" channel="pbjx"/>
       <tag name="pbjx.event_subscriber"/>
     </service>
 
     <!-- binders -->
-    <service id="gdbots_pbjx.command_binder" class="Gdbots\Bundle\PbjxBundle\Binder\CommandBinder" public="false">
+    <service id="gdbots_pbjx.command_binder" class="Gdbots\Bundle\PbjxBundle\Binder\CommandBinder">
       <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
+      <tag name="pbjx.binder"/>
     </service>
 
-    <service id="gdbots_pbjx.event_binder" class="Gdbots\Bundle\PbjxBundle\Binder\EventBinder" public="false">
+    <service id="gdbots_pbjx.event_binder" class="Gdbots\Bundle\PbjxBundle\Binder\EventBinder">
       <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
+      <tag name="pbjx.binder"/>
     </service>
 
-    <service id="gdbots_pbjx.query_parsing_binder" class="Gdbots\Bundle\PbjxBundle\Binder\QueryParsingBinder" public="false">
+    <service id="gdbots_pbjx.query_parsing_binder" class="Gdbots\Bundle\PbjxBundle\Binder\QueryParsingBinder">
       <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
+      <tag name="pbjx.binder"/>
     </service>
 
-    <service id="gdbots_pbjx.request_binder" class="Gdbots\Bundle\PbjxBundle\Binder\RequestBinder" public="false">
+    <service id="gdbots_pbjx.request_binder" class="Gdbots\Bundle\PbjxBundle\Binder\RequestBinder">
       <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
+      <tag name="pbjx.binder"/>
     </service>
 
     <!-- command handlers -->
-    <service id="gdbots_pbjx.check_health_handler" class="Gdbots\Bundle\PbjxBundle\CheckHealthHandler" public="false">
+    <service id="gdbots_pbjx.check_health_handler" class="Gdbots\Bundle\PbjxBundle\CheckHealthHandler">
       <argument type="service" id="logger"/>
       <tag name="monolog.logger" channel="pbjx"/>
       <tag name="pbjx.handler" curie="gdbots:pbjx:command:check-health"/>
     </service>
 
     <!-- request handlers -->
-    <service id="gdbots_pbjx.echo_request_handler" class="Gdbots\Bundle\PbjxBundle\EchoRequestHandler" public="false">
+    <service id="gdbots_pbjx.echo_request_handler" class="Gdbots\Bundle\PbjxBundle\EchoRequestHandler">
       <tag name="pbjx.handler" curie="gdbots:pbjx:request:echo-request"/>
     </service>
 

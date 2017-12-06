@@ -3,15 +3,25 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class DescribeEventSearchStorageCommand extends ContainerAwareCommand
+final class DescribeEventSearchStorageCommand extends ContainerAwareCommand
 {
     use PbjxAwareCommandTrait;
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function __construct(LoggerInterface $logger)
+    {
+        parent::__construct(null);
+        $this->logger = $logger;
+    }
 
     /**
      * {@inheritdoc}

@@ -23,6 +23,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 trait PbjxAwareCommandTrait
 {
+    /** @var LoggerInterface */
+    protected $logger;
+
     /**
      * @return RequestStack
      */
@@ -52,11 +55,9 @@ trait PbjxAwareCommandTrait
      */
     protected function getLogger(): LoggerInterface
     {
-        if ($this->getContainer()->has('monolog.logger.pbjx')) {
-            return $this->getContainer()->get('monolog.logger.pbjx');
-        }
-
-        return $this->getContainer()->get('logger');
+        // loggers somehow became private in symfony4.  temp fix before
+        // mega autowiring refactor is done is to load in constructor
+        return $this->logger;
     }
 
     /**

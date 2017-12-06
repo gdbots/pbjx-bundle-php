@@ -8,6 +8,7 @@ use Gdbots\Pbj\Exception\DeserializeMessageFailed;
 use Gdbots\Pbj\Serializer\JsonSerializer;
 use Gdbots\Schemas\Pbjx\Mixin\Command\Command;
 use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,9 +17,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpFoundation\Request;
 
-class PbjxBatchCommand extends ContainerAwareCommand
+final class PbjxBatchCommand extends ContainerAwareCommand
 {
     use PbjxAwareCommandTrait;
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function __construct(LoggerInterface $logger)
+    {
+        parent::__construct(null);
+        $this->logger = $logger;
+    }
 
     /**
      * {@inheritdoc}

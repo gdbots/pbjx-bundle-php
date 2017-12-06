@@ -8,6 +8,7 @@ use Gdbots\Pbj\WellKnown\Microtime;
 use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
 use Gdbots\Schemas\Pbjx\Mixin\Indexed\Indexed;
 use Gdbots\Schemas\Pbjx\StreamId;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,9 +16,18 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class ReindexEventsCommand extends ContainerAwareCommand
+final class ReindexEventsCommand extends ContainerAwareCommand
 {
     use PbjxAwareCommandTrait;
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function __construct(LoggerInterface $logger)
+    {
+        parent::__construct(null);
+        $this->logger = $logger;
+    }
 
     /**
      * {@inheritdoc}
