@@ -11,6 +11,7 @@ __BREAKING CHANGES__
   unless you have customized needs that autoconfigure/autowiring doesn't address.
 * Add `x-pbjx-dry-run` header to pbjx endpoint to allow for a command/event to be received
   and acknowledged but not actually processed.
+* `PbjxAwareControllerTrait` renamed to `PbjxControllerTrait` and the `getPbjx` method was removed.
 
 
 ## v0.2.1
