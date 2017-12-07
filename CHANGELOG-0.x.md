@@ -5,10 +5,10 @@ This changelog references the relevant changes done in 0.x versions.
 ## v0.3.0
 __BREAKING CHANGES__
 
-* Embrace Symfony autowiring by using the Pbjx marker interfaces to automatically create
-  services that use those interfaces.  This removes the need to define these unless you
-  have customized needs that autowiring doesn't address.
 * Require `"gdbots/pbjx": "^2.1.1"`.
+* Embrace Symfony autoconfigure by using the Pbjx marker interfaces to automatically tag
+  services that use those interfaces.  This removes the need to define these in your app
+  unless you have customized needs that autoconfigure/autowiring doesn't address.
 * Add `x-pbjx-dry-run` header to pbjx endpoint to allow for a command/event to be received
   and acknowledged but not actually processed.
 

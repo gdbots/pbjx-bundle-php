@@ -10,7 +10,12 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Example use (services.yml)
+ * Preferred method in your app is to use autoconfigure let Symfony automatically
+ * find the classes using the PbjxHandler interface and tag them.
+ *
+ * All your class will need to do is return an array of SchemaCurie objects.
+ *
+ * Example manual configuration...
  *
  * widgetco_blog.add_comment_handler:
  *   class: WidgetCo\Blog\AddCommentHandler
@@ -40,14 +45,38 @@ final class RegisterHandlersPass implements CompilerPassInterface
                 );
             }
 
+            $curies = [];
+
             foreach ($attributes as $attribute) {
                 if (!isset($attribute['curie'])) {
-                    throw new \InvalidArgumentException(
-                        sprintf('The service "%s" pbjx.handler tag requires the "curie" attribute.', $id)
-                    );
+                    continue;
                 }
 
-                $curie = SchemaCurie::fromString($container->getParameterBag()->resolveValue($attribute['curie']));
+                $curies[] = SchemaCurie::fromString($container->getParameterBag()->resolveValue($attribute['curie']));
+            }
+
+            $interface = 'Gdbots\Pbjx\DependencyInjection\PbjxHandler';
+            $class = $container->getParameterBag()->resolveValue($def->getClass());
+            if (is_subclass_of($class, $interface)) {
+                /** @var SchemaCurie $curie */
+                foreach ($class::handlesCuries() as $curie) {
+                    $curies[] = $curie;
+                }
+            }
+
+            if (empty($curies)) {
+                throw new \InvalidArgumentException(
+                    sprintf(
+                        'The service "%s" using pbjx.handler tag requires the "curie" attribute ' .
+                        'or the class "%s" must implement "%s" and return at least one curie from handlesCuries method.',
+                        $id,
+                        $class,
+                        $interface
+                    )
+                );
+            }
+
+            foreach ($curies as $curie) {
                 $args = [$curie->toString(), new ServiceClosureArgument(new Reference($id))];
                 $locator->addMethodCall('registerHandler', $args);
             }

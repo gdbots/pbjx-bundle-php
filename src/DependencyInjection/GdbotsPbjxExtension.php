@@ -69,7 +69,11 @@ final class GdbotsPbjxExtension extends Extension
         $container->setAlias(Pbjx::class, 'pbjx');
 
         $container->registerForAutoconfiguration(EventSubscriber::class)->addTag('pbjx.event_subscriber');
-        //$container->registerForAutoconfiguration(PbjxHandler::class)->addTag('pbjx.handler');
+        $container->registerForAutoconfiguration('Gdbots\Pbjx\DependencyInjection\PbjxBinder')->addTag('pbjx.binder');
+        $container->registerForAutoconfiguration('Gdbots\Pbjx\DependencyInjection\PbjxValidator')->addTag('pbjx.validator');
+        $container->registerForAutoconfiguration('Gdbots\Pbjx\DependencyInjection\PbjxEnricher')->addTag('pbjx.enricher');
+        $container->registerForAutoconfiguration('Gdbots\Pbjx\DependencyInjection\PbjxHandler')->addTag('pbjx.handler');
+        $container->registerForAutoconfiguration('Gdbots\Pbjx\DependencyInjection\PbjxProjector')->addTag('pbjx.projector');
     }
 
     /**

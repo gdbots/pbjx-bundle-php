@@ -39,14 +39,4 @@ final class CheckHealthHandler implements CommandHandler
             'pbj'        => $event->toArray(),
         ]);
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function handlesCuries(): array
-    {
-        return [
-            HealthCheckedV1::schema()->getCurie(),
-        ];
-    }
 }
