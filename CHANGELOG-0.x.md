@@ -9,6 +9,8 @@ __BREAKING CHANGES__
   services that use those interfaces.  This removes the need to define these unless you
   have customized needs that autowiring doesn't address.
 * Require `"gdbots/pbjx": "^2.1.1"`.
+* Add `x-pbjx-dry-run` header to pbjx endpoint to allow for a command/event to be received
+  and acknowledged but not actually processed.
 
 
 ## v0.2.1
