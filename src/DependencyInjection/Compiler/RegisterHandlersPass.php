@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler;
 
 use Gdbots\Pbj\SchemaCurie;
+use Gdbots\Pbjx\DependencyInjection\PbjxHandler;
 use Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -55,7 +56,8 @@ final class RegisterHandlersPass implements CompilerPassInterface
                 $curies[] = SchemaCurie::fromString($container->getParameterBag()->resolveValue($attribute['curie']));
             }
 
-            $interface = 'Gdbots\Pbjx\DependencyInjection\PbjxHandler';
+            $interface = PbjxHandler::class;
+            /** @var PbjxHandler $class */
             $class = $container->getParameterBag()->resolveValue($def->getClass());
             if (is_subclass_of($class, $interface)) {
                 /** @var SchemaCurie $curie */

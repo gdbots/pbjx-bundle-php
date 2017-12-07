@@ -3,11 +3,12 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Binder;
 
+use Gdbots\Pbjx\DependencyInjection\PbjxBinder;
 use Gdbots\Pbjx\Event\PbjxEvent;
 use Gdbots\Pbjx\EventSubscriber;
 use Gdbots\QueryParser\QueryParser;
 
-final class QueryParsingBinder implements EventSubscriber
+final class QueryParsingBinder implements EventSubscriber, PbjxBinder
 {
     /** @var QueryParser */
     private $queryParser;

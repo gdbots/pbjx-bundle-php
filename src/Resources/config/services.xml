@@ -68,12 +68,12 @@
     <service id="gdbots_pbjx.check_health_handler" class="Gdbots\Bundle\PbjxBundle\CheckHealthHandler">
       <argument type="service" id="logger"/>
       <tag name="monolog.logger" channel="pbjx"/>
-      <tag name="pbjx.handler" curie="gdbots:pbjx:command:check-health"/>
+      <tag name="pbjx.handler"/>
     </service>
 
     <!-- request handlers -->
     <service id="gdbots_pbjx.echo_request_handler" class="Gdbots\Bundle\PbjxBundle\EchoRequestHandler">
-      <tag name="pbjx.handler" curie="gdbots:pbjx:request:echo-request"/>
+      <tag name="pbjx.handler"/>
     </service>
 
   </services>

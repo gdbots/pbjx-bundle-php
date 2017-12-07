@@ -3,6 +3,11 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection;
 
+use Gdbots\Pbjx\DependencyInjection\PbjxBinder;
+use Gdbots\Pbjx\DependencyInjection\PbjxEnricher;
+use Gdbots\Pbjx\DependencyInjection\PbjxHandler;
+use Gdbots\Pbjx\DependencyInjection\PbjxProjector;
+use Gdbots\Pbjx\DependencyInjection\PbjxValidator;
 use Gdbots\Pbjx\EventSubscriber;
 use Gdbots\Pbjx\Pbjx;
 use Symfony\Component\Config\Definition\Processor;
@@ -69,11 +74,11 @@ final class GdbotsPbjxExtension extends Extension
         $container->setAlias(Pbjx::class, 'pbjx');
 
         $container->registerForAutoconfiguration(EventSubscriber::class)->addTag('pbjx.event_subscriber');
-        $container->registerForAutoconfiguration('Gdbots\Pbjx\DependencyInjection\PbjxBinder')->addTag('pbjx.binder');
-        $container->registerForAutoconfiguration('Gdbots\Pbjx\DependencyInjection\PbjxValidator')->addTag('pbjx.validator');
-        $container->registerForAutoconfiguration('Gdbots\Pbjx\DependencyInjection\PbjxEnricher')->addTag('pbjx.enricher');
-        $container->registerForAutoconfiguration('Gdbots\Pbjx\DependencyInjection\PbjxHandler')->addTag('pbjx.handler');
-        $container->registerForAutoconfiguration('Gdbots\Pbjx\DependencyInjection\PbjxProjector')->addTag('pbjx.projector');
+        $container->registerForAutoconfiguration(PbjxBinder::class)->addTag('pbjx.binder');
+        $container->registerForAutoconfiguration(PbjxValidator::class)->addTag('pbjx.validator');
+        $container->registerForAutoconfiguration(PbjxEnricher::class)->addTag('pbjx.enricher');
+        $container->registerForAutoconfiguration(PbjxHandler::class)->addTag('pbjx.handler');
+        $container->registerForAutoconfiguration(PbjxProjector::class)->addTag('pbjx.projector');
     }
 
     /**

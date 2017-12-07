@@ -7,6 +7,7 @@ use Gdbots\Pbjx\CommandHandler;
 use Gdbots\Pbjx\CommandHandlerTrait;
 use Gdbots\Pbjx\Pbjx;
 use Gdbots\Schemas\Pbjx\Command\CheckHealth;
+use Gdbots\Schemas\Pbjx\Command\CheckHealthV1;
 use Gdbots\Schemas\Pbjx\Event\HealthCheckedV1;
 use Psr\Log\LoggerInterface;
 
@@ -38,5 +39,15 @@ final class CheckHealthHandler implements CommandHandler
             'pbj_schema' => $event::schema()->getId()->toString(),
             'pbj'        => $event->toArray(),
         ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function handlesCuries(): array
+    {
+        return [
+            CheckHealthV1::schema()->getCurie(),
+        ];
     }
 }

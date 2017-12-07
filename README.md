@@ -204,13 +204,26 @@ $.ajax({
 
 
 # Controllers
-The recommended way to use Pbjx in a controller is to import the `PbjxAwareControllerTrait` 
-into your controller and use the methods provided.
+The recommended way to use Pbjx in a controller is to use Symfony dependency injection for
+the pbjx services you need and if necessary import the `PbjxControllerTrait` to get 
+helper methods for rendering pbj into twig templates.
+
 
 ```php
 final class ArticleController extends Controller
 {
-    use PbjxAwareControllerTrait;
+    use PbjxControllerTrait;
+    
+    /** @var Pbjx */
+    private $pbjx;
+
+    /**
+     * @param Pbjx $pbjx
+     */
+    public function __construct(Pbjx $pbjx)
+    {
+        $this->pbjx = $pbjx;
+    }
 
     /**
      * @Route("/articles/{article_id}", requirements={"article_id": "^[0-9A-Fa-f]+$"})
@@ -230,7 +243,7 @@ final class ArticleController extends Controller
 }
 ```
 
-### PbjxAwareControllerTrait::renderPbj
+### PbjxControllerTrait::renderPbj
 This is a convenience method that accepts a pbj message and derives the template name 
 using `pbjTemplate` and calls Symfony `render` method.
 
@@ -239,7 +252,7 @@ The template will have `pbj` as a variable which is the message object itself.
 > __TIP:__ {{ pbj }} will dump the message to yaml for easy debugging in twig,
 > or {{ pbj|json_encode(constant('JSON_PRETTY_PRINT')) }}
 
-### PbjxAwareControllerTrait::pbjTemplate
+### PbjxControllerTrait::pbjTemplate
 Returns a reference to a twig template based on the schema of the provided message (pbj schema).  
 This allows for component style development for pbj messages.  You are asking for a template that 
 can render your message (e.g. Article) as a "card", "modal", "page", etc.
@@ -424,12 +437,12 @@ __Example:__
 
 - Acme creates a concrete schema called `acme:blog:command:add-comment` that uses the mixin `widgetco:blog:mixin:add-comment`
 - When pbjx goes to send the command it will look for a handler for `acme:blog:command:add-comment` curie.
-- That service has been autoconfigured by symfony to be a handler and will automatically be called.
+- That service can be [autoconfigured by symfony](https://symfony.com/doc/current/service_container.html#the-autoconfigure-option)
 
 You can still override if you want to extend or replace what widgetco provides by
 implementing your own handler using the `PbjxHandler` interface.
 
-> You can of course provide concrete schemas and implementations in libraries.
+> You can provide concrete schemas and implementations in libraries.
 > There are pros and cons to both strategies, the biggest issue is that the schema
 > is not as easily customized at the application level if the library is not
 > developed using mixins.
