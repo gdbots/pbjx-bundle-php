@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler;
 
+use Gdbots\Pbj\Exception\NoMessageForMixin;
 use Gdbots\Pbj\SchemaCurie;
 use Gdbots\Pbjx\DependencyInjection\PbjxHandler;
 use Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
@@ -60,12 +61,21 @@ final class RegisterHandlersPass implements CompilerPassInterface
             /** @var PbjxHandler $class */
             $class = $container->getParameterBag()->resolveValue($def->getClass());
             if (is_subclass_of($class, $interface)) {
-                /** @var SchemaCurie $curie */
-                foreach ($class::handlesCuries() as $curie) {
-                    $curies[] = $curie;
+                try {
+                    /** @var SchemaCurie $curie */
+                    foreach ($class::handlesCuries() as $curie) {
+                        $curies[] = $curie;
+                    }
+                } catch (NoMessageForMixin $e) {
+                    // ignore, just means the app hasn't implemented anything
+                    // using the mixin that this handler is designed for.
+                } catch (\Throwable $e) {
+                    throw $e;
                 }
             }
 
+            // as of 2017-12-07 we don't deem this to be exception worthy
+            /*
             if (empty($curies)) {
                 throw new \InvalidArgumentException(
                     sprintf(
@@ -77,6 +87,7 @@ final class RegisterHandlersPass implements CompilerPassInterface
                     )
                 );
             }
+            */
 
             foreach ($curies as $curie) {
                 $args = [$curie->toString(), new ServiceClosureArgument(new Reference($id))];
