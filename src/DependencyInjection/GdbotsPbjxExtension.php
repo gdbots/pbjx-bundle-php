@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection;
 
+use Gdbots\Pbjx\EventSubscriber;
 use Gdbots\Pbjx\Pbjx;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\FileLocator;
@@ -66,6 +67,9 @@ final class GdbotsPbjxExtension extends Extension
         }
 
         $container->setAlias(Pbjx::class, 'pbjx');
+
+        $container->registerForAutoconfiguration(EventSubscriber::class)->addTag('pbjx.event_subscriber');
+        //$container->registerForAutoconfiguration(PbjxHandler::class)->addTag('pbjx.handler');
     }
 
     /**

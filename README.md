@@ -412,56 +412,22 @@ that automatically registers handlers for pbjx command and requests.
 
 __Example:__
 
-> Fictional __WidgetCo__ makes widgets for websites by creating mixins and libraries to provide implementations for 
-those mixins.
+> Fictional __WidgetCo__ makes widgets for websites by creating mixins and libraries to 
+> provide implementations for those mixins.
 
 - WidgetCo has a pbj mixin called `widgetco:blog:mixin:add-comment`
-- WidgetCo has a handler called `WidgetCo\Blog\AddCommentHandler`
-- WidgetCo implementation only knows about its mixin
-- WidgetCoBlogBundle provides symfony integration
+- WidgetCo has a handler called `WidgetCo\Blog\AddCommentHandler` that uses marker interface `Gdbots\Pbjx\DependencyInjection\PbjxHandler`.
+- WidgetCo's handler uses the mixins `findOne` or `findAll` method to return all `SchemaCurie` objects it handles.
 
 > Your company __Acme__ now has a blog and wants to use __WidgetCo__ mixins _AND_ the implementation
 > provided by __WidgetCoBlogBundle__.
 
 - Acme creates a concrete schema called `acme:blog:command:add-comment` that uses the mixin `widgetco:blog:mixin:add-comment`
 - When pbjx goes to send the command it will look for a handler for `acme:blog:command:add-comment` curie.
-- That service doesn't exist so you'll get a __"HandlerNotFound"__ exception with message __"ServiceLocator did not find a handler for curie [acme:blog:command:add-comment]"__.
+- That service has been autoconfigured by symfony to be a handler and will automatically be called.
 
-Using the `pbjx.handler` [service tag](http://symfony.com/doc/current/service_container/tags.html)
-allows a library developer to automatically handle your concrete message.  This is made possible
-by processing kernel parameters in the curie attribute of the tag and registering those services
-with the pbjx service locator _(these are lazy-loaded)_ for the provided curie.
-
-__Example service configuration (in library):__
-
-```yaml
-parameters:
-  app_vendor: acme # gdbots/app-bundle provides this automatically
-
-services:
-  widgetco_blog.add_comment_handler:
-    class: WidgetCo\Blog\AddCommentHandler
-    public: false
-    tags:
-      - {name: pbjx.handler, curie: '%app_vendor%:blog:command:add-comment'}
-```
-
-Now pbjx will automatically call the service provided by the library with no additional configuration
-on the acme application.
-
-You can still override if you want to extend or replace what __widgetco_blog.add_comment_handler__ provides.
-
-__Example service configuration (in acme app):__
-
-```yaml
-services:
-  widgetco_blog.add_comment_handler:
-    class: Acme\Blog\AddCommentHandler
-    public: false
-    tags:
-      - {name: pbjx.handler, curie: 'acme:blog:command:add-comment'}
-      # multiple pbjx.handler tags are supported
-```
+You can still override if you want to extend or replace what widgetco provides by
+implementing your own handler using the `PbjxHandler` interface.
 
 > You can of course provide concrete schemas and implementations in libraries.
 > There are pros and cons to both strategies, the biggest issue is that the schema
