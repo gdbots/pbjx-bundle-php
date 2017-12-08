@@ -75,7 +75,7 @@ gdbots_pbjx:
   event_search:
     provider: elastica
     # for multi-tenant applications, configure the field on the messages
-    # that determines what the tenant_id is.  it's value will be used
+    # that determines what the tenant_id is.  The value will be used
     # to populate the "tenant_id" on the context provided to the service.
     #tenant_id_field: account_id # only needed if you actually have a multi-tenant app
     elastica:
@@ -97,10 +97,12 @@ services:
     arguments:
       - '@pbjx'
       - '@gdbots_pbjx.event_store.dynamodb_2pc.inner'
-      - '%env(DISABLE_PBJX_2PC_EVENT_STORE)%'
+      - '%env(PBJX_DISABLE_2PC_EVENT_STORE)%'
     public: false
 
   # If you are using AWS ElasticSearch service, use AwsAuthV4ClientManager
+  # UPDATE as of November 2017, AWS supports ES in a VPC; this is preferable
+  # to using IP rules and/or AwsAuthV4ClientManager.
   gdbots_pbjx.event_search.elastica.client_manager:
     class: Gdbots\Pbjx\EventSearch\Elastica\AwsAuthV4ClientManager
     public: true
@@ -121,7 +123,7 @@ __config/services_local.yml:__
 services:
   monolog_json_formatter:
     class: Monolog\Formatter\JsonFormatter
-    arguments: [!php/const:Monolog\Formatter\JsonFormatter::BATCH_MODE_NEWLINES]
+    arguments: ['!php/const:Monolog\Formatter\JsonFormatter::BATCH_MODE_NEWLINES']
 
 monolog:
   handlers:
@@ -146,7 +148,7 @@ __Example security configuration:__
 ```yaml
 # see http://symfony.com/doc/current/security/voters.html
 pbjx_permission_voter:
-  class: AppBundle\Security\PbjxPermissionVoter
+  class: App\Security\PbjxPermissionVoter
   public: false
   arguments: ['@security.access.decision_manager']
   tags:
@@ -204,13 +206,26 @@ $.ajax({
 
 
 # Controllers
-The recommended way to use Pbjx in a controller is to import the `PbjxAwareControllerTrait` 
-into your controller and use the methods provided.
+The recommended way to use Pbjx in a controller is to use Symfony dependency injection for
+the pbjx services you need and if necessary import the `PbjxControllerTrait` to get 
+helper methods for rendering pbj into twig templates.
+
 
 ```php
 final class ArticleController extends Controller
 {
-    use PbjxAwareControllerTrait;
+    use PbjxControllerTrait;
+    
+    /** @var Pbjx */
+    private $pbjx;
+
+    /**
+     * @param Pbjx $pbjx
+     */
+    public function __construct(Pbjx $pbjx)
+    {
+        $this->pbjx = $pbjx;
+    }
 
     /**
      * @Route("/articles/{article_id}", requirements={"article_id": "^[0-9A-Fa-f]+$"})
@@ -224,28 +239,28 @@ final class ArticleController extends Controller
     public function getAction(Request $request): Response
     {
         $getArticleRequest = GetArticleRequestV1::create()->set('article_id', $request->attributes->get('article_id'));
-        $getArticleResponse = $this->getPbjx()->request($getArticleRequest);
+        $getArticleResponse = $this->pbjx->request($getArticleRequest);
         return $this->renderPbj($getArticleResponse);
     }
 }
 ```
 
-### PbjxAwareControllerTrait::renderPbj
+### PbjxControllerTrait::renderPbj
 This is a convenience method that accepts a pbj message and derives the template name 
-using `pbjTemplate` and calls Symfony `render` method.
+using `pbjTemplate` and calls Symfony's `render` method (from framework bundle `Controller`).
 
 The template will have `pbj` as a variable which is the message object itself.
 
 > __TIP:__ {{ pbj }} will dump the message to yaml for easy debugging in twig,
 > or {{ pbj|json_encode(constant('JSON_PRETTY_PRINT')) }}
 
-### PbjxAwareControllerTrait::pbjTemplate
+### PbjxControllerTrait::pbjTemplate
 Returns a reference to a twig template based on the schema of the provided message (pbj schema).  
 This allows for component style development for pbj messages.  You are asking for a template that 
 can render your message (e.g. Article) as a "card", "modal", "page", etc.
 
 > This can be combined with __gdbots/app-bundle__ `DeviceViewRendererTrait::renderUsingDeviceView`
-> _(renderPbj* methods do this)_.
+> _(the renderPbj method does this automatically)_.
 
 What you end up with is a [namespaced path](http://symfony.com/doc/current/templating/namespaced_paths.html) 
 reference to a template which conforms to the [Symfony template naming best practices](http://symfony.com/doc/current/best_practices/templates.html#template-locations).
@@ -405,65 +420,31 @@ Pbj has a concept of [mixins](https://github.com/gdbots/pbjc-php) which is just 
 be added to other schemas.  This strategy is useful for creating consistent data structures and 
 allowing for library development to be done against mixins and not concrete schemas.
 
-> A mixin cannot be used by itself to create messages, it must be added to a schema.
+> A mixin cannot be used by itself to create messages, it must be added to a schema that is NOT a mixin.
 
 This bundle provides a [compiler pass](http://symfony.com/doc/current/service_container/compiler_passes.html)
 that automatically registers handlers for pbjx command and requests.
 
 __Example:__
 
-> Fictional __WidgetCo__ makes widgets for websites by creating mixins and libraries to provide implementations for 
-those mixins.
+> Fictional __WidgetCo__ makes widgets for websites by creating mixins and libraries to 
+> provide implementations for those mixins.
 
-- WidgetCo has a pbj mixin called `widgetco:blog:mixin:add-comment`
-- WidgetCo has a handler called `WidgetCo\Blog\AddCommentHandler`
-- WidgetCo implementation only knows about its mixin
-- WidgetCoBlogBundle provides symfony integration
+- WidgetCo has a mixin called `widgetco:blog:mixin:add-comment`
+- WidgetCo has a handler called `WidgetCo\Blog\AddCommentHandler` that uses marker interface `Gdbots\Pbjx\DependencyInjection\PbjxHandler`.
+- WidgetCo's handler uses the mixins `findOne` or `findAll` method to return all `SchemaCurie` objects it can handle.
 
 > Your company __Acme__ now has a blog and wants to use __WidgetCo__ mixins _AND_ the implementation
 > provided by __WidgetCoBlogBundle__.
 
 - Acme creates a concrete schema called `acme:blog:command:add-comment` that uses the mixin `widgetco:blog:mixin:add-comment`
-- When pbjx goes to send the command it will look for a handler for `acme:blog:command:add-comment` curie.
-- That service doesn't exist so you'll get a __"HandlerNotFound"__ exception with message __"ServiceLocator did not find a handler for curie [acme:blog:command:add-comment]"__.
+- When pbjx sends the command it will look for a service to handle `acme:blog:command:add-comment` curie.
+- The service can be [autoconfigured by symfony](https://symfony.com/doc/current/service_container.html#the-autoconfigure-option)
 
-Using the `pbjx.handler` [service tag](http://symfony.com/doc/current/service_container/tags.html)
-allows a library developer to automatically handle your concrete message.  This is made possible
-by processing kernel parameters in the curie attribute of the tag and registering those services
-with the pbjx service locator _(these are lazy-loaded)_ for the provided curie.
+You can still override if you want to extend or replace what widgetco provides by
+implementing your own handler using the `PbjxHandler` interface.
 
-__Example service configuration (in library):__
-
-```yaml
-parameters:
-  app_vendor: acme # gdbots/app-bundle provides this automatically
-
-services:
-  widgetco_blog.add_comment_handler:
-    class: WidgetCo\Blog\AddCommentHandler
-    public: false
-    tags:
-      - {name: pbjx.handler, curie: '%app_vendor%:blog:command:add-comment'}
-```
-
-Now pbjx will automatically call the service provided by the library with no additional configuration
-on the acme application.
-
-You can still override if you want to extend or replace what __widgetco_blog.add_comment_handler__ provides.
-
-__Example service configuration (in acme app):__
-
-```yaml
-services:
-  widgetco_blog.add_comment_handler:
-    class: Acme\Blog\AddCommentHandler
-    public: false
-    tags:
-      - {name: pbjx.handler, curie: 'acme:blog:command:add-comment'}
-      # multiple pbjx.handler tags are supported
-```
-
-> You can of course provide concrete schemas and implementations in libraries.
+> You can provide concrete schemas and implementations in libraries.
 > There are pros and cons to both strategies, the biggest issue is that the schema
 > is not as easily customized at the application level if the library is not
 > developed using mixins.

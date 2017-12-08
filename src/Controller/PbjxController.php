@@ -163,6 +163,17 @@ final class PbjxController
             return $envelope;
         }
 
+        // allows for functional tests/postman tests/etc. to post pbjx but
+        // not actually run them.  this is most important for commands/events
+        // which can change state but for request, you'd typically not use
+        // dry run because you need to get a response in order to make assertions.
+        if ($request->headers->has('x-pbjx-dry-run')) {
+            return $envelope
+                ->set('code', Code::OK)
+                ->set('http_code', HttpCode::HTTP_ACCEPTED())
+                ->set('message_ref', $message->generateMessageRef());
+        }
+
         if ($message instanceof Command) {
             return $this->handleCommand($envelope, $request, $message);
         }

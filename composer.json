@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "require": {
     "php": ">=7.1",
-    "gdbots/pbjx": "^2.1",
+    "gdbots/pbjx": "^2.1.1",
     "symfony/console": "^4.0",
     "symfony/framework-bundle": "^4.0",
     "twig/twig": "^2.4"
@@ -31,7 +31,7 @@
   },
   "extra": {
     "branch-alias": {
-      "dev-master": "0.2.x-dev"
+      "dev-master": "0.3.x-dev"
     }
   }
 }

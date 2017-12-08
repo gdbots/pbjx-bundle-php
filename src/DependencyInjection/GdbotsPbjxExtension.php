@@ -3,6 +3,12 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection;
 
+use Gdbots\Pbjx\DependencyInjection\PbjxBinder;
+use Gdbots\Pbjx\DependencyInjection\PbjxEnricher;
+use Gdbots\Pbjx\DependencyInjection\PbjxHandler;
+use Gdbots\Pbjx\DependencyInjection\PbjxProjector;
+use Gdbots\Pbjx\DependencyInjection\PbjxValidator;
+use Gdbots\Pbjx\EventSubscriber;
 use Gdbots\Pbjx\Pbjx;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\FileLocator;
@@ -66,6 +72,13 @@ final class GdbotsPbjxExtension extends Extension
         }
 
         $container->setAlias(Pbjx::class, 'pbjx');
+
+        $container->registerForAutoconfiguration(EventSubscriber::class)->addTag('pbjx.event_subscriber');
+        $container->registerForAutoconfiguration(PbjxBinder::class)->addTag('pbjx.binder');
+        $container->registerForAutoconfiguration(PbjxValidator::class)->addTag('pbjx.validator');
+        $container->registerForAutoconfiguration(PbjxEnricher::class)->addTag('pbjx.enricher');
+        $container->registerForAutoconfiguration(PbjxHandler::class)->addTag('pbjx.handler');
+        $container->registerForAutoconfiguration(PbjxProjector::class)->addTag('pbjx.projector');
     }
 
     /**

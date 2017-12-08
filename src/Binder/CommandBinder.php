@@ -4,12 +4,13 @@ declare(strict_types=1);
 namespace Gdbots\Bundle\PbjxBundle\Binder;
 
 use Gdbots\Pbj\Field;
+use Gdbots\Pbjx\DependencyInjection\PbjxBinder;
 use Gdbots\Pbjx\Event\PbjxEvent;
 use Gdbots\Pbjx\EventSubscriber;
 use Gdbots\Schemas\Pbjx\Mixin\Command\Command;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-final class CommandBinder implements EventSubscriber
+final class CommandBinder implements EventSubscriber, PbjxBinder
 {
     use MessageBinderTrait;
 

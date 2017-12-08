@@ -2,6 +2,18 @@
 This changelog references the relevant changes done in 0.x versions.
 
 
+## v0.3.0
+__BREAKING CHANGES__
+
+* Require `"gdbots/pbjx": "^2.1.1"`.
+* Embrace Symfony autoconfigure by using the Pbjx marker interfaces to automatically tag
+  services that use those interfaces.  This removes the need to define these in your app
+  unless you have customized needs that autoconfigure/autowiring doesn't address.
+* Add `x-pbjx-dry-run` header to pbjx endpoint to allow for a command/event to be received
+  and acknowledged but not actually processed.
+* `PbjxAwareControllerTrait` renamed to `PbjxControllerTrait` and the `getPbjx` method was removed.
+
+
 ## v0.2.1
 * Fix bug with `RunGearmanConsumerCommand` requesting private logger service.
 

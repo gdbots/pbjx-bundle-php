@@ -4,10 +4,9 @@ declare(strict_types=1);
 namespace Gdbots\Bundle\PbjxBundle\Controller;
 
 use Gdbots\Pbj\Message;
-use Gdbots\Pbjx\Pbjx;
 use Symfony\Component\HttpFoundation\Response;
 
-trait PbjxAwareControllerTrait
+trait PbjxControllerTrait
 {
     /**
      * Renders the provided message (pbj) using a template which is resolved by calling
@@ -45,6 +44,7 @@ trait PbjxAwareControllerTrait
      * E.g. return $this->renderUsingDeviceView($this->pbjTemplate($pbj, 'page%device_view%'), ['pbj' => $pbj]);
      *
      * This depends on twig namespaced paths, not bundle naming conventions.
+     *
      * @link http://symfony.com/doc/current/templating/namespaced_paths.html
      *
      * @param Message $pbj
@@ -62,13 +62,5 @@ trait PbjxAwareControllerTrait
 
         // example: @acme_users/request/search_users_response/page.html.twig
         return "@{$path}/{$template}.{$format}.twig";
-    }
-
-    /**
-     * @return Pbjx
-     */
-    protected function getPbjx(): Pbjx
-    {
-        return $this->container->get('pbjx');
     }
 }

@@ -62,11 +62,14 @@ trait MessageBinderTrait
             return;
         }
 
-        $app = AppV1::create()
-            ->set('vendor', $this->container->getParameter('app_vendor') ?: null)
-            ->set('name', $this->container->getParameter('app_name') . '-php.console')
-            ->set('version', $this->container->getParameter('app_version') ?: null)
-            ->set('build', $this->container->getParameter('app_build') ?: null);
+        static $app = null;
+        if (null === $app) {
+            $app = AppV1::create()
+                ->set('vendor', $this->container->getParameter('app_vendor') ?: null)
+                ->set('name', $this->container->getParameter('app_name') . '-php.console')
+                ->set('version', $this->container->getParameter('app_version') ?: null)
+                ->set('build', $this->container->getParameter('app_build') ?: null);
+        }
 
         $message->set('ctx_app', $app);
     }
@@ -82,12 +85,15 @@ trait MessageBinderTrait
             return;
         }
 
-        $cloud = CloudV1::create()
-            ->set('provider', $this->container->getParameter('cloud_provider') ?: null)
-            ->set('region', $this->container->getParameter('cloud_region') ?: null)
-            ->set('zone', $this->container->getParameter('cloud_zone') ?: null)
-            ->set('instance_id', $this->container->getParameter('cloud_instance_id') ?: null)
-            ->set('instance_type', $this->container->getParameter('cloud_instance_type') ?: null);
+        static $cloud = null;
+        if (null === $cloud) {
+            $cloud = CloudV1::create()
+                ->set('provider', $this->container->getParameter('cloud_provider') ?: null)
+                ->set('region', $this->container->getParameter('cloud_region') ?: null)
+                ->set('zone', $this->container->getParameter('cloud_zone') ?: null)
+                ->set('instance_id', $this->container->getParameter('cloud_instance_id') ?: null)
+                ->set('instance_type', $this->container->getParameter('cloud_instance_type') ?: null);
+        }
 
         $message->set('ctx_cloud', $cloud);
     }

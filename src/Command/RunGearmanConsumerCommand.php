@@ -19,7 +19,7 @@ final class RunGearmanConsumerCommand extends ContainerAwareCommand
      */
     public function __construct(LoggerInterface $logger)
     {
-        parent::__construct(null);
+        parent::__construct();
         $this->logger = $logger;
     }
 
