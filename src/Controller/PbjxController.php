@@ -164,7 +164,7 @@ final class PbjxController
         }
 
         // allows for functional tests/postman tests/etc. to post pbjx but
-        // not actually run them.  this is most import for commands/events
+        // not actually run them.  this is most important for commands/events
         // which can change state but for request, you'd typically not use
         // dry run because you need to get a response in order to make assertions.
         if ($request->headers->has('x-pbjx-dry-run')) {
