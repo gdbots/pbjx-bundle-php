@@ -75,7 +75,7 @@ gdbots_pbjx:
   event_search:
     provider: elastica
     # for multi-tenant applications, configure the field on the messages
-    # that determines what the tenant_id is.  it's value will be used
+    # that determines what the tenant_id is.  The value will be used
     # to populate the "tenant_id" on the context provided to the service.
     #tenant_id_field: account_id # only needed if you actually have a multi-tenant app
     elastica:
@@ -97,10 +97,12 @@ services:
     arguments:
       - '@pbjx'
       - '@gdbots_pbjx.event_store.dynamodb_2pc.inner'
-      - '%env(DISABLE_PBJX_2PC_EVENT_STORE)%'
+      - '%env(PBJX_DISABLE_2PC_EVENT_STORE)%'
     public: false
 
   # If you are using AWS ElasticSearch service, use AwsAuthV4ClientManager
+  # UPDATE as of November 2017, AWS supports ES in a VPC; this is preferable
+  # to using IP rules and/or AwsAuthV4ClientManager.
   gdbots_pbjx.event_search.elastica.client_manager:
     class: Gdbots\Pbjx\EventSearch\Elastica\AwsAuthV4ClientManager
     public: true
@@ -121,7 +123,7 @@ __config/services_local.yml:__
 services:
   monolog_json_formatter:
     class: Monolog\Formatter\JsonFormatter
-    arguments: [!php/const:Monolog\Formatter\JsonFormatter::BATCH_MODE_NEWLINES]
+    arguments: ['!php/const:Monolog\Formatter\JsonFormatter::BATCH_MODE_NEWLINES']
 
 monolog:
   handlers:
@@ -146,7 +148,7 @@ __Example security configuration:__
 ```yaml
 # see http://symfony.com/doc/current/security/voters.html
 pbjx_permission_voter:
-  class: AppBundle\Security\PbjxPermissionVoter
+  class: App\Security\PbjxPermissionVoter
   public: false
   arguments: ['@security.access.decision_manager']
   tags:
@@ -237,7 +239,7 @@ final class ArticleController extends Controller
     public function getAction(Request $request): Response
     {
         $getArticleRequest = GetArticleRequestV1::create()->set('article_id', $request->attributes->get('article_id'));
-        $getArticleResponse = $this->getPbjx()->request($getArticleRequest);
+        $getArticleResponse = $this->pbjx->request($getArticleRequest);
         return $this->renderPbj($getArticleResponse);
     }
 }
@@ -245,7 +247,7 @@ final class ArticleController extends Controller
 
 ### PbjxControllerTrait::renderPbj
 This is a convenience method that accepts a pbj message and derives the template name 
-using `pbjTemplate` and calls Symfony `render` method.
+using `pbjTemplate` and calls Symfony's `render` method (from framework bundle `Controller`).
 
 The template will have `pbj` as a variable which is the message object itself.
 
@@ -258,7 +260,7 @@ This allows for component style development for pbj messages.  You are asking fo
 can render your message (e.g. Article) as a "card", "modal", "page", etc.
 
 > This can be combined with __gdbots/app-bundle__ `DeviceViewRendererTrait::renderUsingDeviceView`
-> _(renderPbj* methods do this)_.
+> _(the renderPbj method does this automatically)_.
 
 What you end up with is a [namespaced path](http://symfony.com/doc/current/templating/namespaced_paths.html) 
 reference to a template which conforms to the [Symfony template naming best practices](http://symfony.com/doc/current/best_practices/templates.html#template-locations).
@@ -418,7 +420,7 @@ Pbj has a concept of [mixins](https://github.com/gdbots/pbjc-php) which is just 
 be added to other schemas.  This strategy is useful for creating consistent data structures and 
 allowing for library development to be done against mixins and not concrete schemas.
 
-> A mixin cannot be used by itself to create messages, it must be added to a schema.
+> A mixin cannot be used by itself to create messages, it must be added to a schema that is NOT a mixin.
 
 This bundle provides a [compiler pass](http://symfony.com/doc/current/service_container/compiler_passes.html)
 that automatically registers handlers for pbjx command and requests.
@@ -428,16 +430,16 @@ __Example:__
 > Fictional __WidgetCo__ makes widgets for websites by creating mixins and libraries to 
 > provide implementations for those mixins.
 
-- WidgetCo has a pbj mixin called `widgetco:blog:mixin:add-comment`
+- WidgetCo has a mixin called `widgetco:blog:mixin:add-comment`
 - WidgetCo has a handler called `WidgetCo\Blog\AddCommentHandler` that uses marker interface `Gdbots\Pbjx\DependencyInjection\PbjxHandler`.
-- WidgetCo's handler uses the mixins `findOne` or `findAll` method to return all `SchemaCurie` objects it handles.
+- WidgetCo's handler uses the mixins `findOne` or `findAll` method to return all `SchemaCurie` objects it can handle.
 
 > Your company __Acme__ now has a blog and wants to use __WidgetCo__ mixins _AND_ the implementation
 > provided by __WidgetCoBlogBundle__.
 
 - Acme creates a concrete schema called `acme:blog:command:add-comment` that uses the mixin `widgetco:blog:mixin:add-comment`
-- When pbjx goes to send the command it will look for a handler for `acme:blog:command:add-comment` curie.
-- That service can be [autoconfigured by symfony](https://symfony.com/doc/current/service_container.html#the-autoconfigure-option)
+- When pbjx sends the command it will look for a service to handle `acme:blog:command:add-comment` curie.
+- The service can be [autoconfigured by symfony](https://symfony.com/doc/current/service_container.html#the-autoconfigure-option)
 
 You can still override if you want to extend or replace what widgetco provides by
 implementing your own handler using the `PbjxHandler` interface.
