@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+  <services>
+    <service id="gdbots_pbjx.scheduler.dynamodb" class="%gdbots_pbjx.scheduler.dynamodb.class%" public="true">
+      <argument type="service" id="aws.dynamodb" on-invalid="ignore"/>
+      <argument>%gdbots_pbjx.scheduler.dynamodb.table_name%</argument>
+      <argument type="service" id="aws.sfn" on-invalid="ignore"/>
+      <argument>%gdbots_pbjx.scheduler.dynamodb.state_machine_arn%</argument>
+      <argument type="service" id="logger" on-invalid="ignore"/>
+      <tag name="monolog.logger" channel="pbjx.scheduler"/>
+    </service>
+  </services>
+
+</container>
