@@ -3,7 +3,13 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection;
 
+use Gdbots\Bundle\PbjxBundle\ContainerAwareServiceLocator;
+use Gdbots\Pbjx\EventSearch\Elastica\ElasticaEventSearch;
+use Gdbots\Pbjx\EventSearch\Elastica\IndexManager;
+use Gdbots\Pbjx\EventStore\DynamoDb\DynamoDbEventStore;
 use Gdbots\Pbjx\EventStore\DynamoDb\EventStoreTable;
+use Gdbots\Pbjx\Scheduler\DynamoDb\DynamoDbScheduler;
+use Gdbots\Pbjx\Scheduler\DynamoDb\SchedulerTable;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -34,7 +40,7 @@ final class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('class')
-                            ->defaultValue('Gdbots\Bundle\PbjxBundle\ContainerAwareServiceLocator')
+                            ->defaultValue(ContainerAwareServiceLocator::class)
                         ->end()
                     ->end()
                 ->end()
@@ -129,6 +135,15 @@ final class Configuration implements ConfigurationInterface
                         ->append($this->getElasticaEventSearchConfigTree())
                     ->end()
                 ->end()
+                ->arrayNode('scheduler')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('provider')
+                            ->defaultNull()
+                        ->end()
+                        ->append($this->getDynamoDbSchedulerConfigTree())
+                    ->end()
+                ->end()
             ->end()
         ;
 
@@ -190,7 +205,7 @@ final class Configuration implements ConfigurationInterface
             ->addDefaultsIfNotSet()
             ->children()
                 ->scalarNode('class')
-                    ->defaultValue('Gdbots\Pbjx\EventStore\DynamoDb\DynamoDbEventStore')
+                    ->defaultValue(DynamoDbEventStore::class)
                 ->end()
                 ->scalarNode('table_name')
                     ->defaultValue("{$this->env}-event-store-".EventStoreTable::SCHEMA_VERSION)
@@ -225,13 +240,13 @@ final class Configuration implements ConfigurationInterface
             ->fixXmlConfig('cluster')
             ->children()
                 ->scalarNode('class')
-                    ->defaultValue('Gdbots\Pbjx\EventSearch\Elastica\ElasticaEventSearch')
+                    ->defaultValue(ElasticaEventSearch::class)
                 ->end()
                 ->arrayNode('index_manager')
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('class')
-                            ->defaultValue('Gdbots\Pbjx\EventSearch\Elastica\IndexManager')
+                            ->defaultValue(IndexManager::class)
                         ->end()
                         ->scalarNode('index_prefix')
                             ->defaultValue("{$this->env}-events")
@@ -292,6 +307,33 @@ final class Configuration implements ConfigurationInterface
                             ->end()
                         ->end()
                     ->end()
+                ->end()
+            ->end()
+        ;
+
+        return $node;
+    }
+
+
+    /**
+     * @return NodeDefinition
+     */
+    protected function getDynamoDbSchedulerConfigTree(): NodeDefinition
+    {
+        $treeBuilder = new TreeBuilder();
+        $node = $treeBuilder->root('dynamodb');
+
+        $node
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->scalarNode('class')
+                    ->defaultValue(DynamoDbScheduler::class)
+                ->end()
+                ->scalarNode('table_name')
+                    ->defaultValue("{$this->env}-scheduler-".SchedulerTable::SCHEMA_VERSION)
+                ->end()
+                ->scalarNode('state_machine_arn')
+                    ->isRequired()
                 ->end()
             ->end()
         ;

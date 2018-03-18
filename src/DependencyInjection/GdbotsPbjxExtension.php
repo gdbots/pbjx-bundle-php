@@ -33,6 +33,7 @@ final class GdbotsPbjxExtension extends Extension
         $loader->load('event_store.xml');
         $loader->load('http.xml');
         $loader->load('services.xml');
+        $loader->load('scheduler.xml');
         $loader->load('transport.xml');
         $loader->load('twig.xml');
 
@@ -69,6 +70,11 @@ final class GdbotsPbjxExtension extends Extension
             $this->configureElasticaEventSearch($config, $container, $config['event_search']['provider']);
         } else {
             $container->removeDefinition('gdbots_pbjx.event_search.event_indexer');
+        }
+
+        if (isset($config['scheduler'])) {
+            $container->setParameter('gdbots_pbjx.scheduler.provider', $config['scheduler']['provider']);
+            $this->configureDynamoDbScheduler($config, $container, $config['scheduler']['provider']);
         }
 
         $container->setAlias(Pbjx::class, 'pbjx');
@@ -158,5 +164,22 @@ final class GdbotsPbjxExtension extends Extension
         }
         $container->setParameter('gdbots_pbjx.event_search.elastica.query_timeout', $config['event_search']['elastica']['query_timeout']);
         $container->setParameter('gdbots_pbjx.event_search.elastica.clusters', $config['event_search']['elastica']['clusters']);
+    }
+
+    /**
+     * @param array            $config
+     * @param ContainerBuilder $container
+     * @param string           $provider
+     */
+    protected function configureDynamoDbScheduler(array $config, ContainerBuilder $container, ?string $provider): void
+    {
+        if (!isset($config['scheduler']['dynamodb']) || 'dynamodb' !== $provider) {
+            $container->removeDefinition('gdbots_pbjx.scheduler.dynamodb');
+            return;
+        }
+
+        $container->setParameter('gdbots_pbjx.scheduler.dynamodb.class', $config['scheduler']['dynamodb']['class']);
+        $container->setParameter('gdbots_pbjx.scheduler.dynamodb.table_name', $config['scheduler']['dynamodb']['table_name']);
+        $container->setParameter('gdbots_pbjx.scheduler.dynamodb.state_machine_arn', $config['scheduler']['dynamodb']['state_machine_arn']);
     }
 }

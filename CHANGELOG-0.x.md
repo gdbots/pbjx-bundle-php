@@ -2,6 +2,10 @@
 This changelog references the relevant changes done in 0.x versions.
 
 
+## v0.3.1
+* Add configuration and support for optional Pbjx Scheduler service.
+
+
 ## v0.3.0
 __BREAKING CHANGES__
 

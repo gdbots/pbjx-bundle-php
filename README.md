@@ -87,6 +87,11 @@ gdbots_pbjx:
       index_manager:
         # to customize index mapping
         class: Acme\Pbjx\EventSearch\Elastica\IndexManager
+  scheduler:
+    provider: dynamodb
+    dynamodb:
+      table_name: acme-scheduler # defaults to: "%kernel.environment%-scheduler-".SchedulerTable::SCHEMA_VERSION
+      state_machine_arn: 'arn:aws:states:%cloud_region%:%aws_account_id%:stateMachine:acme-%kernel.environment%-pbjx-scheduler'
 
 # typically these would be in services.yml file.
 services:

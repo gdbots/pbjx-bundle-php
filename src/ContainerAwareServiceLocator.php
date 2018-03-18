@@ -15,6 +15,7 @@ use Gdbots\Pbjx\ExceptionHandler;
 use Gdbots\Pbjx\Pbjx;
 use Gdbots\Pbjx\RequestBus;
 use Gdbots\Pbjx\RequestHandler;
+use Gdbots\Pbjx\Scheduler\Scheduler;
 use Gdbots\Pbjx\SimpleCommandBus;
 use Gdbots\Pbjx\SimpleEventBus;
 use Gdbots\Pbjx\SimpleRequestBus;
@@ -122,6 +123,15 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
     {
         $provider = $this->container->getParameter('gdbots_pbjx.event_search.provider');
         return $this->container->get('gdbots_pbjx.event_search.' . $provider);
+    }
+
+    /**
+     * @return Scheduler
+     */
+    protected function doGetScheduler(): Scheduler
+    {
+        $provider = $this->container->getParameter('gdbots_pbjx.scheduler.provider');
+        return $this->container->get('gdbots_pbjx.scheduler.' . $provider);
     }
 
     /**
