@@ -131,7 +131,7 @@ final class PbjxController
                     )
                 );
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $envelope
                 ->set('code', Code::INVALID_ARGUMENT)
                 ->set('http_code', HttpCode::HTTP_UNPROCESSABLE_ENTITY())
@@ -146,7 +146,7 @@ final class PbjxController
             /** @var Command|Event|PbjxRequest $message */
             $message = $class::fromArray($data);
             $message->set('ctx_correlator_ref', $envelope->generateMessageRef());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $envelope
                 ->set('code', Code::INVALID_ARGUMENT)
                 ->set('http_code', HttpCode::HTTP_UNPROCESSABLE_ENTITY())
@@ -208,7 +208,7 @@ final class PbjxController
     {
         try {
             $this->pbjx->send($command);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->handleException($envelope, $request, $command, $e);
         }
 
@@ -235,7 +235,7 @@ final class PbjxController
     {
         try {
             $this->pbjx->publish($event);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->handleException($envelope, $request, $event, $e);
         }
 
@@ -262,7 +262,7 @@ final class PbjxController
     {
         try {
             $response = $this->pbjx->request($pbjxRequest);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->handleException($envelope, $request, $pbjxRequest, $e);
         }
 
@@ -278,11 +278,11 @@ final class PbjxController
      * @param Envelope   $envelope
      * @param Request    $request
      * @param Message    $message
-     * @param \Exception $exception
+     * @param \Throwable $exception
      *
      * @return Envelope
      */
-    private function handleException(Envelope $envelope, Request $request, Message $message, \Exception $exception): Envelope
+    private function handleException(Envelope $envelope, Request $request, Message $message, \Throwable $exception): Envelope
     {
         if ($exception instanceof HasEndUserMessage) {
             $code = $exception->getCode();

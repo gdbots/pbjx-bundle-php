@@ -166,9 +166,9 @@ final class PbjxReceiveController
 
     /**
      * @param array      $result
-     * @param \Exception $exception
+     * @param \Throwable $exception
      */
-    private function handleException(array &$result, \Exception $exception): void
+    private function handleException(array &$result, \Throwable $exception): void
     {
         if ($exception instanceof HasEndUserMessage) {
             $code = $exception->getCode();

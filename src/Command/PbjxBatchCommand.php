@@ -273,7 +273,7 @@ EOF
                 if (!$skipInvalid) {
                     break;
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $io->error(sprintf('%d. %s', $i, $e->getMessage()));
                 $io->newLine(2);
                 if (!$skipErrors) {

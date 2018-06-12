@@ -141,7 +141,7 @@ EOF
 
         try {
             $this->getPbjx()->triggerLifecycle($envelope, false);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             /*
              * write to std error but return payload as is.  Decorating the envelope
              * is not typically an exception worthy condition.

@@ -2,6 +2,10 @@
 This changelog references the relevant changes done in 0.x versions.
 
 
+## v0.3.2
+* Use `Throwable` interface in place of all `Exception` typehints.
+
+
 ## v0.3.1
 * Add configuration and support for optional Pbjx Scheduler service.
 

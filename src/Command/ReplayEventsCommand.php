@@ -187,7 +187,7 @@ EOF
                 }
 
                 ++$replayed;
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $io->error(sprintf('%d. %s', $i, $e->getMessage()));
                 $io->note(sprintf('%d. Failed event "%s" json below:', $i, $event->get('event_id')));
                 $io->text(json_encode($event, JSON_PRETTY_PRINT));

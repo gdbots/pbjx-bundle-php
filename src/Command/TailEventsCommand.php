@@ -97,7 +97,7 @@ EOF
             foreach ($slice as $event) {
                 try {
                     echo json_encode($event) . PHP_EOL;
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     $errOutput->writeln($e->getMessage());
                 }
             }

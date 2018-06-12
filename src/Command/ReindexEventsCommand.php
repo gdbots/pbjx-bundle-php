@@ -228,7 +228,7 @@ EOF
         } else {
             try {
                 $this->getPbjx()->getEventSearch()->indexEvents($events, $context);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $io->error($e->getMessage());
                 $io->note(sprintf('Failed to index batch %d.', $batch));
                 $io->newLine(2);

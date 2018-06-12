@@ -49,7 +49,7 @@ final class EnvelopeListener
 
         try {
             $this->pbjx->triggerLifecycle($envelope, false);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->error('Error running pbjx->triggerLifecycle on envelope.', ['exception' => $e]);
         }
 
@@ -105,7 +105,7 @@ final class EnvelopeListener
     {
         try {
             $code = Code::create($envelope->get('code'))->getName();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $code = $envelope->get('code');
         }
 
