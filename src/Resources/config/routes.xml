@@ -4,7 +4,7 @@
     xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
 
   <route id="pbjx" path="/{pbjx_vendor}/{pbjx_package}/{pbjx_category}/{pbjx_message}">
-    <default key="_controller">gdbots_pbjx.pbjx_controller:handleAction</default>
+    <default key="_controller">gdbots_pbjx.pbjx_controller::handleAction</default>
     <requirement key="pbjx_vendor">[a-z0-9-]+</requirement>
     <requirement key="pbjx_package">[a-z0-9\.-]+</requirement>
     <requirement key="pbjx_category">([a-z0-9_-]+)?</requirement>
@@ -12,7 +12,7 @@
   </route>
 
   <route id="pbjx_receive" path="/receive" methods="POST">
-    <default key="_controller">gdbots_pbjx.pbjx_receive_controller:receiveAction</default>
+    <default key="_controller">gdbots_pbjx.pbjx_receive_controller::receiveAction</default>
   </route>
 
 </routes>

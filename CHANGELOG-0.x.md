@@ -2,6 +2,10 @@
 This changelog references the relevant changes done in 0.x versions.
 
 
+## v0.3.3
+* Use two colons for route config as single is deprecated since Symfony 4.1.
+
+
 ## v0.3.2
 * Use `Throwable` interface in place of all `Exception` typehints.
 
