@@ -119,6 +119,9 @@ final class PbjxExtension extends \Twig_Extension
                 throw new InvalidArgumentException(sprintf('The provided curie [%s] is not a request.', $curie));
             }
 
+            // ensures permission check is bypassed
+            $request->set('ctx_causator_ref', $request->generateMessageRef());
+
             $response = $this->pbjx->request($request);
             if (!$response->has('ctx_request')) {
                 $response->set('ctx_request', $request);
@@ -130,7 +133,7 @@ final class PbjxExtension extends \Twig_Extension
                 throw $e;
             }
 
-            $this->logger->error(
+            $this->logger->warning(
                 'Unable to process twig "pbjx_request" function for [{curie}].',
                 ['exception' => $e, 'curie' => $curie, 'data' => $data]
             );
