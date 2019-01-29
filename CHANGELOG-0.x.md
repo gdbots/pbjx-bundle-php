@@ -2,6 +2,11 @@
 This changelog references the relevant changes done in 0.x versions.
 
 
+## v0.3.5
+* Require `"gdbots/uri-template": "~0.2"`.
+* Add Twig function `pbj_url` and `uri_template_expand`.
+
+
 ## v0.3.4
 * Ensure permission check is bypassed when pbjx requests are executed through the twig extension.
 
