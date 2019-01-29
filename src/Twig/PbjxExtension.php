@@ -10,6 +10,7 @@ use Gdbots\Pbjx\Exception\InvalidArgumentException;
 use Gdbots\Pbjx\Pbjx;
 use Gdbots\Schemas\Pbjx\Mixin\Request\Request;
 use Gdbots\Schemas\Pbjx\Mixin\Response\Response;
+use Gdbots\UriTemplate\UriTemplateService;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -43,7 +44,9 @@ final class PbjxExtension extends \Twig_Extension
     {
         return [
             new \Twig_SimpleFunction('pbj_template', [$this, 'pbjTemplate']),
+            new \Twig_SimpleFunction('pbj_url', [$this, 'pbjUrl']),
             new \Twig_SimpleFunction('pbjx_request', [$this, 'pbjxRequest']),
+            new \Twig_SimpleFunction('uri_template_expand', [$this, 'uriTemplateExpand']),
         ];
     }
 
@@ -90,6 +93,38 @@ final class PbjxExtension extends \Twig_Extension
             "@{$path}/{$template}.{$deviceView}.{$format}.twig",
             $default,
         ];
+    }
+
+    /**
+     * Returns a named URL to a pbj instance.
+     *
+     * Example:
+     *  {{ pbj_url(pbj, 'canonical') }}
+     *
+     * @param Message $pbj
+     * @param string  $template
+     *
+     * @return string
+     */
+    public function pbjUrl(Message $pbj, string $template): ?string
+    {
+        return UriTemplateService::expand("{$pbj::schema()->getQName()}.{$template}", $pbj->getUriTemplateVars());
+    }
+
+    /**
+     * Expands a URI template.
+     *
+     * Example:
+     *  {{ uri_template_expand('acme:article.canonical', {slug: 'some-slug'}) }}
+     *
+     * @param string $id
+     * @param array  $variables
+     *
+     * @return string
+     */
+    public function uriTemplateExpand(string $id, array $variables = []): ?string
+    {
+        return UriTemplateService::expand($id, $variables);
     }
 
     /**

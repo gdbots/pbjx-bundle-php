@@ -314,6 +314,25 @@ __Example:__
 {% include pbj_template(pbj, 'card', 'html', device_view) with {'pbj': pbj} %}
 ```
 
+### Twig Function: pbj_url
+Returns a named URL to a pbj instance. This depends on `gdbots/uri-template` package which provides a way
+to register uri templates. These are expected to be in the format `vendor:label.template_name`, e.g. `acme:article.canonical`.
+
+__Example:__
+
+```txt
+{{ pbj_url(pbj, 'canonical') }}
+```
+
+### Twig Function: uri_template_expand
+When you need to expand a URI template by id direct with your own variables, use this function.
+
+__Example:__
+
+```txt
+{{ uri_template_expand('acme:article.canonical', {slug: 'some-slug'}) }}
+```
+
 ### Twig Function: pbjx_request
 In the same way that you can [embed a Symfony controller within twig](https://symfony.com/doc/current/templating/embedding_controllers.html) 
 you can embed a pbjx request in twig.  This function performs a `$pbjx->request($request);`
