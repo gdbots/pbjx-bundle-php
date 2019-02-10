@@ -2,6 +2,10 @@
 This changelog references the relevant changes done in 0.x versions.
 
 
+## v0.3.6
+* Use `app_env` parameter if available instead of `kernel.environment`.
+
+
 ## v0.3.5
 * Require `"gdbots/uri-template": "~0.2"`.
 * Add Twig function `pbj_url` and `uri_template_expand`.

@@ -65,13 +65,13 @@ gdbots_pbjx:
   transport:
     gearman:
       timeout: 5000 # default
-      channel_prefix: my_channel_ # defaults to "%kernel.environment%_"
+      channel_prefix: my_channel_ # defaults to "%app_env%_"
       servers:
         - {host: '127.0.0.1', port: 4730} # default
   event_store:
     provider: dynamodb
     dynamodb:
-      table_name: acme-event-store # defaults to: "%kernel.environment%-event-store-".EventStoreTable::SCHEMA_VERSION
+      table_name: acme-event-store # defaults to: "%app_env%-event-store-".EventStoreTable::SCHEMA_VERSION
   event_search:
     provider: elastica
     # for multi-tenant applications, configure the field on the messages
@@ -90,8 +90,8 @@ gdbots_pbjx:
   scheduler:
     provider: dynamodb
     dynamodb:
-      table_name: acme-scheduler # defaults to: "%kernel.environment%-scheduler-".SchedulerTable::SCHEMA_VERSION
-      state_machine_arn: 'arn:aws:states:%cloud_region%:%aws_account_id%:stateMachine:acme-%kernel.environment%-pbjx-scheduler'
+      table_name: acme-scheduler # defaults to: "%app_env%-scheduler-".SchedulerTable::SCHEMA_VERSION
+      state_machine_arn: 'arn:aws:states:%cloud_region%:%aws_account_id%:stateMachine:acme-%app_env%-pbjx-scheduler'
 
 # typically these would be in services.yml file.
 services:
