@@ -2,6 +2,10 @@
 This changelog references the relevant changes done in 0.x versions.
 
 
+## v0.3.7
+* Allow the client to set `expected_etag` on commands.
+
+
 ## v0.3.6
 * Use `app_env` parameter if available instead of `kernel.environment`.
 

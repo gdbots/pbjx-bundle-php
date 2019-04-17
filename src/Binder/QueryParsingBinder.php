@@ -21,7 +21,7 @@ final class QueryParsingBinder implements EventSubscriber, PbjxBinder
     /**
      * @param PbjxEvent $pbjxEvent
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function bind(PbjxEvent $pbjxEvent): void
     {
