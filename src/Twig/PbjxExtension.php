@@ -13,8 +13,10 @@ use Gdbots\Schemas\Pbjx\Mixin\Response\Response;
 use Gdbots\UriTemplate\UriTemplateService;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
 
-final class PbjxExtension extends \Twig_Extension
+final class PbjxExtension extends AbstractExtension
 {
     /** @var Pbjx */
     private $pbjx;
@@ -43,10 +45,10 @@ final class PbjxExtension extends \Twig_Extension
     public function getFunctions()
     {
         return [
-            new \Twig_SimpleFunction('pbj_template', [$this, 'pbjTemplate']),
-            new \Twig_SimpleFunction('pbj_url', [$this, 'pbjUrl']),
-            new \Twig_SimpleFunction('pbjx_request', [$this, 'pbjxRequest']),
-            new \Twig_SimpleFunction('uri_template_expand', [$this, 'uriTemplateExpand']),
+            new TwigFunction('pbj_template', [$this, 'pbjTemplate']),
+            new TwigFunction('pbj_url', [$this, 'pbjUrl']),
+            new TwigFunction('pbjx_request', [$this, 'pbjxRequest']),
+            new TwigFunction('uri_template_expand', [$this, 'uriTemplateExpand']),
         ];
     }
 
