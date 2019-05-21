@@ -110,6 +110,10 @@ trait MessageBinderTrait
         }
 
         $ip = (string)$request->getClientIp();
+        if (empty($ip)) {
+            return;
+        }
+
         if (strpos($ip, ':') !== false) {
             $message->set('ctx_ipv6', $ip);
         } else {
