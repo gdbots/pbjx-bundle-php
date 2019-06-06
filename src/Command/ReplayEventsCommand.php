@@ -126,8 +126,7 @@ EOF
 
         $context = $input->getOption('context') ?: '{}';
 
-        if (preg_match("/^[A-Za-z0-9]*=$/", $context) == 1)
-        {
+        if (strpos($context, '{') === false) {
             $context = base64_decode($context);
         }
 
