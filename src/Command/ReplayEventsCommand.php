@@ -123,7 +123,7 @@ EOF
         $batchDelay = NumberUtils::bound($input->getOption('batch-delay'), 100, 600000);
         $since = $input->getOption('since');
         $until = $input->getOption('until');
-        $context = json_decode(preg_replace('/\\\\/', '', $input->getOption('context')) ?: '{}', true);
+        $context = json_decode(preg_replace('/\\\\+"/', '"', $input->getOption('context')) ?: '{}', true);
         $context['tenant_id'] = (string)$input->getOption('tenant-id');
         $context['skip_errors'] = $skipErrors;
         $streamId = $input->getArgument('stream-id') ? StreamId::fromString($input->getArgument('stream-id')) : null;
