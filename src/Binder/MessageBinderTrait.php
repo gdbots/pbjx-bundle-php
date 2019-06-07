@@ -105,11 +105,20 @@ trait MessageBinderTrait
      */
     protected function bindIp(PbjxEvent $pbjxEvent, Message $message, Request $request): void
     {
-        if ($message->has('ctx_ip')) {
+        if ($message->has('ctx_ip') || $message->has('ctx_ipv6')) {
             return;
         }
 
-        $message->set('ctx_ip', $request->getClientIp());
+        $ip = (string)$request->getClientIp();
+        if (empty($ip)) {
+            return;
+        }
+
+        if (strpos($ip, ':') !== false) {
+            $message->set('ctx_ipv6', $ip);
+        } else {
+            $message->set('ctx_ip', $ip);
+        }
     }
 
     /**

@@ -2,6 +2,14 @@
 This changelog references the relevant changes done in 0.x versions.
 
 
+## v0.3.9
+* In `MessageBinderTrait::bindIp` ignore if ip is empty.
+
+
+## v0.3.8
+* In `MessageBinderTrait::bindIp` set field `ctx_ipv6` if it's a v6 ip address, else use `ctx_ip` field.
+
+
 ## v0.3.7
 * Allow the client to set `expected_etag` on commands.
 
