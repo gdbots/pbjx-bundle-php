@@ -83,7 +83,11 @@ EOF
         $errOutput->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
 
         $interval = NumberUtils::bound($input->getOption('interval'), 1, 60);
-        $context = json_decode($input->getOption('context') ?: '{}', true);
+        $context = $input->getOption('context') ?: '{}';
+        if (strpos($context, '{') === false) {
+            $context = base64_decode($context);
+        }
+        $context = json_decode($context, true);
         $context['tenant_id'] = (string)$input->getOption('tenant-id');
         $streamId = StreamId::fromString($input->getArgument('stream-id'));
 
