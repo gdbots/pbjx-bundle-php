@@ -2,6 +2,10 @@
 This changelog references the relevant changes done in 0.x versions.
 
 
+## v0.3.10
+* In symfony commands that accept a context, allow for base64 encoded version so context passed through docker entry points don't require eye switching escaping.
+
+
 ## v0.3.9
 * In `MessageBinderTrait::bindIp` ignore if ip is empty.
 

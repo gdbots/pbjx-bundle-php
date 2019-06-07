@@ -123,13 +123,10 @@ EOF
         $batchDelay = NumberUtils::bound($input->getOption('batch-delay'), 100, 600000);
         $since = $input->getOption('since');
         $until = $input->getOption('until');
-
         $context = $input->getOption('context') ?: '{}';
-
         if (strpos($context, '{') === false) {
             $context = base64_decode($context);
         }
-
         $context = json_decode($context, true);
         $context['tenant_id'] = (string)$input->getOption('tenant-id');
         $context['skip_errors'] = $skipErrors;
