@@ -46,7 +46,7 @@ final class RequestBinder implements EventSubscriber, PbjxBinder
             $this->restrictBindFromInput($pbjxEvent, $message, $fields, $input);
         }
 
-        $this->bindConsoleApp($pbjxEvent, $message, $request);
+        $this->bindApp($pbjxEvent, $message, $request);
         $this->bindCloud($pbjxEvent, $message, $request);
         $this->bindIp($pbjxEvent, $message, $request);
         $this->bindUserAgent($pbjxEvent, $message, $request);
@@ -58,7 +58,7 @@ final class RequestBinder implements EventSubscriber, PbjxBinder
     public static function getSubscribedEvents()
     {
         return [
-            'gdbots:pbjx:mixin:request.bind' => [['bind', 10000]],
+            'gdbots:pbjx:mixin:request.bind' => ['bind', 10000],
         ];
     }
 }

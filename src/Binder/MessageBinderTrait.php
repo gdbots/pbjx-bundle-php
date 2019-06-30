@@ -53,20 +53,22 @@ trait MessageBinderTrait
      * @param Message   $message
      * @param Request   $request
      */
-    protected function bindConsoleApp(PbjxEvent $pbjxEvent, Message $message, Request $request): void
+    protected function bindApp(PbjxEvent $pbjxEvent, Message $message, Request $request): void
     {
-        if ($message->has('ctx_app')
-            || !$request->attributes->getBoolean('pbjx_console')
-            || !$this->container->hasParameter('app_vendor')
-        ) {
+        if ($message->has('ctx_app') || !$this->container->hasParameter('app_vendor')) {
             return;
         }
 
         static $app = null;
         if (null === $app) {
+            $name = $this->container->getParameter('app_name');
+            if ($request->attributes->getBoolean('pbjx_console')) {
+                $name .= '-php.console';
+            }
+
             $app = AppV1::create()
-                ->set('vendor', $this->container->getParameter('app_vendor') ?: null)
-                ->set('name', $this->container->getParameter('app_name') . '-php.console')
+                ->set('vendor', $this->container->getParameter('app_vendor'))
+                ->set('name', $name)
                 ->set('version', $this->container->getParameter('app_version') ?: null)
                 ->set('build', $this->container->getParameter('app_build') ?: null);
         }
