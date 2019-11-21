@@ -7,7 +7,6 @@ use Gdbots\Pbj\Field;
 use Gdbots\Pbjx\DependencyInjection\PbjxBinder;
 use Gdbots\Pbjx\Event\PbjxEvent;
 use Gdbots\Pbjx\EventSubscriber;
-use Gdbots\Schemas\Pbjx\Mixin\Request\Request as PbjxRequest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 final class RequestBinder implements EventSubscriber, PbjxBinder
@@ -27,7 +26,6 @@ final class RequestBinder implements EventSubscriber, PbjxBinder
      */
     public function bind(PbjxEvent $pbjxEvent): void
     {
-        /** @var PbjxRequest $message */
         $message = $pbjxEvent->getMessage();
         $request = $this->getCurrentRequest();
 
@@ -38,8 +36,10 @@ final class RequestBinder implements EventSubscriber, PbjxBinder
             $fields = array_filter(
                 $message::schema()->getMixin('gdbots:pbjx:mixin:request')->getFields(),
                 function (Field $field) {
+                    // we allow the client to set these
                     $name = $field->getName();
                     return 'ctx_app' !== $name
+                        && 'ctx_retries' !== $name
                         && 'derefs' !== $name;
                 }
             );

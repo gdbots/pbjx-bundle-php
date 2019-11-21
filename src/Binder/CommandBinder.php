@@ -38,6 +38,7 @@ final class CommandBinder implements EventSubscriber, PbjxBinder
             $fields = array_filter(
                 $message::schema()->getMixin('gdbots:pbjx:mixin:command')->getFields(),
                 function (Field $field) {
+                    // we allow the client to set these
                     $name = $field->getName();
                     return 'ctx_app' !== $name
                         && 'ctx_retries' !== $name
