@@ -7,7 +7,6 @@ use Gdbots\Pbj\Field;
 use Gdbots\Pbjx\DependencyInjection\PbjxBinder;
 use Gdbots\Pbjx\Event\PbjxEvent;
 use Gdbots\Pbjx\EventSubscriber;
-use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 final class EventBinder implements EventSubscriber, PbjxBinder
@@ -27,7 +26,6 @@ final class EventBinder implements EventSubscriber, PbjxBinder
      */
     public function bind(PbjxEvent $pbjxEvent): void
     {
-        /** @var Event $message */
         $message = $pbjxEvent->getMessage();
         $request = $this->getCurrentRequest();
 
