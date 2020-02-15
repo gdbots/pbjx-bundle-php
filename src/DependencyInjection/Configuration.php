@@ -232,6 +232,9 @@ final class Configuration implements ConfigurationInterface
                 'debug'       => false,
                 'persistent'  => true,
                 'servers'     => $defaultServers,
+                'config'      => [
+                    'ssl' => true,
+                ]
             ],
         ];
 
@@ -302,6 +305,15 @@ final class Configuration implements ConfigurationInterface
                                             ->defaultValue(9200)
                                             ->treatNullLike(9200)
                                         ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                            ->arrayNode('config')
+                                ->addDefaultsIfNotSet()
+                                ->children()
+                                    ->booleanNode('ssl')
+                                        ->defaultTrue()
+                                        ->treatNullLike(true)
                                     ->end()
                                 ->end()
                             ->end()

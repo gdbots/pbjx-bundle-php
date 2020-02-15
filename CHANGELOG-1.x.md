@@ -2,6 +2,10 @@
 This changelog references the relevant changes done in 1.x versions.
 
 
+## v1.0.4
+* Enable ssl config by default for `gdbots_pbjx.event_search.elastica.client_manager` config.
+
+
 ## v1.0.3
 * Allow `derefs` to be set by the client in `RequestBinder`.
 
