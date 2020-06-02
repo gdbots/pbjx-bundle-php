@@ -3,25 +3,15 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
-use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-final class CreateEventSearchStorageCommand extends ContainerAwareCommand
+final class CreateEventSearchStorageCommand extends Command
 {
     use PbjxAwareCommandTrait;
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function __construct(LoggerInterface $logger)
-    {
-        parent::__construct();
-        $this->logger = $logger;
-    }
 
     /**
      * {@inheritdoc}
@@ -32,7 +22,7 @@ final class CreateEventSearchStorageCommand extends ContainerAwareCommand
             ->setName('pbjx:create-event-search-storage')
             ->setDescription('Creates the EventSearch storage.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will create the storage for the EventSearch.  
+The <info>%command.name%</info> command will create the storage for the EventSearch.
 
 <info>php %command.full_name% --tenant-id=client1</info>
 

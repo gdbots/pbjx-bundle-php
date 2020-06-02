@@ -7,7 +7,6 @@
     <defaults public="false"/>
 
     <prototype namespace="Gdbots\Bundle\PbjxBundle\Command\" resource="../../Command/*" autoconfigure="true" autowire="true">
-      <bind key="$logger" type="service" id="monolog.logger.pbjx" />
     </prototype>
 
     <service id="pbjx" class="Gdbots\Pbjx\SimplePbjx" public="true">
@@ -33,7 +32,8 @@
       <tag name="monolog.logger" channel="pbjx"/>
     </service>
 
-    <service id="gdbots_pbjx.event_execution_failure_logger" class="Gdbots\Bundle\PbjxBundle\EventExecutionFailureLogger">
+    <service id="gdbots_pbjx.event_execution_failure_logger"
+        class="Gdbots\Bundle\PbjxBundle\EventExecutionFailureLogger">
       <argument type="service" id="logger"/>
       <tag name="monolog.logger" channel="pbjx"/>
       <tag name="pbjx.event_subscriber"/>

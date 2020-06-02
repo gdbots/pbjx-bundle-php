@@ -40,7 +40,7 @@ final class PbjxBatchCommand extends ContainerAwareCommand
             ->setAliases(['pbjx:lines'])
             ->setDescription('Reads messages from a newline-delimited JSON file and processes them.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will read messages (pbj commands or events) from a 
+The <info>%command.name%</info> command will read messages (pbj commands or events) from a
 newline-delimited JSON file and run pbjx->send or pbjx->publish.
 
 <info>php %command.full_name% --dry-run /path/to/file/message.jsonl</info>
@@ -197,7 +197,6 @@ EOF
             }
 
             try {
-                /** @var Command|Event $message */
                 $message = $serializer->deserialize($line);
                 $curie = $message::schema()->getCurie();
                 $ref = $message->generateMessageRef()->toString();
