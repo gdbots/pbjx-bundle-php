@@ -26,13 +26,10 @@ final class Configuration implements ConfigurationInterface
         $this->env = $env;
     }
 
-    /**
-     * @return TreeBuilder
-     */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('gdbots_pbjx');
+        $treeBuilder = new TreeBuilder('gdbots_pbjx');
+        $rootNode = $treeBuilder->getRootNode();
 
         $rootNode
             ->children()
@@ -83,9 +80,6 @@ final class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('transport')
-                    ->children()
-                        ->append($this->getGearmanTransportConfigTree())
-                    ->end()
                 ->end()
                 ->arrayNode('command_bus')
                     ->addDefaultsIfNotSet()
@@ -150,56 +144,10 @@ final class Configuration implements ConfigurationInterface
         return $treeBuilder;
     }
 
-    /**
-     * @return NodeDefinition
-     */
-    protected function getGearmanTransportConfigTree(): NodeDefinition
-    {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('gearman');
-
-        $node
-            ->addDefaultsIfNotSet()
-            ->children()
-                ->arrayNode('servers')
-                    ->requiresAtLeastOneElement()
-                    //->isRequired()
-                    ->treatNullLike([['host' => '127.0.0.1', 'port' => 4730]])
-                    ->defaultValue([['host' => '127.0.0.1', 'port' => 4730]])
-                    ->prototype('array')
-                        ->performNoDeepMerging()
-                        ->children()
-                            ->scalarNode('host')
-                                ->defaultValue('127.0.0.1')
-                                ->treatNullLike('127.0.0.1')
-                            ->end()
-                            ->integerNode('port')
-                                ->defaultValue(4730)
-                                ->treatNullLike(4730)
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end()
-                ->integerNode('timeout')
-                    ->defaultValue(5000)
-                    ->treatNullLike(5000)
-                ->end()
-                ->scalarNode('channel_prefix')
-                    ->defaultValue("{$this->env}_")
-                ->end()
-            ->end()
-        ;
-
-        return $node;
-    }
-
-    /**
-     * @return NodeDefinition
-     */
     protected function getDynamoDbEventStoreConfigTree(): NodeDefinition
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('dynamodb');
+        $treeBuilder = new TreeBuilder('dynamodb');
+        $node = $treeBuilder->getRootNode();
 
         $node
             ->addDefaultsIfNotSet()
@@ -216,13 +164,10 @@ final class Configuration implements ConfigurationInterface
         return $node;
     }
 
-    /**
-     * @return NodeDefinition
-     */
     protected function getElasticaEventSearchConfigTree(): NodeDefinition
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('elastica');
+        $treeBuilder = new TreeBuilder('elastica');
+        $node = $treeBuilder->getRootNode();
 
         $defaultServers = [['host' => '127.0.0.1', 'port' => 9200]];
         $defaultCluster = [
@@ -326,14 +271,10 @@ final class Configuration implements ConfigurationInterface
         return $node;
     }
 
-
-    /**
-     * @return NodeDefinition
-     */
     protected function getDynamoDbSchedulerConfigTree(): NodeDefinition
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('dynamodb');
+        $treeBuilder = new TreeBuilder('dynamodb');
+        $node = $treeBuilder->getRootNode();
 
         $node
             ->addDefaultsIfNotSet()

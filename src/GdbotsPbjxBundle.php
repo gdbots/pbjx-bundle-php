@@ -15,9 +15,6 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 final class GdbotsPbjxBundle extends Bundle
 {
-    /**
-     * @param ContainerBuilder $container
-     */
     public function build(ContainerBuilder $container)
     {
         parent::build($container);
