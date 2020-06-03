@@ -6,7 +6,7 @@
   <services>
     <defaults public="false"/>
 
-    <prototype namespace="Gdbots\Bundle\PbjxBundle\Command\" resource="../../src/Command/*" autoconfigure="true" autowire="true">
+    <prototype namespace="Gdbots\Bundle\PbjxBundle\Command\" resource="../src/Command/*" autoconfigure="true" autowire="true">
     </prototype>
 
     <service id="pbjx" class="Gdbots\Pbjx\SimplePbjx" public="true">
