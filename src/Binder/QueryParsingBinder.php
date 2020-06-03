@@ -7,22 +7,26 @@ use Gdbots\Pbjx\DependencyInjection\PbjxBinder;
 use Gdbots\Pbjx\Event\PbjxEvent;
 use Gdbots\Pbjx\EventSubscriber;
 use Gdbots\QueryParser\QueryParser;
+use Gdbots\Schemas\Ncr\Mixin\SearchNodesRequest\SearchNodesRequestV1Mixin;
+use Gdbots\Schemas\Pbjx\Mixin\SearchEventsRequest\SearchEventsRequestV1Mixin;
 
 final class QueryParsingBinder implements EventSubscriber, PbjxBinder
 {
-    /** @var QueryParser */
-    private $queryParser;
+    private QueryParser $queryParser;
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            SearchEventsRequestV1Mixin::SCHEMA_CURIE . '.bind' => 'bind',
+            SearchNodesRequestV1Mixin::SCHEMA_CURIE . '.bind'  => 'bind',
+        ];
+    }
 
     public function __construct()
     {
         $this->queryParser = new QueryParser();
     }
 
-    /**
-     * @param PbjxEvent $pbjxEvent
-     *
-     * @throws \Throwable
-     */
     public function bind(PbjxEvent $pbjxEvent): void
     {
         $request = $pbjxEvent->getMessage();
@@ -36,16 +40,5 @@ final class QueryParsingBinder implements EventSubscriber, PbjxBinder
             ->set('q', $query)
             ->addToSet('fields_used', $parsedQuery->getFieldsUsed())
             ->set('parsed_query_json', json_encode($parsedQuery));
-    }
-
-    /**
-     * @return array
-     */
-    public static function getSubscribedEvents()
-    {
-        return [
-            'gdbots:pbjx:mixin:search-events-request.bind' => 'bind',
-            'gdbots:ncr:mixin:search-nodes-request.bind'   => 'bind',
-        ];
     }
 }

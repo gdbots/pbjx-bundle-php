@@ -3,29 +3,29 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle;
 
+use Gdbots\Pbj\Message;
 use Gdbots\Pbjx\EventSubscriber;
 use Gdbots\Pbjx\Pbjx;
-use Gdbots\Schemas\Pbjx\Event\EventExecutionFailed;
+use Gdbots\Schemas\Pbjx\Event\EventExecutionFailedV1;
 use Psr\Log\LoggerInterface;
 
 final class EventExecutionFailureLogger implements EventSubscriber
 {
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @param LoggerInterface $logger
-     */
+    public static function getSubscribedEvents()
+    {
+        return [
+            EventExecutionFailedV1::SCHEMA_CURIE => 'onEventExecutionFailed',
+        ];
+    }
+
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
     }
 
-    /**
-     * @param EventExecutionFailed $event
-     * @param Pbjx                 $pbjx
-     */
-    public function onEventExecutionFailed(EventExecutionFailed $event, Pbjx $pbjx): void
+    public function onEventExecutionFailed(Message $event, Pbjx $pbjx): void
     {
         $message = sprintf(
             '%s::%s Event subscriber failed to handle message [{pbj_schema}].',
@@ -37,15 +37,5 @@ final class EventExecutionFailureLogger implements EventSubscriber
             'pbj_schema' => $event::schema()->getId()->toString(),
             'pbj'        => $event->toArray(),
         ]);
-    }
-
-    /**
-     * @return array
-     */
-    public static function getSubscribedEvents()
-    {
-        return [
-            'gdbots:pbjx:event:event-execution-failed' => 'onEventExecutionFailed',
-        ];
     }
 }

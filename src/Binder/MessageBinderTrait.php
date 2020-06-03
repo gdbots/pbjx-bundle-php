@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Binder;
 
-use Gdbots\Pbj\Field;
 use Gdbots\Pbj\Message;
 use Gdbots\Pbjx\Event\PbjxEvent;
 use Gdbots\Schemas\Contexts\AppV1;
@@ -14,29 +13,18 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 trait MessageBinderTrait
 {
-    /** @var ContainerInterface */
-    protected $container;
+    private ContainerInterface $container;
+    private ?RequestStack $requestStack = null;
 
-    /** @var RequestStack */
-    protected $requestStack;
-
-    /**
-     * @param PbjxEvent $pbjxEvent
-     * @param Message   $message
-     * @param Field[]   $fields
-     * @param array     $input
-     */
     protected function restrictBindFromInput(PbjxEvent $pbjxEvent, Message $message, array $fields, array $input): void
     {
         foreach ($fields as $field) {
-            $fieldName = $field->getName();
-
-            if (!$message->has($fieldName)) {
+            if (!$message->has($field)) {
                 // this means whatever was in the input never made it to the message.
                 continue;
             }
 
-            if (!isset($input[$fieldName])) {
+            if (!isset($input[$field])) {
                 // the field in question doesn't exist in the input used to populate the message.
                 // so whatever the value is was either a default or set by another process.
                 continue;
@@ -44,15 +32,10 @@ trait MessageBinderTrait
 
             // the input was used to populate the field on the message but they weren't allowed
             // to provide that field, only the server can set it.
-            $message->clear($fieldName);
+            $message->clear($field);
         }
     }
 
-    /**
-     * @param PbjxEvent $pbjxEvent
-     * @param Message   $message
-     * @param Request   $request
-     */
     protected function bindApp(PbjxEvent $pbjxEvent, Message $message, Request $request): void
     {
         if ($message->has('ctx_app') || !$this->container->hasParameter('app_vendor')) {
@@ -76,11 +59,6 @@ trait MessageBinderTrait
         $message->set('ctx_app', $app);
     }
 
-    /**
-     * @param PbjxEvent $pbjxEvent
-     * @param Message   $message
-     * @param Request   $request
-     */
     protected function bindCloud(PbjxEvent $pbjxEvent, Message $message, Request $request): void
     {
         if ($message->has('ctx_cloud') || !$this->container->hasParameter('cloud_provider')) {
@@ -100,11 +78,6 @@ trait MessageBinderTrait
         $message->set('ctx_cloud', $cloud);
     }
 
-    /**
-     * @param PbjxEvent $pbjxEvent
-     * @param Message   $message
-     * @param Request   $request
-     */
     protected function bindIp(PbjxEvent $pbjxEvent, Message $message, Request $request): void
     {
         if ($message->has('ctx_ip') || $message->has('ctx_ipv6')) {
@@ -123,11 +96,6 @@ trait MessageBinderTrait
         }
     }
 
-    /**
-     * @param PbjxEvent $pbjxEvent
-     * @param Message   $message
-     * @param Request   $request
-     */
     protected function bindUserAgent(PbjxEvent $pbjxEvent, Message $message, Request $request): void
     {
         if ($message->has('ctx_ua')) {
@@ -137,9 +105,6 @@ trait MessageBinderTrait
         $message->set('ctx_ua', $request->headers->get('User-Agent'));
     }
 
-    /**
-     * @return RequestStack
-     */
     protected function getRequestStack(): RequestStack
     {
         if (null === $this->requestStack) {
@@ -149,9 +114,6 @@ trait MessageBinderTrait
         return $this->requestStack;
     }
 
-    /**
-     * @return Request
-     */
     protected function getCurrentRequest(): Request
     {
         return $this->getRequestStack()->getCurrentRequest() ?: new Request();

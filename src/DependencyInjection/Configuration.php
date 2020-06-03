@@ -18,9 +18,6 @@ final class Configuration implements ConfigurationInterface
 {
     private $env;
 
-    /**
-     * @param string $env
-     */
     public function __construct(string $env = 'dev')
     {
         $this->env = $env;
@@ -121,9 +118,6 @@ final class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('provider')
-                            ->defaultNull()
-                        ->end()
-                        ->scalarNode('tenant_id_field')
                             ->defaultNull()
                         ->end()
                         ->append($this->getElasticaEventSearchConfigTree())

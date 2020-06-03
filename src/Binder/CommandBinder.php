@@ -3,31 +3,33 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Binder;
 
-use Gdbots\Pbj\Field;
 use Gdbots\Pbjx\DependencyInjection\PbjxBinder;
 use Gdbots\Pbjx\Event\PbjxEvent;
 use Gdbots\Pbjx\EventSubscriber;
-use Gdbots\Schemas\Pbjx\Mixin\Command\Command;
+use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1Mixin;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 final class CommandBinder implements EventSubscriber, PbjxBinder
 {
     use MessageBinderTrait;
 
-    /**
-     * @param ContainerInterface $container
-     */
+    private array $restrictedFields;
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            CommandV1Mixin::SCHEMA_CURIE . '.bind' => ['bind', 10000],
+        ];
+    }
+
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
+        $this->restrictedFields = array_diff(CommandV1Mixin::FIELDS, ['ctx_app', 'ctx_retries', 'expected_etag']);
     }
 
-    /**
-     * @param PbjxEvent $pbjxEvent
-     */
     public function bind(PbjxEvent $pbjxEvent): void
     {
-        /** @var Command $message */
         $message = $pbjxEvent->getMessage();
         $request = $this->getCurrentRequest();
 
@@ -35,33 +37,12 @@ final class CommandBinder implements EventSubscriber, PbjxBinder
         $input = (array)$request->attributes->get('pbjx_input');
 
         if ($restricted) {
-            $fields = array_filter(
-                $message::schema()->getMixin('gdbots:pbjx:mixin:command')->getFields(),
-                function (Field $field) {
-                    // we allow the client to set these
-                    $name = $field->getName();
-                    return 'ctx_app' !== $name
-                        && 'ctx_retries' !== $name
-                        && 'expected_etag' !== $name;
-                }
-            );
-
-            $this->restrictBindFromInput($pbjxEvent, $message, $fields, $input);
+            $this->restrictBindFromInput($pbjxEvent, $message, $this->restrictedFields, $input);
         }
 
         $this->bindApp($pbjxEvent, $message, $request);
         $this->bindCloud($pbjxEvent, $message, $request);
         $this->bindIp($pbjxEvent, $message, $request);
         $this->bindUserAgent($pbjxEvent, $message, $request);
-    }
-
-    /**
-     * @return array
-     */
-    public static function getSubscribedEvents()
-    {
-        return [
-            'gdbots:pbjx:mixin:command.bind' => ['bind', 10000],
-        ];
     }
 }
