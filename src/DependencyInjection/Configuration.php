@@ -16,13 +16,6 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 final class Configuration implements ConfigurationInterface
 {
-    private $env;
-
-    public function __construct(string $env = 'dev')
-    {
-        $this->env = $env;
-    }
-
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('gdbots_pbjx');
@@ -150,7 +143,7 @@ final class Configuration implements ConfigurationInterface
                     ->defaultValue(DynamoDbEventStore::class)
                 ->end()
                 ->scalarNode('table_name')
-                    ->defaultValue("{$this->env}-event-store-".EventStoreTable::SCHEMA_VERSION)
+                    ->defaultValue('%env(APP_VENDOR)%-%env(default:app_env:CLOUD_ENV)%-event-store-'.EventStoreTable::SCHEMA_VERSION)
                 ->end()
             ->end()
         ;
@@ -191,7 +184,7 @@ final class Configuration implements ConfigurationInterface
                             ->defaultValue(IndexManager::class)
                         ->end()
                         ->scalarNode('index_prefix')
-                            ->defaultValue("{$this->env}-events")
+                            ->defaultValue('%env(APP_VENDOR)%-%env(default:app_env:CLOUD_ENV)%-events')
                         ->end()
                     ->end()
                 ->end()
@@ -277,7 +270,7 @@ final class Configuration implements ConfigurationInterface
                     ->defaultValue(DynamoDbScheduler::class)
                 ->end()
                 ->scalarNode('table_name')
-                    ->defaultValue("{$this->env}-scheduler-".SchedulerTable::SCHEMA_VERSION)
+                    ->defaultValue('%env(APP_VENDOR)%-%env(default:app_env:CLOUD_ENV)%-scheduler-'.SchedulerTable::SCHEMA_VERSION)
                 ->end()
                 ->scalarNode('state_machine_arn')
                     ->isRequired()

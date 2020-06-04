@@ -59,23 +59,13 @@ gdbots_pbjx:
   request_bus:
     # requests must return a value, so firehose and kinesis simply run
     # the request in memory as they don't support request/response.
-    transport: ~ # in_memory, gearman
-  transport:
-    gearman:
-      timeout: 5000 # default
-      channel_prefix: my_channel_ # defaults to "%app_env%_"
-      servers:
-        - {host: '127.0.0.1', port: 4730} # default
+    transport: ~ # in_memory
   event_store:
     provider: dynamodb
     dynamodb:
-      table_name: acme-event-store # defaults to: "%app_env%-event-store-".EventStoreTable::SCHEMA_VERSION
+      table_name: acme-event-store
   event_search:
     provider: elastica
-    # for multi-tenant applications, configure the field on the messages
-    # that determines what the tenant_id is.  The value will be used
-    # to populate the "tenant_id" on the context provided to the service.
-    #tenant_id_field: account_id # only needed if you actually have a multi-tenant app
     elastica:
       # your app will at some point need to customize the queries
       # override the class so you can provide these customizations.
@@ -88,7 +78,7 @@ gdbots_pbjx:
   scheduler:
     provider: dynamodb
     dynamodb:
-      table_name: acme-scheduler # defaults to: "%app_env%-scheduler-".SchedulerTable::SCHEMA_VERSION
+      table_name: acme-scheduler
       state_machine_arn: 'arn:aws:states:%cloud_region%:%aws_account_id%:stateMachine:acme-%app_env%-pbjx-scheduler'
 
 # typically these would be in services.yml file.

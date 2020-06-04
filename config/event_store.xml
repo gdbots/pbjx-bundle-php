@@ -8,6 +8,7 @@
       <argument type="service" id="pbjx"/>
       <argument type="service" id="aws.dynamodb" on-invalid="ignore"/>
       <argument>%gdbots_pbjx.event_store.dynamodb.table_name%</argument>
+      <argument type="service" id="gdbots_pbjx.event_dispatcher"/>
       <argument type="service" id="logger" on-invalid="ignore"/>
       <tag name="monolog.logger" channel="pbjx.event_store"/>
     </service>

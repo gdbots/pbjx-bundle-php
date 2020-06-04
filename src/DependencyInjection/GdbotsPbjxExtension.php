@@ -21,11 +21,7 @@ final class GdbotsPbjxExtension extends Extension
     public function load(array $config, ContainerBuilder $container)
     {
         $processor = new Processor();
-        $env = $container->hasParameter('app_env')
-            ? $container->getParameter('app_env')
-            : $container->getParameter('kernel.environment');
-        $container->resolveEnvPlaceholders($env);
-        $configuration = new Configuration($env);
+        $configuration = new Configuration();
         $config = $processor->processConfiguration($configuration, $config);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
@@ -105,7 +101,7 @@ final class GdbotsPbjxExtension extends Extension
         if (isset($config['event_store']['dynamodb']['table_name'])) {
             $container->setParameter(
                 'gdbots_pbjx.event_store.dynamodb.table_name',
-                $container->resolveEnvPlaceholders($config['event_store']['dynamodb']['table_name'])
+                $config['event_store']['dynamodb']['table_name']
             );
         }
     }
@@ -124,14 +120,11 @@ final class GdbotsPbjxExtension extends Extension
         if (isset($config['event_search']['elastica']['index_manager']['index_prefix'])) {
             $container->setParameter(
                 'gdbots_pbjx.event_search.elastica.index_manager.index_prefix',
-                $container->resolveEnvPlaceholders($config['event_search']['elastica']['index_manager']['index_prefix'])
+                $config['event_search']['elastica']['index_manager']['index_prefix']
             );
         }
         $container->setParameter('gdbots_pbjx.event_search.elastica.query_timeout', $config['event_search']['elastica']['query_timeout']);
-        $container->setParameter(
-            'gdbots_pbjx.event_search.elastica.clusters',
-            $container->resolveEnvPlaceholders($config['event_search']['elastica']['clusters'])
-        );
+        $container->setParameter('gdbots_pbjx.event_search.elastica.clusters', $config['event_search']['elastica']['clusters']);
     }
 
     protected function configureDynamoDbScheduler(array $config, ContainerBuilder $container, ?string $provider): void
@@ -142,7 +135,7 @@ final class GdbotsPbjxExtension extends Extension
         }
 
         $container->setParameter('gdbots_pbjx.scheduler.dynamodb.class', $config['scheduler']['dynamodb']['class']);
-        $container->setParameter('gdbots_pbjx.scheduler.dynamodb.table_name', $container->resolveEnvPlaceholders($config['scheduler']['dynamodb']['table_name']));
+        $container->setParameter('gdbots_pbjx.scheduler.dynamodb.table_name', $config['scheduler']['dynamodb']['table_name']);
         $container->setParameter('gdbots_pbjx.scheduler.dynamodb.state_machine_arn', $config['scheduler']['dynamodb']['state_machine_arn']);
     }
 }
