@@ -15,7 +15,6 @@ final class CreateEventStoreStorageCommand extends Command
     use PbjxAwareCommandTrait;
 
     protected static $defaultName = 'pbjx:create-event-store-storage';
-    protected ContainerInterface $container;
 
     public function __construct(ContainerInterface $container)
     {
@@ -51,10 +50,10 @@ final class CreateEventStoreStorageCommand extends Command
 
         $io = new SymfonyStyle($input, $output);
         $io->title('EventStore Storage Creator');
-        $io->comment(sprintf('context: %s', json_encode($context)));
+        $io->comment('context: ' . json_encode($context));
 
         $this->getPbjx()->getEventStore()->createStorage($context);
-        $io->success(sprintf('EventStore storage created.'));
+        $io->success('EventStore storage created.');
 
         return self::SUCCESS;
     }

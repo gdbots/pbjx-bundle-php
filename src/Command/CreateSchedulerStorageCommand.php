@@ -3,56 +3,31 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
-use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-final class CreateSchedulerStorageCommand extends ContainerAwareCommand
+final class CreateSchedulerStorageCommand extends Command
 {
     use PbjxAwareCommandTrait;
 
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function __construct(LoggerInterface $logger)
+    protected static $defaultName = 'pbjx:create-scheduler-storage';
+
+    public function __construct(ContainerInterface $container)
     {
         parent::__construct();
-        $this->logger = $logger;
+        $this->container = $container;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
-    {
-        $this
-            ->setName('pbjx:create-scheduler-storage')
-            ->setDescription('Creates the Scheduler storage.')
-            ->setHelp(<<<EOF
-The <info>%command.name%</info> command will create the storage for the Scheduler.  
-
-<info>php %command.full_name%</info>
-
-EOF
-            );
-    }
-
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
-     * @return null
-     *
-     * @throws \Exception
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $io->title('Scheduler Storage Creator');
-
         $this->getPbjxServiceLocator()->getScheduler()->createStorage();
-        $io->success(sprintf('Scheduler storage created.'));
+        $io->success('Scheduler storage created.');
+
+        return self::SUCCESS;
     }
 }

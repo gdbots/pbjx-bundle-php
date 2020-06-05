@@ -3,42 +3,36 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
-use Gdbots\Common\Util\NumberUtils;
+use Gdbots\Pbj\Util\NumberUtil;
 use Gdbots\Pbj\WellKnown\Microtime;
-use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
 use Gdbots\Schemas\Pbjx\StreamId;
-use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-final class ExportEventsCommand extends ContainerAwareCommand
+final class ExportEventsCommand extends Command
 {
     use PbjxAwareCommandTrait;
 
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function __construct(LoggerInterface $logger)
+    protected static $defaultName = 'pbjx:export-events';
+
+    public function __construct(ContainerInterface $container)
     {
         parent::__construct();
-        $this->logger = $logger;
+        $this->container = $container;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         $this
-            ->setName('pbjx:export-events')
             ->setDescription('Pipes events from the EventStore to STDOUT.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will pipe events from the EventStore for the 
-given StreamId if provided or all events and write the json value of the event on one 
+The <info>%command.name%</info> command will pipe events from the EventStore for the
+given StreamId if provided or all events and write the json value of the event on one
 line (json newline delimited) to STDOUT.
 
 <info>php %command.full_name% --tenant-id=client1 'stream-id'</info>
@@ -88,24 +82,18 @@ EOF
             ->addArgument(
                 'stream-id',
                 InputArgument::OPTIONAL,
-                'The stream to export messages from.  See Gdbots\Schemas\Pbjx\StreamId for details.'
+                'The stream to export messages from. See Gdbots\Schemas\Pbjx\StreamId for details.'
             );
     }
 
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
-     * @return null
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $errOutput = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
         $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
         $errOutput->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
 
-        $batchSize = NumberUtils::bound($input->getOption('batch-size'), 1, 1000);
-        $batchDelay = NumberUtils::bound($input->getOption('batch-delay'), 100, 600000);
+        $batchSize = NumberUtil::bound($input->getOption('batch-size'), 1, 1000);
+        $batchDelay = NumberUtil::bound($input->getOption('batch-delay'), 100, 600000);
         $since = $input->getOption('since');
         $until = $input->getOption('until');
         $context = $input->getOption('context') ?: '{}';
@@ -124,9 +112,16 @@ EOF
             $until = Microtime::fromString(str_pad($until, 16, '0'));
         }
 
-        $i = 0;
-        $receiver = function (Event $event, StreamId $streamId) use ($errOutput, $batchSize, $batchDelay, &$i) {
-            ++$i;
+        $generator = $streamId
+            ? $this->getPbjx()->getEventStore()->pipeEvents($streamId, $since, $until, $context)
+            : $this->getPbjx()->getEventStore()->pipeAllEvents($since, $until, $context);
+
+        foreach ($generator as $result) {
+            if ($streamId) {
+                $event = $result;
+            } else {
+                [$event] = $result;
+            }
 
             try {
                 echo json_encode($event) . PHP_EOL;
@@ -139,12 +134,8 @@ EOF
                     usleep($batchDelay * 1000);
                 }
             }
-        };
-
-        if ($streamId) {
-            $this->getPbjx()->getEventStore()->pipeEvents($streamId, $receiver, $since, $until, $context);
-        } else {
-            $this->getPbjx()->getEventStore()->pipeAllEvents($receiver, $since, $until, $context);
         }
+
+        return self::SUCCESS;
     }
 }

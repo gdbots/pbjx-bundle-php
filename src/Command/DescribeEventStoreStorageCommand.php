@@ -3,41 +3,28 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
-use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-final class DescribeEventStoreStorageCommand extends ContainerAwareCommand
+final class DescribeEventStoreStorageCommand extends Command
 {
     use PbjxAwareCommandTrait;
 
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function __construct(LoggerInterface $logger)
+    protected static $defaultName = 'pbjx:describe-event-store-storage';
+
+    public function __construct(ContainerInterface $container)
     {
         parent::__construct();
-        $this->logger = $logger;
+        $this->container = $container;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         $this
-            ->setName('pbjx:describe-event-store-storage')
-            ->setDescription('Describes the EventStore storage.')
-            ->setHelp(<<<EOF
-The <info>%command.name%</info> command will describe the storage for the EventStore.  
-
-<info>php %command.full_name% --tenant-id=client1</info>
-
-EOF
-            )
             ->addOption(
                 'context',
                 null,
@@ -52,15 +39,7 @@ EOF
             );
     }
 
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
-     * @return null
-     *
-     * @throws \Exception
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $context = $input->getOption('context') ?: '{}';
         if (strpos($context, '{') === false) {
@@ -71,10 +50,12 @@ EOF
 
         $io = new SymfonyStyle($input, $output);
         $io->title('EventStore Storage Describer');
-        $io->comment(sprintf('context: %s', json_encode($context)));
+        $io->comment('context: ' . json_encode($context));
 
         $details = $this->getPbjx()->getEventStore()->describeStorage($context);
         $io->text($details);
         $io->newLine();
+
+        return self::SUCCESS;
     }
 }

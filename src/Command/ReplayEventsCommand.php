@@ -37,7 +37,7 @@ final class ReplayEventsCommand extends ContainerAwareCommand
             ->setName('pbjx:replay-events')
             ->setDescription('Pipes events from the EventStore and replays them through pbjx->publish.')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will pipe events from the EventStore for the 
+The <info>%command.name%</info> command will pipe events from the EventStore for the
 given StreamId if provided or all events and re-publish them through pbjx->publish.
 
 <info>php %command.full_name% --dry-run --tenant-id=client1 'stream-id'</info>
@@ -48,7 +48,7 @@ EOF
                 'in-memory',
                 null,
                 InputOption::VALUE_NONE,
-                'Forces all transports to be "in_memory".  Useful for debugging or ensuring sequential processing.'
+                'Forces all transports to be "in_memory". Useful for debugging or ensuring sequential processing.'
             )
             ->addOption(
                 'dry-run',
@@ -60,7 +60,7 @@ EOF
                 'skip-errors',
                 null,
                 InputOption::VALUE_NONE,
-                'Skip any events that fail to replay.  Generally a bad idea.'
+                'Skip any events that fail to replay. Generally a bad idea.'
             )
             ->addOption(
                 'batch-size',
@@ -105,7 +105,7 @@ EOF
             ->addArgument(
                 'stream-id',
                 InputArgument::OPTIONAL,
-                'The stream to replay messages from.  See Gdbots\Schemas\Pbjx\StreamId for details.'
+                'The stream to replay messages from. See Gdbots\Schemas\Pbjx\StreamId for details.'
             );
     }
 

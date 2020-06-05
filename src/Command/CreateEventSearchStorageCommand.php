@@ -8,26 +8,23 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 final class CreateEventSearchStorageCommand extends Command
 {
     use PbjxAwareCommandTrait;
 
-    /**
-     * {@inheritdoc}
-     */
+    protected static $defaultName = 'pbjx:create-event-search-storage';
+
+    public function __construct(ContainerInterface $container)
+    {
+        parent::__construct();
+        $this->container = $container;
+    }
+
     protected function configure()
     {
         $this
-            ->setName('pbjx:create-event-search-storage')
-            ->setDescription('Creates the EventSearch storage.')
-            ->setHelp(<<<EOF
-The <info>%command.name%</info> command will create the storage for the EventSearch.
-
-<info>php %command.full_name% --tenant-id=client1</info>
-
-EOF
-            )
             ->addOption(
                 'context',
                 null,
@@ -42,15 +39,7 @@ EOF
             );
     }
 
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
-     * @return null
-     *
-     * @throws \Exception
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $context = $input->getOption('context') ?: '{}';
         if (strpos($context, '{') === false) {
@@ -61,9 +50,11 @@ EOF
 
         $io = new SymfonyStyle($input, $output);
         $io->title('EventSearch Storage Creator');
-        $io->comment(sprintf('context: %s', json_encode($context)));
+        $io->comment('context: ' . json_encode($context));
 
         $this->getPbjx()->getEventSearch()->createStorage($context);
-        $io->success(sprintf('EventSearch storage created.'));
+        $io->success('EventSearch storage created.');
+
+        return self::SUCCESS;
     }
 }
