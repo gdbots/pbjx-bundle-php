@@ -5,6 +5,7 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -17,8 +18,14 @@ final class CreateSchedulerStorageCommand extends Command
 
     public function __construct(ContainerInterface $container)
     {
-        parent::__construct();
         $this->container = $container;
+        parent::__construct();
+    }
+
+    protected function configure()
+    {
+        $provider = $this->container->getParameter('gdbots_pbjx.scheduler.provider');
+        $this->setDescription("Creates the Scheduler ({$provider}) storage");
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

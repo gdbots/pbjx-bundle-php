@@ -22,18 +22,20 @@ final class ExportEventsCommand extends Command
 
     public function __construct(ContainerInterface $container)
     {
-        parent::__construct();
         $this->container = $container;
+        parent::__construct();
     }
 
     protected function configure()
     {
+        $provider = $this->container->getParameter('gdbots_pbjx.event_store.provider');
+
         $this
-            ->setDescription('Pipes events from the EventStore to STDOUT.')
+            ->setDescription("Pipes events from the EventStore ({$provider}) to STDOUT")
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will pipe events from the EventStore for the
-given StreamId if provided or all events and write the json value of the event on one
-line (json newline delimited) to STDOUT.
+The <info>%command.name%</info> command will pipe events from the EventStore ({$provider})
+for the given StreamId if provided or all events and write the json value of the event on
+one line (json newline delimited) to STDOUT.
 
 <info>php %command.full_name% --tenant-id=client1 'stream-id'</info>
 
@@ -116,7 +118,9 @@ EOF
             ? $this->getPbjx()->getEventStore()->pipeEvents($streamId, $since, $until, $context)
             : $this->getPbjx()->getEventStore()->pipeAllEvents($since, $until, $context);
 
+        $i = 0;
         foreach ($generator as $result) {
+            ++$i;
             if ($streamId) {
                 $event = $result;
             } else {

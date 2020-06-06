@@ -18,13 +18,16 @@ final class DescribeEventSearchStorageCommand extends Command
 
     public function __construct(ContainerInterface $container)
     {
-        parent::__construct();
         $this->container = $container;
+        parent::__construct();
     }
 
     protected function configure()
     {
+        $provider = $this->container->getParameter('gdbots_pbjx.event_search.provider');
+
         $this
+            ->setDescription("Describes the EventSearch ({$provider}) storage")
             ->addOption(
                 'context',
                 null,

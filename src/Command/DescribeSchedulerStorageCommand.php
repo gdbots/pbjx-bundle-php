@@ -17,8 +17,14 @@ final class DescribeSchedulerStorageCommand extends Command
 
     public function __construct(ContainerInterface $container)
     {
-        parent::__construct();
         $this->container = $container;
+        parent::__construct();
+    }
+
+    protected function configure()
+    {
+        $provider = $this->container->getParameter('gdbots_pbjx.scheduler.provider');
+        $this->setDescription("Describes the Scheduler ({$provider}) storage");
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -9,6 +9,7 @@ use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\ValidateEventStorePass
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\ValidateSchedulerPass;
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\ValidateTransportsPass;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
+use Symfony\Component\DependencyInjection\Compiler\ResolveEnvPlaceholdersPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -31,5 +32,6 @@ final class GdbotsPbjxBundle extends Bundle
             PassConfig::TYPE_BEFORE_REMOVING
         );
         $container->addCompilerPass(new RegisterHandlersPass(), PassConfig::TYPE_BEFORE_REMOVING);
+        //$container->addCompilerPass(new ResolveEnvPlaceholdersPass(), PassConfig::TYPE_AFTER_REMOVING);
     }
 }

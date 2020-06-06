@@ -351,7 +351,6 @@ pbjx:describe-event-store-storage   Describes the EventStore storage.
 pbjx:export-events                  Pipes events from the EventStore to STDOUT.
 pbjx:reindex-events                 Pipes events from the EventStore and reindexes them.
 pbjx:replay-events                  Pipes events from the EventStore and replays them through pbjx->publish.
-pbjx:run-gearman-consumer           Runs a gearman consumer up to the max-runtime.
 pbjx:tail-events                    Tails events from the EventStore for a given stream id and writes them to STDOUT.
 ```
 

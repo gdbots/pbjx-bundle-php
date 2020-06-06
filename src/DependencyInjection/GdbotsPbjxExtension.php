@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection;
 
+use Gdbots\Bundle\PbjxBundle\PbjxTokenSigner;
 use Gdbots\Pbjx\DependencyInjection\PbjxBinder;
 use Gdbots\Pbjx\DependencyInjection\PbjxEnricher;
 use Gdbots\Pbjx\DependencyInjection\PbjxHandler;
@@ -72,6 +73,7 @@ final class GdbotsPbjxExtension extends Extension
         }
 
         $container->setAlias(Pbjx::class, 'pbjx');
+        $container->setAlias(PbjxTokenSigner::class, 'gdbots_pbjx.pbjx_token_signer');
 
         $container->registerForAutoconfiguration(EventSubscriber::class)->addTag('pbjx.event_subscriber');
         $container->registerForAutoconfiguration(PbjxBinder::class)->addTag('pbjx.binder');

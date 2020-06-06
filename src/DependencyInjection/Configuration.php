@@ -143,7 +143,7 @@ final class Configuration implements ConfigurationInterface
                     ->defaultValue(DynamoDbEventStore::class)
                 ->end()
                 ->scalarNode('table_name')
-                    ->defaultValue('%env(APP_VENDOR)%-%env(default:app_env:CLOUD_ENV)%-event-store-'.EventStoreTable::SCHEMA_VERSION)
+                    ->defaultValue('%env(default:app_vendor:APP_VENDOR)%-%env(default:app_env:CLOUD_ENV)%-event-store-'.EventStoreTable::SCHEMA_VERSION)
                 ->end()
             ->end()
         ;
@@ -164,9 +164,7 @@ final class Configuration implements ConfigurationInterface
                 'debug'       => false,
                 'persistent'  => true,
                 'servers'     => $defaultServers,
-                'config'      => [
-                    'ssl' => true,
-                ]
+                'ssl'         => true,
             ],
         ];
 
@@ -184,7 +182,7 @@ final class Configuration implements ConfigurationInterface
                             ->defaultValue(IndexManager::class)
                         ->end()
                         ->scalarNode('index_prefix')
-                            ->defaultValue('%env(APP_VENDOR)%-%env(default:app_env:CLOUD_ENV)%-events')
+                            ->defaultValue('%env(default:app_vendor:APP_VENDOR)%-%env(default:app_env:CLOUD_ENV)%-events')
                         ->end()
                     ->end()
                 ->end()
@@ -240,14 +238,9 @@ final class Configuration implements ConfigurationInterface
                                     ->end()
                                 ->end()
                             ->end()
-                            ->arrayNode('config')
-                                ->addDefaultsIfNotSet()
-                                ->children()
-                                    ->booleanNode('ssl')
-                                        ->defaultTrue()
-                                        ->treatNullLike(true)
-                                    ->end()
-                                ->end()
+                            ->booleanNode('ssl')
+                                ->defaultTrue()
+                                ->treatNullLike(true)
                             ->end()
                         ->end()
                     ->end()
@@ -270,7 +263,7 @@ final class Configuration implements ConfigurationInterface
                     ->defaultValue(DynamoDbScheduler::class)
                 ->end()
                 ->scalarNode('table_name')
-                    ->defaultValue('%env(APP_VENDOR)%-%env(default:app_env:CLOUD_ENV)%-scheduler-'.SchedulerTable::SCHEMA_VERSION)
+                    ->defaultValue('%env(default:app_vendor:APP_VENDOR)%-%env(default:app_env:CLOUD_ENV)%-scheduler-'.SchedulerTable::SCHEMA_VERSION)
                 ->end()
                 ->scalarNode('state_machine_arn')
                     ->isRequired()
