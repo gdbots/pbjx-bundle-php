@@ -10,7 +10,7 @@
     <requirement key="pbjx_category">([a-z0-9_-]+)?</requirement>
     <requirement key="pbjx_message">[a-z0-9-]+</requirement>
   </route>
-s
+
   <route id="pbjx_receive" path="/receive" methods="POST">
     <default key="_controller">gdbots_pbjx.pbjx_receive_controller::receiveAction</default>
   </route>

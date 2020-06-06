@@ -5,41 +5,32 @@ namespace Gdbots\Bundle\PbjxBundle\EventListener;
 
 use Gdbots\Pbjx\Pbjx;
 use Gdbots\Schemas\Pbjx\Enum\Code;
-use Gdbots\Schemas\Pbjx\Envelope;
+use Gdbots\Schemas\Pbjx\Enum\HttpCode;
+use Gdbots\Schemas\Pbjx\EnvelopeV1;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
+use Symfony\Component\HttpKernel\Event\ViewEvent;
 
 /**
  * Handles the conversion of an Envelope to a symfony response.
  */
 final class EnvelopeListener
 {
-    /* @var Pbjx */
-    private $pbjx;
+    private Pbjx $pbjx;
+    private LoggerInterface $logger;
 
-    /* @var LoggerInterface */
-    private $logger;
-
-    /**
-     * @param Pbjx            $pbjx
-     * @param LoggerInterface $logger
-     */
     public function __construct(Pbjx $pbjx, ?LoggerInterface $logger = null)
     {
         $this->pbjx = $pbjx;
         $this->logger = $logger ?: new NullLogger();
     }
 
-    /**
-     * @param GetResponseForControllerResultEvent $event
-     */
-    public function onKernelView(GetResponseForControllerResultEvent $event): void
+    public function onKernelView(ViewEvent $event): void
     {
         $envelope = $event->getControllerResult();
-        if (!$envelope instanceof Envelope) {
+        if (!$envelope instanceof EnvelopeV1) {
             return;
         }
 
@@ -53,17 +44,19 @@ final class EnvelopeListener
             $this->logger->error('Error running pbjx->triggerLifecycle on envelope.', ['exception' => $e]);
         }
 
-        $envelope->set('ok', Code::OK === $envelope->get('code'));
-        $httpCode = $envelope->has('http_code') ? $envelope->get('http_code')->getValue() : 200;
+        $envelope->set(EnvelopeV1::OK_FIELD, Code::OK === $envelope->get(EnvelopeV1::CODE_FIELD));
+        $httpCode = $envelope->has(EnvelopeV1::HTTP_CODE_FIELD)
+            ? $envelope->get(EnvelopeV1::HTTP_CODE_FIELD)->getValue()
+            : 200;
         $array = $envelope->toArray();
 
-        if (isset($array['error_message']) && $redact) {
-            if ($httpCode >= 500) {
+        if (isset($array[EnvelopeV1::ERROR_MESSAGE_FIELD]) && $redact) {
+            if ($httpCode >= HttpCode::HTTP_INTERNAL_SERVER_ERROR) {
                 $this->logger->error(
                     sprintf(
                         '%s::Message [{pbj_schema}] failed (Code:%s,HttpCode:%s).',
-                        $envelope->get('error_name'),
-                        $envelope->get('code'),
+                        $envelope->get(EnvelopeV1::ERROR_NAME_FIELD),
+                        $envelope->get(EnvelopeV1::CODE_FIELD),
                         $httpCode
                     ),
                     [
@@ -73,13 +66,13 @@ final class EnvelopeListener
                 );
             }
 
-            $array['error_message'] = $this->redactErrorMessage($envelope, $request);
+            $array[EnvelopeV1::ERROR_MESSAGE_FIELD] = $this->redactErrorMessage($envelope, $request);
         }
 
         $response = new JsonResponse($array, $httpCode, [
             'Content-Type'       => 'application/json',
-            'ETag'               => $envelope->get('etag'),
-            'x-pbjx-envelope-id' => (string)$envelope->get('envelope_id'),
+            'ETag'               => $envelope->get(EnvelopeV1::ETAG_FIELD),
+            'x-pbjx-envelope-id' => (string)$envelope->get(EnvelopeV1::ENVELOPE_ID_FIELD),
         ]);
 
         if ($request->attributes->getBoolean('_jsonp_enabled') && $request->query->has('callback')) {
@@ -96,17 +89,17 @@ final class EnvelopeListener
      * So when we're pushing an error to the outside world (http, not console)
      * we'll replace the message with something generic.
      *
-     * @param Envelope $envelope
-     * @param Request  $request
+     * @param EnvelopeV1 $envelope
+     * @param Request    $request
      *
      * @return string
      */
-    private function redactErrorMessage(Envelope $envelope, Request $request): string
+    private function redactErrorMessage(EnvelopeV1 $envelope, Request $request): string
     {
         try {
-            $code = Code::create($envelope->get('code'))->getName();
+            $code = Code::create($envelope->get(EnvelopeV1::CODE_FIELD))->getName();
         } catch (\Throwable $e) {
-            $code = $envelope->get('code');
+            $code = (string)$envelope->get(EnvelopeV1::CODE_FIELD);
         }
 
         return sprintf('Your message could not be handled (Code:%s).', $code);
