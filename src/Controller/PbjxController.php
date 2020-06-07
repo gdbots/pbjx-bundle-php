@@ -5,7 +5,6 @@ namespace Gdbots\Bundle\PbjxBundle\Controller;
 
 use Gdbots\Bundle\PbjxBundle\PbjxTokenSigner;
 use Gdbots\Pbj\Exception\GdbotsPbjException;
-use Gdbots\Pbj\Exception\HasEndUserMessage;
 use Gdbots\Pbj\Message;
 use Gdbots\Pbj\MessageResolver;
 use Gdbots\Pbj\Schema;
@@ -229,7 +228,7 @@ final class PbjxController
         return $envelope
             ->set(EnvelopeV1::CODE_FIELD, Code::OK)
             ->set(EnvelopeV1::HTTP_CODE_FIELD, HttpCode::HTTP_OK())
-            ->set(EnvelopeV1::ETAG_FIELD, $response->get(EnvelopeV1::ETAG_FIELD))
+            //->set(EnvelopeV1::ETAG_FIELD, $response->get(EnvelopeV1::ETAG_FIELD))
             ->set(EnvelopeV1::MESSAGE_REF_FIELD, $response->generateMessageRef())
             ->set(EnvelopeV1::MESSAGE_FIELD, $response);
     }
