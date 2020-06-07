@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
+use Gdbots\Pbj\Message;
 use Gdbots\Pbj\Util\NumberUtil;
 use Gdbots\Pbj\WellKnown\Microtime;
 use Gdbots\Schemas\Pbjx\StreamId;
@@ -94,8 +95,8 @@ EOF
         $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
         $errOutput->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
 
-        $batchSize = NumberUtil::bound($input->getOption('batch-size'), 1, 1000);
-        $batchDelay = NumberUtil::bound($input->getOption('batch-delay'), 100, 600000);
+        $batchSize = NumberUtil::bound((int)$input->getOption('batch-size'), 1, 1000);
+        $batchDelay = NumberUtil::bound((int)$input->getOption('batch-delay'), 100, 600000);
         $since = $input->getOption('since');
         $until = $input->getOption('until');
         $context = $input->getOption('context') ?: '{}';
@@ -121,7 +122,7 @@ EOF
         $i = 0;
         foreach ($generator as $result) {
             ++$i;
-            if ($streamId) {
+            if ($result instanceof Message) {
                 $event = $result;
             } else {
                 [$event] = $result;

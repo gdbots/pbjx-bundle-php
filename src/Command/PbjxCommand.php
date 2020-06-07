@@ -31,12 +31,12 @@ final class PbjxCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Handles pbjx messages (command, event, request) and returns an envelope with the result.')
+            ->setDescription('Handles pbjx messages (command, event, request) and returns an envelope with the result')
             ->setHelp(<<<EOF
 The <info>%command.name%</info> command will create a single pbjx message using the json
 payload provided and return an envelope (also json) with the results.
 
-<info>php %command.full_name% 'acme:service:command:say-hello' '{"name":"Homer"}'</info>
+<info>php %command.full_name% 'gdbots:pbjx:request:echo-request' '{"msg":"hello"}'</info>
 
 EOF
             )
