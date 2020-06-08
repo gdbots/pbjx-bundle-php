@@ -47,7 +47,7 @@ final class EnvelopeListener
         $envelope->set(EnvelopeV1::OK_FIELD, Code::OK === $envelope->get(EnvelopeV1::CODE_FIELD));
         $httpCode = $envelope->has(EnvelopeV1::HTTP_CODE_FIELD)
             ? $envelope->get(EnvelopeV1::HTTP_CODE_FIELD)->getValue()
-            : 200;
+            : HttpCode::HTTP_OK;
         $array = $envelope->toArray();
 
         if (isset($array[EnvelopeV1::ERROR_MESSAGE_FIELD]) && $redact) {

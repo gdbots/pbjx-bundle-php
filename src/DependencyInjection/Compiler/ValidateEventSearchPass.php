@@ -12,9 +12,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  */
 final class ValidateEventSearchPass implements CompilerPassInterface
 {
-    /**
-     * @param ContainerBuilder $container
-     */
     public function process(ContainerBuilder $container)
     {
         if (!$container->hasParameter('gdbots_pbjx.event_search.provider')) {
@@ -35,13 +32,7 @@ final class ValidateEventSearchPass implements CompilerPassInterface
         }
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param string           $provider
-     *
-     * @throws \LogicException
-     */
-    private function ensureProviderExists(ContainerBuilder $container, $provider)
+    private function ensureProviderExists(ContainerBuilder $container, $provider): void
     {
         $serviceId = 'gdbots_pbjx.event_search.' . $provider;
         if ($container->hasDefinition($serviceId)) {
@@ -57,12 +48,7 @@ final class ValidateEventSearchPass implements CompilerPassInterface
         );
     }
 
-    /**
-     * @param ContainerBuilder $container
-     *
-     * @throws \LogicException
-     */
-    private function validateElasticaProvider(ContainerBuilder $container)
+    private function validateElasticaProvider(ContainerBuilder $container): void
     {
         // validate here
     }

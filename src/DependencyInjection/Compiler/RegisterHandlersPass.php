@@ -30,9 +30,6 @@ use Symfony\Component\DependencyInjection\Reference;
  */
 final class RegisterHandlersPass implements CompilerPassInterface
 {
-    /**
-     * @param ContainerBuilder $container
-     */
     public function process(ContainerBuilder $container)
     {
         $locator = $container->getDefinition('gdbots_pbjx.service_locator');

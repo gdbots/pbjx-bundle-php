@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Gdbots\Tests\Bundle\PbjxBundle\DependencyInjection;
 
+use Gdbots\Bundle\PbjxBundle\ContainerAwareServiceLocator;
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Configuration;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Processor;
@@ -20,34 +21,11 @@ class ConfigurationTest extends TestCase
 //        exit;
     }
 
-    public function testDefaultTransportGearmanConfig()
-    {
-        $this->markTestSkipped();
-
-        $configs = array_merge(self::getBundleDefaultConfig(), [
-            'transport' => [
-                'gearman' => [
-                    'servers'        => [
-                        [
-                            'host' => '127.0.0.1',
-                            'port' => 4730,
-                        ],
-                    ],
-                    'timeout'        => 5000,
-                    'channel_prefix' => null,
-                ],
-            ],
-        ]);
-
-        $processor = new Processor();
-        $config = $processor->processConfiguration(new Configuration(), $configs);
-    }
-
     protected static function getBundleDefaultConfig()
     {
         return [
             'service_locator'         => [
-                'class' => 'Gdbots\Bundle\PbjxBundle\ContainerAwareServiceLocator',
+                'class' => ContainerAwareServiceLocator::class,
             ],
             'pbjx_token_signer'       => [
                 'default_kid' => 'kid',

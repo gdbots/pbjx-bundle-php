@@ -52,7 +52,6 @@
     </service>
 
     <service id="gdbots_pbjx.query_parsing_binder" class="Gdbots\Bundle\PbjxBundle\Binder\QueryParsingBinder">
-      <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
       <tag name="pbjx.binder"/>
     </service>

@@ -9,23 +9,22 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class GdbotsPbjxExtensionTest extends TestCase
 {
-    /** @var ContainerBuilder */
-    private $container;
+    private ?ContainerBuilder $container = null;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->container = new ContainerBuilder();
         $this->container->setParameter('kernel.environment', 'dev');
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         $this->container = null;
     }
 
-    public function testDefaultConfig()
+    public function testDefaultConfig(): void
     {
         $extension = new GdbotsPbjxExtension();
         $extension->load([[]], $this->container);

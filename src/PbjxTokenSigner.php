@@ -13,7 +13,7 @@ final class PbjxTokenSigner
      *
      * @var string
      */
-    private $defaultKid;
+    private string $defaultKid;
 
     /**
      * An array of secrets keyed by the kid used to
@@ -21,7 +21,7 @@ final class PbjxTokenSigner
      *
      * @var string[]
      */
-    private $keys = [];
+    private array $keys = [];
 
     /**
      * @param array  $keys

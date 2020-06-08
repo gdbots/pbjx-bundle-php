@@ -25,15 +25,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ContainerAwareServiceLocator extends AbstractServiceLocator
 {
-    /** @var ContainerInterface */
-    protected $container;
+    protected ContainerInterface $container;
 
     /**
      * An array of handlers keyed by the curie.
      *
      * @var CommandHandler|RequestHandler[]
      */
-    protected $handlers = [];
+    protected array $handlers = [];
 
     /**
      * An array of functions keyed by the curie that
@@ -41,7 +40,7 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
      *
      * @var callable[]
      */
-    protected $registeredHandlers = [];
+    protected array $registeredHandlers = [];
 
     /**
      * In some cases (console commands for example) we want to force
@@ -49,102 +48,66 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
      *
      * @var bool
      */
-    protected $forceTransportsToInMemory = false;
+    protected bool $forceTransportsToInMemory = false;
 
-    /**
-     * @param ContainerInterface $container
-     */
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
     }
 
-    /**
-     * @return Pbjx
-     */
     protected function doGetPbjx(): Pbjx
     {
         return $this->container->get('pbjx');
     }
 
-    /**
-     * @return EventDispatcherInterface
-     */
     protected function doGetDispatcher(): EventDispatcherInterface
     {
         return $this->container->get('gdbots_pbjx.event_dispatcher');
     }
 
-    /**
-     * @return CommandBus
-     */
     protected function doGetCommandBus(): CommandBus
     {
         return new SimpleCommandBus($this, $this->getTransportForBus('command'));
     }
 
-    /**
-     * @return EventBus
-     */
     protected function doGetEventBus(): EventBus
     {
         return new SimpleEventBus($this, $this->getTransportForBus('event'));
     }
 
-    /**
-     * @return RequestBus
-     */
     protected function doGetRequestBus(): RequestBus
     {
         return new SimpleRequestBus($this, $this->getTransportForBus('request'));
     }
 
-    /**
-     * @return ExceptionHandler
-     */
     protected function doGetExceptionHandler(): ExceptionHandler
     {
         return $this->container->get('gdbots_pbjx.exception_handler');
     }
 
-    /**
-     * @return EventStore
-     */
     protected function doGetEventStore(): EventStore
     {
         $provider = $this->container->getParameter('gdbots_pbjx.event_store.provider');
         return $this->container->get('gdbots_pbjx.event_store.' . $provider);
     }
 
-    /**
-     * @return EventSearch
-     */
     protected function doGetEventSearch(): EventSearch
     {
         $provider = $this->container->getParameter('gdbots_pbjx.event_search.provider');
         return $this->container->get('gdbots_pbjx.event_search.' . $provider);
     }
 
-    /**
-     * @return Scheduler
-     */
     protected function doGetScheduler(): Scheduler
     {
         $provider = $this->container->getParameter('gdbots_pbjx.scheduler.provider');
         return $this->container->get('gdbots_pbjx.scheduler.' . $provider);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getCommandHandler(SchemaCurie $curie): CommandHandler
     {
         return $this->getHandler($curie);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getRequestHandler(SchemaCurie $curie): RequestHandler
     {
         return $this->getHandler($curie);

@@ -12,9 +12,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  */
 final class ValidateSchedulerPass implements CompilerPassInterface
 {
-    /**
-     * @param ContainerBuilder $container
-     */
     public function process(ContainerBuilder $container)
     {
         if (!$container->hasParameter('gdbots_pbjx.scheduler.provider')) {
@@ -35,12 +32,6 @@ final class ValidateSchedulerPass implements CompilerPassInterface
         }
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param string           $provider
-     *
-     * @throws \LogicException
-     */
     private function ensureProviderExists(ContainerBuilder $container, string $provider): void
     {
         $serviceId = 'gdbots_pbjx.scheduler.' . $provider;
@@ -57,11 +48,6 @@ final class ValidateSchedulerPass implements CompilerPassInterface
         );
     }
 
-    /**
-     * @param ContainerBuilder $container
-     *
-     * @throws \LogicException
-     */
     private function validateDynamoDbProvider(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition('aws.dynamodb')) {

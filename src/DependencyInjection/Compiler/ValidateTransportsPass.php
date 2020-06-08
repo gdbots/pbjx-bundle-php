@@ -9,13 +9,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * Checks the container to ensure that transports that have been configured
  * for the buses are actually defined and have their dependencies defined.
- *
  */
 final class ValidateTransportsPass implements CompilerPassInterface
 {
-    /**
-     * @param ContainerBuilder $container
-     */
     public function process(ContainerBuilder $container)
     {
         foreach (['command', 'event', 'request'] as $busName) {
@@ -31,10 +27,6 @@ final class ValidateTransportsPass implements CompilerPassInterface
                     $this->validateFirehoseTransport($container);
                     break;
 
-                case 'gearman':
-                    $this->validateGearmanTransport($container);
-                    break;
-
                 case 'kinesis':
                     $this->validateKinesisTransport($container);
                     break;
@@ -42,13 +34,6 @@ final class ValidateTransportsPass implements CompilerPassInterface
         }
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param string           $busName
-     * @param string           $transport
-     *
-     * @throws \LogicException
-     */
     private function ensureTransportExists(ContainerBuilder $container, string $busName, string $transport): void
     {
         $serviceId = 'gdbots_pbjx.transport.' . $transport;
@@ -66,19 +51,11 @@ final class ValidateTransportsPass implements CompilerPassInterface
         );
     }
 
-    /**
-     * @param ContainerBuilder $container
-     */
     private function validateInMemoryTransport(ContainerBuilder $container): void
     {
         // nothing to check
     }
 
-    /**
-     * @param ContainerBuilder $container
-     *
-     * @throws \LogicException
-     */
     private function validateFirehoseTransport(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition('gdbots_pbjx.transport.firehose_router')) {
@@ -98,35 +75,6 @@ final class ValidateTransportsPass implements CompilerPassInterface
         }
     }
 
-    /**
-     * @param ContainerBuilder $container
-     *
-     * @throws \LogicException
-     */
-    private function validateGearmanTransport(ContainerBuilder $container): void
-    {
-        $parameter = 'gdbots_pbjx.transport.gearman.servers';
-        if (!$container->hasParameter($parameter)) {
-            throw new \LogicException(sprintf(
-                'The service "gdbots_pbjx.transport.gearman" has a dependency on a non-existent parameter "%s".',
-                $parameter
-            ));
-        }
-
-        $servers = $container->getParameter($parameter);
-        if (empty($servers)) {
-            throw new \LogicException(sprintf(
-                'The service "gdbots_pbjx.transport.gearman" requires "%s" parameter to have at least 1 element(s) defined.',
-                $parameter
-            ));
-        }
-    }
-
-    /**
-     * @param ContainerBuilder $container
-     *
-     * @throws \LogicException
-     */
     private function validateKinesisTransport(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition('gdbots_pbjx.transport.kinesis_router')) {

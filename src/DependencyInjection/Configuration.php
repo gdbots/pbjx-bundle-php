@@ -163,8 +163,8 @@ final class Configuration implements ConfigurationInterface
                 'timeout'     => 300,
                 'debug'       => false,
                 'persistent'  => true,
-                'servers'     => $defaultServers,
                 'ssl'         => true,
+                'servers'     => $defaultServers,
             ],
         ];
 
@@ -219,6 +219,10 @@ final class Configuration implements ConfigurationInterface
                                 ->defaultTrue()
                                 ->treatNullLike(true)
                             ->end()
+                            ->booleanNode('ssl')
+                                ->defaultTrue()
+                                ->treatNullLike(true)
+                            ->end()
                             ->arrayNode('servers')
                                 ->requiresAtLeastOneElement()
                                 ->treatNullLike($defaultServers)
@@ -237,10 +241,6 @@ final class Configuration implements ConfigurationInterface
                                         ->end()
                                     ->end()
                                 ->end()
-                            ->end()
-                            ->booleanNode('ssl')
-                                ->defaultTrue()
-                                ->treatNullLike(true)
                             ->end()
                         ->end()
                     ->end()
