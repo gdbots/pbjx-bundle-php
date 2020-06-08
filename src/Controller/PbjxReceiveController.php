@@ -120,7 +120,7 @@ final class PbjxReceiveController
             $data['results'][] = $result;
         }
 
-        return JsonResponse::create($data);
+        return new JsonResponse($data);
     }
 
     private function receiveMessage(Message $message): void
@@ -155,11 +155,11 @@ final class PbjxReceiveController
             $errorMessage = $response->get(RequestFailedResponseV1::ERROR_MESSAGE_FIELD, $exception->getMessage());
         } elseif ($exception instanceof GdbotsPbjException) {
             $code = Code::INVALID_ARGUMENT;
-            $errorName = ClassUtils::getShortName($exception);
+            $errorName = ClassUtil::getShortName($exception);
             $errorMessage = $exception->getMessage();
         } else {
             $code = $exception->getCode() > 0 ? $exception->getCode() : Code::INVALID_ARGUMENT;
-            $errorName = ClassUtils::getShortName($exception);
+            $errorName = ClassUtil::getShortName($exception);
             $errorMessage = $exception->getMessage();
         }
 

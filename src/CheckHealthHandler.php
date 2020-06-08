@@ -28,10 +28,13 @@ final class CheckHealthHandler implements CommandHandler
 
     public function handleCommand(Message $command, Pbjx $pbjx): void
     {
-        $event = HealthCheckedV1::create()->set('msg', $command->get('msg'));
+        $event = HealthCheckedV1::create()->set(
+            HealthCheckedV1::MSG_FIELD,
+            $command->get(CheckHealthV1::MSG_FIELD)
+        );
         $pbjx->copyContext($command, $event)->publish($event);
         $this->logger->info('CheckHealthHandler published [{pbj_schema}] with message [{msg}].', [
-            'msg'        => $event->get('msg'),
+            'msg'        => $event->get(HealthCheckedV1::MSG_FIELD),
             'pbj_schema' => $event::schema()->getId()->toString(),
             'pbj'        => $event->toArray(),
         ]);

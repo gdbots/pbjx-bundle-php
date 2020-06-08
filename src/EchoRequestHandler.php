@@ -20,6 +20,9 @@ final class EchoRequestHandler implements RequestHandler
 
     public function handleRequest(Message $request, Pbjx $pbjx): Message
     {
-        return EchoResponseV1::create()->set('msg', $request->get('msg'));
+        return EchoResponseV1::create()->set(
+            EchoResponseV1::MSG_FIELD,
+            $request->get(EchoRequestV1::MSG_FIELD)
+        );
     }
 }

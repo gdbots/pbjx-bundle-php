@@ -5,21 +5,26 @@ namespace Gdbots\Bundle\PbjxBundle\Validator;
 
 use Gdbots\Pbj\Message;
 use Gdbots\Pbjx\Event\PbjxEvent;
-use Gdbots\Schemas\Pbjx\Mixin\Command\Command;
-use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
-use Gdbots\Schemas\Pbjx\Mixin\Request\Request as PbjxRequest;
+use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1Mixin;
+use Gdbots\Schemas\Pbjx\Mixin\Event\EventV1Mixin;
+use Gdbots\Schemas\Pbjx\Mixin\Request\RequestV1Mixin;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 trait PermissionValidatorTrait
 {
-    /** @var RequestStack */
-    protected $requestStack;
+    protected RequestStack $requestStack;
 
-    /**
-     * @param PbjxEvent $pbjxEvent
-     */
+    public static function getSubscribedEvents()
+    {
+        return [
+            CommandV1Mixin::SCHEMA_CURIE . '.validate' => 'validate',
+            EventV1Mixin::SCHEMA_CURIE . '.validate'   => 'validate',
+            RequestV1Mixin::SCHEMA_CURIE . '.validate' => 'validate',
+        ];
+    }
+
     public function validate(PbjxEvent $pbjxEvent): void
     {
         if (!$pbjxEvent->isRootEvent()) {
@@ -40,17 +45,7 @@ trait PermissionValidatorTrait
         }
 
         $message = $pbjxEvent->getMessage();
-
-        if (!$message instanceof Command && !$message instanceof Event && !$message instanceof PbjxRequest) {
-            /*
-             * all operations through pbjx that can change or reveal data will be one of the these types.
-             * so if it's not this it's something like an Envelope or value object, etc and those don't
-             * require permission as they can't be dealt with directly through pbjx.
-             */
-            return;
-        }
-
-        if ($message->has('ctx_causator_ref')) {
+        if ($message->has(CommandV1Mixin::CTX_CAUSATOR_REF_FIELD)) {
             /*
              * if the "ctx_causator_ref" is present it was populated by
              * the server and means this message is a sub request which
@@ -62,25 +57,8 @@ trait PermissionValidatorTrait
         $this->checkPermission($pbjxEvent, $message, $request);
     }
 
-    /**
-     * @param PbjxEvent $pbjxEvent
-     * @param Message   $message
-     * @param Request   $request
-     *
-     * @throws \Exception
-     */
     protected function checkPermission(PbjxEvent $pbjxEvent, Message $message, Request $request): void
     {
         // override to provide custom validation logic.
-    }
-
-    /**
-     * @return array
-     */
-    public static function getSubscribedEvents()
-    {
-        return [
-            'gdbots_pbjx.message.validate' => 'validate',
-        ];
     }
 }

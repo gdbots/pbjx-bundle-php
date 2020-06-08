@@ -29,8 +29,8 @@ final class EventExecutionFailureLogger implements EventSubscriber
     {
         $message = sprintf(
             '%s::%s Event subscriber failed to handle message [{pbj_schema}].',
-            $event->get('error_name'),
-            $event->get('error_code')
+            $event->get(EventExecutionFailedV1::ERROR_NAME_FIELD),
+            $event->get(EventExecutionFailedV1::ERROR_CODE_FIELD)
         );
 
         $this->logger->critical($message, [

@@ -53,9 +53,9 @@ gdbots_pbjx:
   pbjx_receive_controller:
     enabled: false # default, ensure pbjx_token_signer.keys are set prior to enabling
   command_bus:
-    transport: ~ # in_memory, firehose, gearman, kinesis
+    transport: ~ # in_memory, firehose, kinesis
   event_bus:
-    transport: ~ # in_memory, firehose, gearman, kinesis
+    transport: ~ # in_memory, firehose, kinesis
   request_bus:
     # requests must return a value, so firehose and kinesis simply run
     # the request in memory as they don't support request/response.
