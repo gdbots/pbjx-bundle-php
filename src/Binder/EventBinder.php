@@ -25,7 +25,7 @@ final class EventBinder implements EventSubscriber, PbjxBinder
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->restrictedFields = array_diff(EventV1Mixin::FIELDS, ['ctx_app']);
+        $this->restrictedFields = array_diff(EventV1Mixin::FIELDS, [EventV1Mixin::CTX_APP_FIELD]);
     }
 
     public function bind(PbjxEvent $pbjxEvent): void

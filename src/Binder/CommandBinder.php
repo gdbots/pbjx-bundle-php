@@ -25,7 +25,11 @@ final class CommandBinder implements EventSubscriber, PbjxBinder
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->restrictedFields = array_diff(CommandV1Mixin::FIELDS, ['ctx_app', 'ctx_retries', 'expected_etag']);
+        $this->restrictedFields = array_diff(CommandV1Mixin::FIELDS, [
+            CommandV1Mixin::CTX_APP_FIELD,
+            CommandV1Mixin::CTX_RETRIES_FIELD,
+            CommandV1Mixin::EXPECTED_ETAG_FIELD,
+        ]);
     }
 
     public function bind(PbjxEvent $pbjxEvent): void

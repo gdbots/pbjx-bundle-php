@@ -208,7 +208,7 @@ final class PbjxController
         $envelope
             ->set(EnvelopeV1::CODE_FIELD, Code::OK)
             ->set(EnvelopeV1::HTTP_CODE_FIELD, HttpCode::HTTP_ACCEPTED())
-            ->set(EnvelopeV1::MESSAGE_REF_FIELD, $command->generateMessageRef());
+            ->set(EnvelopeV1::MESSAGE_REF_FIELD, $event->generateMessageRef());
 
         if ($request->attributes->getBoolean('pbjx_console')) {
             $envelope->set(EnvelopeV1::MESSAGE_FIELD, $event);

@@ -25,7 +25,11 @@ final class RequestBinder implements EventSubscriber, PbjxBinder
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->restrictedFields = array_diff(RequestV1Mixin::FIELDS, ['ctx_app', 'ctx_retries', 'derefs']);
+        $this->restrictedFields = array_diff(RequestV1Mixin::FIELDS, [
+            RequestV1Mixin::CTX_APP_FIELD,
+            RequestV1Mixin::CTX_RETRIES_FIELD,
+            RequestV1Mixin::DEREFS_FIELD,
+        ]);
     }
 
     public function bind(PbjxEvent $pbjxEvent): void

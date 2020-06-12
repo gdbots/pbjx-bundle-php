@@ -132,7 +132,7 @@ final class PbjxExtension extends AbstractExtension
             }
 
             // ensures permission check is bypassed
-            $request->set('ctx_causator_ref', $request->generateMessageRef());
+            $request->set(RequestV1Mixin::CTX_CAUSATOR_REF_FIELD, $request->generateMessageRef());
 
             return $this->pbjx->request($request);
         } catch (\Throwable $e) {

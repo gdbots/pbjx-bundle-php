@@ -30,15 +30,15 @@ final class QueryParsingBinder implements EventSubscriber, PbjxBinder
     public function bind(PbjxEvent $pbjxEvent): void
     {
         $request = $pbjxEvent->getMessage();
-        $query = trim((string)$request->get('q'));
+        $query = trim((string)$request->get(SearchEventsRequestV1Mixin::Q_FIELD));
         if (empty($query)) {
             return;
         }
 
         $parsedQuery = $this->queryParser->parse($query);
         $request
-            ->set('q', $query)
-            ->addToSet('fields_used', $parsedQuery->getFieldsUsed())
-            ->set('parsed_query_json', json_encode($parsedQuery));
+            ->set(SearchEventsRequestV1Mixin::Q_FIELD, $query)
+            ->addToSet(SearchEventsRequestV1Mixin::FIELDS_USED_FIELD, $parsedQuery->getFieldsUsed())
+            ->set(SearchEventsRequestV1Mixin::PARSED_QUERY_JSON_FIELD, json_encode($parsedQuery));
     }
 }
