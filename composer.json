@@ -8,7 +8,6 @@
     "php": ">=7.4",
     "gdbots/pbjx": "3.x-dev",
     "gdbots/query-parser": "2.x-dev",
-    "gdbots/schemas": "2.x-dev",
     "gdbots/uri-template": "^1.1",
     "symfony/console": "^5.1",
     "symfony/framework-bundle": "^5.1",
@@ -17,6 +16,7 @@
   "require-dev": {
     "phpunit/phpunit": "^9.1",
     "aws/aws-sdk-php-symfony": "^2.2",
+    "gdbots/acme-schemas": "^2.0",
     "ruflin/elastica": "^7.0"
   },
   "autoload": {

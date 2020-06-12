@@ -8,7 +8,7 @@ use Gdbots\Bundle\PbjxBundle\PbjxTokenSigner;
 use Gdbots\Pbj\Message;
 use Gdbots\Pbjx\RegisteringServiceLocator;
 use Gdbots\Pbjx\Transport\TransportEnvelope;
-use Gdbots\Tests\Bundle\PbjxBundle\Fixtures\FakeCommand;
+use Gdbots\Schemas\Pbjx\Command\CheckHealthV1;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,9 +22,9 @@ class PbjxReceiveControllerTest extends TestCase
         $controller = new PbjxReceiveController($locator, $signer, true);
 
         $messages = [
-            FakeCommand::create(),
-            FakeCommand::create(),
-            FakeCommand::create(),
+            CheckHealthV1::create(),
+            CheckHealthV1::create(),
+            CheckHealthV1::create(),
         ];
 
         $lines = implode(PHP_EOL, array_map(function (Message $message) {
@@ -57,9 +57,9 @@ class PbjxReceiveControllerTest extends TestCase
         $controller = new PbjxReceiveController($locator, $signer, true);
 
         $messages = [
-            FakeCommand::create(),
-            FakeCommand::create(),
-            FakeCommand::create(),
+            CheckHealthV1::create(),
+            CheckHealthV1::create(),
+            CheckHealthV1::create(),
         ];
 
         $lines = implode(PHP_EOL, array_map(function (Message $message) {
