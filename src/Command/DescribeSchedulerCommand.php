@@ -9,11 +9,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-final class DescribeSchedulerStorageCommand extends Command
+final class DescribeSchedulerCommand extends Command
 {
     use PbjxAwareCommandTrait;
 
-    protected static $defaultName = 'pbjx:describe-scheduler-storage';
+    protected static $defaultName = 'pbjx:describe-scheduler';
 
     public function __construct(ContainerInterface $container)
     {

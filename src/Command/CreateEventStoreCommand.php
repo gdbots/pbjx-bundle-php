@@ -10,11 +10,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-final class DescribeEventSearchStorageCommand extends Command
+final class CreateEventStoreCommand extends Command
 {
     use PbjxAwareCommandTrait;
 
-    protected static $defaultName = 'pbjx:describe-event-search-storage';
+    protected static $defaultName = 'pbjx:create-event-store';
 
     public function __construct(ContainerInterface $container)
     {
@@ -24,15 +24,15 @@ final class DescribeEventSearchStorageCommand extends Command
 
     protected function configure()
     {
-        $provider = $this->container->getParameter('gdbots_pbjx.event_search.provider');
+        $provider = $this->container->getParameter('gdbots_pbjx.event_store.provider');
 
         $this
-            ->setDescription("Describes the EventSearch ({$provider}) storage")
+            ->setDescription("Creates the EventStore ({$provider}) storage")
             ->addOption(
                 'context',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Context to provide to the EventSearch (json).'
+                'Context to provide to the EventStore (json).'
             )
             ->addOption(
                 'tenant-id',
@@ -52,12 +52,11 @@ final class DescribeEventSearchStorageCommand extends Command
         $context['tenant_id'] = (string)$input->getOption('tenant-id');
 
         $io = new SymfonyStyle($input, $output);
-        $io->title('EventSearch Storage Describer');
+        $io->title('EventStore Storage Creator');
         $io->comment('context: ' . json_encode($context));
 
-        $details = $this->getPbjx()->getEventSearch()->describeStorage($context);
-        $io->text($details);
-        $io->newLine();
+        $this->getPbjx()->getEventStore()->createStorage($context);
+        $io->success('EventStore storage created.');
 
         return self::SUCCESS;
     }

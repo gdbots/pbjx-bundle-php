@@ -10,11 +10,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-final class CreateEventStoreStorageCommand extends Command
+final class DescribeEventStoreCommand extends Command
 {
     use PbjxAwareCommandTrait;
 
-    protected static $defaultName = 'pbjx:create-event-store-storage';
+    protected static $defaultName = 'pbjx:describe-event-store';
 
     public function __construct(ContainerInterface $container)
     {
@@ -27,7 +27,7 @@ final class CreateEventStoreStorageCommand extends Command
         $provider = $this->container->getParameter('gdbots_pbjx.event_store.provider');
 
         $this
-            ->setDescription("Creates the EventStore ({$provider}) storage")
+            ->setDescription("Describes the EventStore ({$provider}) storage")
             ->addOption(
                 'context',
                 null,
@@ -52,11 +52,12 @@ final class CreateEventStoreStorageCommand extends Command
         $context['tenant_id'] = (string)$input->getOption('tenant-id');
 
         $io = new SymfonyStyle($input, $output);
-        $io->title('EventStore Storage Creator');
+        $io->title('EventStore Storage Describer');
         $io->comment('context: ' . json_encode($context));
 
-        $this->getPbjx()->getEventStore()->createStorage($context);
-        $io->success('EventStore storage created.');
+        $details = $this->getPbjx()->getEventStore()->describeStorage($context);
+        $io->text($details);
+        $io->newLine();
 
         return self::SUCCESS;
     }
