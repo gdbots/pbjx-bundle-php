@@ -3,40 +3,29 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Binder;
 
-use Gdbots\Pbj\Field;
 use Gdbots\Pbj\Message;
 use Gdbots\Pbjx\Event\PbjxEvent;
 use Gdbots\Schemas\Contexts\AppV1;
 use Gdbots\Schemas\Contexts\CloudV1;
+use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1Mixin;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 trait MessageBinderTrait
 {
-    /** @var ContainerInterface */
-    protected $container;
+    private ContainerInterface $container;
+    private ?RequestStack $requestStack = null;
 
-    /** @var RequestStack */
-    protected $requestStack;
-
-    /**
-     * @param PbjxEvent $pbjxEvent
-     * @param Message   $message
-     * @param Field[]   $fields
-     * @param array     $input
-     */
     protected function restrictBindFromInput(PbjxEvent $pbjxEvent, Message $message, array $fields, array $input): void
     {
         foreach ($fields as $field) {
-            $fieldName = $field->getName();
-
-            if (!$message->has($fieldName)) {
+            if (!$message->has($field)) {
                 // this means whatever was in the input never made it to the message.
                 continue;
             }
 
-            if (!isset($input[$fieldName])) {
+            if (!isset($input[$field])) {
                 // the field in question doesn't exist in the input used to populate the message.
                 // so whatever the value is was either a default or set by another process.
                 continue;
@@ -44,18 +33,13 @@ trait MessageBinderTrait
 
             // the input was used to populate the field on the message but they weren't allowed
             // to provide that field, only the server can set it.
-            $message->clear($fieldName);
+            $message->clear($field);
         }
     }
 
-    /**
-     * @param PbjxEvent $pbjxEvent
-     * @param Message   $message
-     * @param Request   $request
-     */
     protected function bindApp(PbjxEvent $pbjxEvent, Message $message, Request $request): void
     {
-        if ($message->has('ctx_app') || !$this->container->hasParameter('app_vendor')) {
+        if ($message->has(CommandV1Mixin::CTX_APP_FIELD) || !$this->container->hasParameter('app_vendor')) {
             return;
         }
 
@@ -67,47 +51,41 @@ trait MessageBinderTrait
             }
 
             $app = AppV1::create()
-                ->set('vendor', $this->container->getParameter('app_vendor'))
-                ->set('name', $name)
-                ->set('version', $this->container->getParameter('app_version') ?: null)
-                ->set('build', $this->container->getParameter('app_build') ?: null);
+                ->set(AppV1::VENDOR_FIELD, $this->container->getParameter('app_vendor'))
+                ->set(AppV1::NAME_FIELD, $name)
+                ->set(AppV1::VERSION_FIELD, $this->container->getParameter('app_version') ?: null)
+                ->set(AppV1::BUILD_FIELD, $this->container->getParameter('app_build') ?: null);
         }
 
-        $message->set('ctx_app', $app);
+        $message->set(CommandV1Mixin::CTX_APP_FIELD, $app);
     }
 
-    /**
-     * @param PbjxEvent $pbjxEvent
-     * @param Message   $message
-     * @param Request   $request
-     */
     protected function bindCloud(PbjxEvent $pbjxEvent, Message $message, Request $request): void
     {
-        if ($message->has('ctx_cloud') || !$this->container->hasParameter('cloud_provider')) {
+        if ($message->has(CommandV1Mixin::CTX_CLOUD_FIELD)
+            || !$this->container->hasParameter('cloud_provider')
+        ) {
             return;
         }
 
         static $cloud = null;
         if (null === $cloud) {
             $cloud = CloudV1::create()
-                ->set('provider', $this->container->getParameter('cloud_provider') ?: null)
-                ->set('region', $this->container->getParameter('cloud_region') ?: null)
-                ->set('zone', $this->container->getParameter('cloud_zone') ?: null)
-                ->set('instance_id', $this->container->getParameter('cloud_instance_id') ?: null)
-                ->set('instance_type', $this->container->getParameter('cloud_instance_type') ?: null);
+                ->set(CloudV1::PROVIDER_FIELD, $this->container->getParameter('cloud_provider') ?: null)
+                ->set(CloudV1::REGION_FIELD, $this->container->getParameter('cloud_region') ?: null)
+                ->set(CloudV1::ZONE_FIELD, $this->container->getParameter('cloud_zone') ?: null)
+                ->set(CloudV1::INSTANCE_ID_FIELD, $this->container->getParameter('cloud_instance_id') ?: null)
+                ->set(CloudV1::INSTANCE_TYPE_FIELD, $this->container->getParameter('cloud_instance_type') ?: null);
         }
 
-        $message->set('ctx_cloud', $cloud);
+        $message->set(CommandV1Mixin::CTX_CLOUD_FIELD, $cloud);
     }
 
-    /**
-     * @param PbjxEvent $pbjxEvent
-     * @param Message   $message
-     * @param Request   $request
-     */
     protected function bindIp(PbjxEvent $pbjxEvent, Message $message, Request $request): void
     {
-        if ($message->has('ctx_ip') || $message->has('ctx_ipv6')) {
+        if ($message->has(CommandV1Mixin::CTX_IP_FIELD)
+            || $message->has(CommandV1Mixin::CTX_IPV6_FIELD)
+        ) {
             return;
         }
 
@@ -117,29 +95,21 @@ trait MessageBinderTrait
         }
 
         if (strpos($ip, ':') !== false) {
-            $message->set('ctx_ipv6', $ip);
+            $message->set(CommandV1Mixin::CTX_IPV6_FIELD, $ip);
         } else {
-            $message->set('ctx_ip', $ip);
+            $message->set(CommandV1Mixin::CTX_IP_FIELD, $ip);
         }
     }
 
-    /**
-     * @param PbjxEvent $pbjxEvent
-     * @param Message   $message
-     * @param Request   $request
-     */
     protected function bindUserAgent(PbjxEvent $pbjxEvent, Message $message, Request $request): void
     {
-        if ($message->has('ctx_ua')) {
+        if ($message->has(CommandV1Mixin::CTX_UA_FIELD)) {
             return;
         }
 
-        $message->set('ctx_ua', $request->headers->get('User-Agent'));
+        $message->set(CommandV1Mixin::CTX_UA_FIELD, $request->headers->get('User-Agent'));
     }
 
-    /**
-     * @return RequestStack
-     */
     protected function getRequestStack(): RequestStack
     {
         if (null === $this->requestStack) {
@@ -149,9 +119,6 @@ trait MessageBinderTrait
         return $this->requestStack;
     }
 
-    /**
-     * @return Request
-     */
     protected function getCurrentRequest(): Request
     {
         return $this->getRequestStack()->getCurrentRequest() ?: new Request();

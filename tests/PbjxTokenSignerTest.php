@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 class PbjxTokenSignerTest extends TestCase
 {
-    public function testSign()
+    public function testSign(): void
     {
         $content = 'content';
         $aud = 'http://localhost/pbjx';
@@ -23,7 +23,7 @@ class PbjxTokenSignerTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function testValidate()
+    public function testValidate(): void
     {
         $content = 'content';
         $aud = 'http://localhost/pbjx';
@@ -71,7 +71,7 @@ class PbjxTokenSignerTest extends TestCase
         $this->assertFalse($validated, 'signer with no keys validated');
     }
 
-    public function testAddKey()
+    public function testAddKey(): void
     {
         $content = 'content';
         $aud = 'http://localhost/pbjx';
@@ -86,11 +86,9 @@ class PbjxTokenSignerTest extends TestCase
         $this->assertTrue(true);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testRemoveKey()
+    public function testRemoveKey(): void
     {
+        $this->expectException(\InvalidArgumentException::class);
         $content = 'content';
         $aud = 'http://localhost/pbjx';
         $kid = 'kid';

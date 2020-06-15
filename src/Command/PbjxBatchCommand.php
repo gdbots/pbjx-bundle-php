@@ -3,44 +3,38 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
-use Gdbots\Common\Util\NumberUtils;
 use Gdbots\Pbj\Exception\DeserializeMessageFailed;
 use Gdbots\Pbj\Serializer\JsonSerializer;
-use Gdbots\Schemas\Pbjx\Mixin\Command\Command;
-use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
-use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Gdbots\Pbj\Util\NumberUtil;
+use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1Mixin;
+use Gdbots\Schemas\Pbjx\Mixin\Event\EventV1Mixin;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-final class PbjxBatchCommand extends ContainerAwareCommand
+final class PbjxBatchCommand extends Command
 {
     use PbjxAwareCommandTrait;
 
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function __construct(LoggerInterface $logger)
+    protected static $defaultName = 'pbjx:batch';
+
+    public function __construct(ContainerInterface $container)
     {
+        $this->container = $container;
         parent::__construct();
-        $this->logger = $logger;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         $this
-            ->setName('pbjx:batch')
-            ->setAliases(['pbjx:lines'])
-            ->setDescription('Reads messages from a newline-delimited JSON file and processes them.')
+            ->setDescription('Reads messages from a newline-delimited JSON file and processes them')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will read messages (pbj commands or events) from a 
+The <info>%command.name%</info> command will read messages (pbj commands or events) from a
 newline-delimited JSON file and run pbjx->send or pbjx->publish.
 
 <info>php %command.full_name% --dry-run /path/to/file/message.jsonl</info>
@@ -57,7 +51,7 @@ EOF
                 'in-memory',
                 null,
                 InputOption::VALUE_NONE,
-                'Forces all transports to be "in_memory".  Useful for debugging or ensuring sequential processing.'
+                'Forces all transports to be "in_memory". Useful for debugging or ensuring sequential processing.'
             )
             ->addOption(
                 'device-view',
@@ -119,33 +113,27 @@ EOF
             );
     }
 
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
-     * @return null
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $dryRun = $input->getOption('dry-run');
         $skipInvalid = $input->getOption('skip-invalid');
         $skipErrors = $input->getOption('skip-errors');
-        $batchSize = NumberUtils::bound($input->getOption('batch-size'), 1, 5000);
-        $batchDelay = NumberUtils::bound($input->getOption('batch-delay'), 100, 600000);
-        $startLine = $input->getOption('start-line');
-        $endLine = $input->getOption('end-line');
+        $batchSize = NumberUtil::bound((int)$input->getOption('batch-size'), 1, 5000);
+        $batchDelay = NumberUtil::bound((int)$input->getOption('batch-delay'), 100, 600000);
+        $startLine = (int)$input->getOption('start-line');
+        $endLine = (int)$input->getOption('end-line');
         $file = $input->getArgument('file');
 
         $io = new SymfonyStyle($input, $output);
         $io->title(sprintf('Reading messages from "%s"', $file));
         $this->useInMemoryTransports($input, $io);
         if (!$this->readyForPbjxTraffic($io, 'Aborting json lines processing.')) {
-            return;
+            return self::FAILURE;
         }
 
         if (!file_exists($file) || !is_readable($file)) {
             $io->error(sprintf('File "%s" must exist and be readable.', $file));
-            return;
+            return self::FAILURE;
         }
 
         /*
@@ -156,18 +144,17 @@ EOF
         $_SERVER['CONTENT_TYPE'] = 'application/json';
         $_SERVER['HTTP_ACCEPT'] = 'application/json';
         $_SERVER['HTTP_ACCEPT_CHARSET'] = 'utf-8';
-        $_SERVER['HTTP_USER_AGENT'] = $input->getOption('user-agent') ?: 'pbjx-console/0.x';
+        $_SERVER['HTTP_USER_AGENT'] = $input->getOption('user-agent') ?: 'pbjx-console/2.x';
 
         $deviceView = $input->getOption('device-view');
         if (!empty($deviceView)) {
             $_SERVER['DEVICE_VIEW'] = $deviceView;
-            putenv('DEVICE_VIEW=' . $deviceView);
         }
 
         $handle = @fopen($file, 'r');
         if (!$handle) {
             $io->error(sprintf('Unable to open file "%s".', $file));
-            return;
+            return self::FAILURE;
         }
 
         $requestStack = $this->getRequestStack();
@@ -197,7 +184,6 @@ EOF
             }
 
             try {
-                /** @var Command|Event $message */
                 $message = $serializer->deserialize($line);
                 $curie = $message::schema()->getCurie();
                 $ref = $message->generateMessageRef()->toString();
@@ -241,23 +227,23 @@ EOF
                         '<info>%d.</info> DRY RUN <comment>ref:</comment>%s, <comment>occurred_at:</comment>%s',
                         $i,
                         $ref,
-                        $message->get('occurred_at')
+                        $message->get(CommandV1Mixin::OCCURRED_AT_FIELD)
                     ));
                 } else {
-                    if ($message instanceof Command) {
+                    if ($message::schema()->hasMixin(CommandV1Mixin::SCHEMA_CURIE)) {
                         $io->text(sprintf(
                             '<info>%d.</info> Sending <comment>ref:</comment>%s, <comment>occurred_at:</comment>%s',
                             $i,
                             $ref,
-                            $message->get('occurred_at')
+                            $message->get(CommandV1Mixin::OCCURRED_AT_FIELD)
                         ));
                         $pbjx->send($message);
-                    } elseif ($message instanceof Event) {
+                    } elseif ($message::schema()->hasMixin(EventV1Mixin::SCHEMA_CURIE)) {
                         $io->text(sprintf(
                             '<info>%d.</info> Publishing <comment>ref:</comment>%s, <comment>occurred_at:</comment>%s',
                             $i,
                             $ref,
-                            $message->get('occurred_at')
+                            $message->get(EventV1Mixin::OCCURRED_AT_FIELD)
                         ));
                         $pbjx->publish($message);
                     } else {
@@ -299,5 +285,7 @@ EOF
 
         $io->newLine();
         $io->success(sprintf('Processed %s messages from "%s".', number_format($processed), $file));
+
+        return self::SUCCESS;
     }
 }

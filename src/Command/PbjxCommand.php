@@ -6,42 +6,37 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 use Gdbots\Bundle\PbjxBundle\Controller\PbjxController;
 use Gdbots\Pbj\SchemaCurie;
 use Gdbots\Schemas\Pbjx\Enum\Code;
-use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Gdbots\Schemas\Pbjx\EnvelopeV1;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-final class PbjxCommand extends ContainerAwareCommand
+final class PbjxCommand extends Command
 {
     use PbjxAwareCommandTrait;
 
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function __construct(LoggerInterface $logger)
+    protected static $defaultName = 'pbjx';
+
+    public function __construct(ContainerInterface $container)
     {
+        $this->container = $container;
         parent::__construct();
-        $this->logger = $logger;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         $this
-            ->setName('pbjx')
-            ->setAliases(['pbjx:message'])
-            ->setDescription('Handles pbjx messages (command, event, request) and returns an envelope with the result.')
+            ->setDescription('Handles pbjx messages (command, event, request) and returns an envelope with the result')
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will create a single pbjx message using the json 
+The <info>%command.name%</info> command will create a single pbjx message using the json
 payload provided and return an envelope (also json) with the results.
 
-<info>php %command.full_name% 'acme:service:command:say-hello' '{"name":"Homer"}'</info>
+<info>php %command.full_name% 'gdbots:pbjx:request:echo-request' '{"msg":"hello"}'</info>
 
 EOF
             )
@@ -55,7 +50,7 @@ EOF
                 'in-memory',
                 null,
                 InputOption::VALUE_NONE,
-                'Forces all transports to be "in_memory".  Useful for debugging or ensuring sequential processing.'
+                'Forces all transports to be "in_memory". Useful for debugging or ensuring sequential processing.'
             )
             ->addOption(
                 'device-view',
@@ -82,13 +77,7 @@ EOF
             );
     }
 
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
-     * @return null
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $errOutput = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
 
@@ -97,12 +86,11 @@ EOF
         $_SERVER['CONTENT_TYPE'] = 'application/json';
         $_SERVER['HTTP_ACCEPT'] = 'application/json';
         $_SERVER['HTTP_ACCEPT_CHARSET'] = 'utf-8';
-        $_SERVER['HTTP_USER_AGENT'] = $input->getOption('user-agent') ?: 'pbjx-console/0.x';
+        $_SERVER['HTTP_USER_AGENT'] = $input->getOption('user-agent') ?: 'pbjx-console/2.x';
 
         $deviceView = $input->getOption('device-view');
         if (!empty($deviceView)) {
             $_SERVER['DEVICE_VIEW'] = $deviceView;
-            putenv('DEVICE_VIEW=' . $deviceView);
         }
 
         $request = Request::create(
@@ -143,21 +131,20 @@ EOF
             $this->getPbjx()->triggerLifecycle($envelope, false);
         } catch (\Throwable $e) {
             /*
-             * write to std error but return payload as is.  Decorating the envelope
+             * write to std error but return payload as is. Decorating the envelope
              * is not typically an exception worthy condition.
              */
             $errOutput->writeln('<error>' . $e->getMessage() . '</error>');
         }
 
-        $envelope->set('ok', Code::OK === $envelope->get('code'));
+        $envelope->set(EnvelopeV1::OK_FIELD, Code::OK === $envelope->get('code'));
         $output->writeln(json_encode($envelope, $input->getOption('pretty') ? JSON_PRETTY_PRINT : 0));
+
+        return self::SUCCESS;
     }
 
-    /**
-     * @return PbjxController
-     */
     protected function getPbjxController(): PbjxController
     {
-        return $this->getContainer()->get('gdbots_pbjx.pbjx_controller');
+        return $this->container->get('gdbots_pbjx.pbjx_controller');
     }
 }

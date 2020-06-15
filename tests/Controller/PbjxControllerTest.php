@@ -6,7 +6,8 @@ namespace Gdbots\Tests\Bundle\PbjxBundle\Controller;
 use Gdbots\Bundle\PbjxBundle\Controller\PbjxController;
 use Gdbots\Bundle\PbjxBundle\PbjxTokenSigner;
 use Gdbots\Pbjx\RegisteringServiceLocator;
-use Gdbots\Tests\Bundle\PbjxBundle\Fixtures\FakeCommand;
+use Gdbots\Schemas\Pbjx\Command\CheckHealthV1;
+use Gdbots\Schemas\Pbjx\EnvelopeV1;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -15,13 +16,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 class PbjxControllerTest extends TestCase
 {
-    public function test()
+    public function test(): void
     {
         $pbjx = (new RegisteringServiceLocator())->getPbjx();
         $signer = new PbjxTokenSigner([['kid' => 'kid', 'secret' => 'secret']]);
         $controller = new PbjxController($pbjx, $signer);
 
-        $command = FakeCommand::create();
+        $command = CheckHealthV1::create();
         $schema = $command::schema();
         $curie = $schema->getCurie();
         $request = new Request();
@@ -38,6 +39,6 @@ class PbjxControllerTest extends TestCase
 
         $envelope = $controller->handleAction($request);
 
-        $this->assertInstanceOf('Gdbots\Schemas\Pbjx\Envelope', $envelope);
+        $this->assertInstanceOf(EnvelopeV1::class, $envelope);
     }
 }

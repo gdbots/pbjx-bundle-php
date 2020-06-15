@@ -3,41 +3,31 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
-use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-final class DescribeEventSearchStorageCommand extends ContainerAwareCommand
+final class DescribeEventSearchCommand extends Command
 {
     use PbjxAwareCommandTrait;
 
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function __construct(LoggerInterface $logger)
+    protected static $defaultName = 'pbjx:describe-event-search';
+
+    public function __construct(ContainerInterface $container)
     {
+        $this->container = $container;
         parent::__construct();
-        $this->logger = $logger;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
+        $provider = $this->container->getParameter('gdbots_pbjx.event_search.provider');
+
         $this
-            ->setName('pbjx:describe-event-search-storage')
-            ->setDescription('Describes the EventSearch storage.')
-            ->setHelp(<<<EOF
-The <info>%command.name%</info> command will describe the storage for the EventSearch.  
-
-<info>php %command.full_name% --tenant-id=client1</info>
-
-EOF
-            )
+            ->setDescription("Describes the EventSearch ({$provider}) storage")
             ->addOption(
                 'context',
                 null,
@@ -52,15 +42,7 @@ EOF
             );
     }
 
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
-     * @return null
-     *
-     * @throws \Exception
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $context = $input->getOption('context') ?: '{}';
         if (strpos($context, '{') === false) {
@@ -71,10 +53,12 @@ EOF
 
         $io = new SymfonyStyle($input, $output);
         $io->title('EventSearch Storage Describer');
-        $io->comment(sprintf('context: %s', json_encode($context)));
+        $io->comment('context: ' . json_encode($context));
 
         $details = $this->getPbjx()->getEventSearch()->describeStorage($context);
         $io->text($details);
         $io->newLine();
+
+        return self::SUCCESS;
     }
 }

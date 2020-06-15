@@ -14,17 +14,6 @@
       <argument type="service" id="gdbots_pbjx.transport.firehose_router" on-invalid="ignore"/>
     </service>
 
-    <service id="gdbots_pbjx.transport.gearman" class="Gdbots\Pbjx\Transport\GearmanTransport" public="true">
-      <argument type="service" id="gdbots_pbjx.service_locator"/>
-      <argument>%gdbots_pbjx.transport.gearman.servers%</argument>
-      <argument>%gdbots_pbjx.transport.gearman.timeout%</argument>
-      <argument type="service" id="gdbots_pbjx.transport.gearman_router"/>
-    </service>
-
-    <service id="gdbots_pbjx.transport.gearman_router" class="Gdbots\Pbjx\Transport\GearmanRouter" public="false">
-      <argument>%gdbots_pbjx.transport.gearman.channel_prefix%</argument>
-    </service>
-
     <service id="gdbots_pbjx.transport.kinesis" class="Gdbots\Pbjx\Transport\KinesisTransport" public="true">
       <argument type="service" id="gdbots_pbjx.service_locator"/>
       <argument type="service" id="aws.kinesis" on-invalid="ignore"/>

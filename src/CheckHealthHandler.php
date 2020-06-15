@@ -3,51 +3,40 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle;
 
+use Gdbots\Pbj\Message;
 use Gdbots\Pbjx\CommandHandler;
-use Gdbots\Pbjx\CommandHandlerTrait;
 use Gdbots\Pbjx\Pbjx;
-use Gdbots\Schemas\Pbjx\Command\CheckHealth;
 use Gdbots\Schemas\Pbjx\Command\CheckHealthV1;
 use Gdbots\Schemas\Pbjx\Event\HealthCheckedV1;
 use Psr\Log\LoggerInterface;
 
 final class CheckHealthHandler implements CommandHandler
 {
-    use CommandHandlerTrait;
+    private LoggerInterface $logger;
 
-    /** @var LoggerInterface */
-    private $logger;
+    public static function handlesCuries(): array
+    {
+        return [
+            CheckHealthV1::SCHEMA_CURIE,
+        ];
+    }
 
-    /**
-     * @param LoggerInterface $logger
-     */
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
     }
 
-    /**
-     * @param CheckHealth $command
-     * @param Pbjx        $pbjx
-     */
-    protected function handle(CheckHealth $command, Pbjx $pbjx): void
+    public function handleCommand(Message $command, Pbjx $pbjx): void
     {
-        $event = HealthCheckedV1::create()->set('msg', $command->get('msg'));
+        $event = HealthCheckedV1::create()->set(
+            HealthCheckedV1::MSG_FIELD,
+            $command->get(CheckHealthV1::MSG_FIELD)
+        );
         $pbjx->copyContext($command, $event)->publish($event);
         $this->logger->info('CheckHealthHandler published [{pbj_schema}] with message [{msg}].', [
-            'msg'        => $event->get('msg'),
+            'msg'        => $event->get(HealthCheckedV1::MSG_FIELD),
             'pbj_schema' => $event::schema()->getId()->toString(),
             'pbj'        => $event->toArray(),
         ]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function handlesCuries(): array
-    {
-        return [
-            CheckHealthV1::schema()->getCurie(),
-        ];
     }
 }

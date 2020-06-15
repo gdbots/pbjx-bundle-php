@@ -63,4 +63,9 @@ trait PbjxControllerTrait
         // example: @acme_users/request/search_users_response/page.html.twig
         return "@{$path}/{$template}.{$format}.twig";
     }
+
+    /**
+     * @see \Symfony\Bundle\FrameworkBundle\Controller\AbstractController::render
+     */
+    abstract protected function render(string $view, array $parameters = [], Response $response = null): Response;
 }

@@ -30,9 +30,6 @@ use Symfony\Component\DependencyInjection\Reference;
  */
 final class RegisterHandlersPass implements CompilerPassInterface
 {
-    /**
-     * @param ContainerBuilder $container
-     */
     public function process(ContainerBuilder $container)
     {
         $locator = $container->getDefinition('gdbots_pbjx.service_locator');
@@ -62,7 +59,6 @@ final class RegisterHandlersPass implements CompilerPassInterface
             $class = $container->getParameterBag()->resolveValue($def->getClass());
             if (is_subclass_of($class, $interface)) {
                 try {
-                    /** @var SchemaCurie $curie */
                     foreach ($class::handlesCuries() as $curie) {
                         $curies[] = $curie;
                     }
@@ -74,23 +70,8 @@ final class RegisterHandlersPass implements CompilerPassInterface
                 }
             }
 
-            // as of 2017-12-07 we don't deem this to be exception worthy
-            /*
-            if (empty($curies)) {
-                throw new \InvalidArgumentException(
-                    sprintf(
-                        'The service "%s" using pbjx.handler tag requires the "curie" attribute ' .
-                        'or the class "%s" must implement "%s" and return at least one curie from handlesCuries method.',
-                        $id,
-                        $class,
-                        $interface
-                    )
-                );
-            }
-            */
-
             foreach ($curies as $curie) {
-                $args = [$curie->toString(), new ServiceClosureArgument(new Reference($id))];
+                $args = [(string)$curie, new ServiceClosureArgument(new Reference($id))];
                 $locator->addMethodCall('registerHandler', $args);
             }
         }

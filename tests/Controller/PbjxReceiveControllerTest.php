@@ -8,22 +8,23 @@ use Gdbots\Bundle\PbjxBundle\PbjxTokenSigner;
 use Gdbots\Pbj\Message;
 use Gdbots\Pbjx\RegisteringServiceLocator;
 use Gdbots\Pbjx\Transport\TransportEnvelope;
-use Gdbots\Tests\Bundle\PbjxBundle\Fixtures\FakeCommand;
+use Gdbots\Schemas\Pbjx\Command\CheckHealthV1;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class PbjxReceiveControllerTest extends TestCase
 {
-    public function testValidReceive()
+    public function testValidReceive(): void
     {
         $locator = new RegisteringServiceLocator();
         $signer = new PbjxTokenSigner([['kid' => 'kid', 'secret' => 'secret']]);
         $controller = new PbjxReceiveController($locator, $signer, true);
 
         $messages = [
-            FakeCommand::create(),
-            FakeCommand::create(),
-            FakeCommand::create(),
+            CheckHealthV1::create(),
+            CheckHealthV1::create(),
+            CheckHealthV1::create(),
         ];
 
         $lines = implode(PHP_EOL, array_map(function (Message $message) {
@@ -35,7 +36,7 @@ class PbjxReceiveControllerTest extends TestCase
         $request->setMethod('POST');
         $response = $controller->receiveAction($request);
 
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
+        $this->assertInstanceOf(JsonResponse::class, $response);
         $data = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('lines', $data);
@@ -49,16 +50,16 @@ class PbjxReceiveControllerTest extends TestCase
         }
     }
 
-    public function testInvalidReceive()
+    public function testInvalidReceive(): void
     {
         $locator = new RegisteringServiceLocator();
         $signer = new PbjxTokenSigner([['kid' => 'kid', 'secret' => 'secret']]);
         $controller = new PbjxReceiveController($locator, $signer, true);
 
         $messages = [
-            FakeCommand::create(),
-            FakeCommand::create(),
-            FakeCommand::create(),
+            CheckHealthV1::create(),
+            CheckHealthV1::create(),
+            CheckHealthV1::create(),
         ];
 
         $lines = implode(PHP_EOL, array_map(function (Message $message) {
@@ -73,7 +74,7 @@ class PbjxReceiveControllerTest extends TestCase
         $request->setMethod('POST');
         $response = $controller->receiveAction($request);
 
-        $this->assertInstanceOf('Symfony\Component\HttpFoundation\JsonResponse', $response);
+        $this->assertInstanceOf(JsonResponse::class, $response);
         $data = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('lines', $data);

@@ -2,16 +2,14 @@ pbjx-bundle-php
 =============
 
 [![Build Status](https://api.travis-ci.org/gdbots/pbjx-bundle-php.svg)](https://travis-ci.org/gdbots/pbjx-bundle-php)
-[![Code Climate](https://codeclimate.com/github/gdbots/pbjx-bundle-php/badges/gpa.svg)](https://codeclimate.com/github/gdbots/pbjx-bundle-php)
-[![Test Coverage](https://codeclimate.com/github/gdbots/pbjx-bundle-php/badges/coverage.svg)](https://codeclimate.com/github/gdbots/pbjx-bundle-php/coverage)
 
 Symfony bundle that integrates [gdbots/pbjx](https://github.com/gdbots/pbjx-php) library.
 
 
 # Configuration
-Follow the standard [bundle install](http://symfony.com/doc/current/bundles/installation.html) using 
-__gdbots/pbjx-bundle__ as the composer package name.  The default configuration provides in memory 
-processing for all send, publish, request operations.  The EventStore and EventSearch are not 
+Follow the standard [bundle install](http://symfony.com/doc/current/bundles/installation.html) using
+__gdbots/pbjx-bundle__ as the composer package name.  The default configuration provides in memory
+processing for all send, publish, request operations.  The EventStore and EventSearch are not
 configured by default.
 
 > The examples below assume you're running the DynamoDb EventStore and Elastica EventSearch.
@@ -55,29 +53,19 @@ gdbots_pbjx:
   pbjx_receive_controller:
     enabled: false # default, ensure pbjx_token_signer.keys are set prior to enabling
   command_bus:
-    transport: ~ # in_memory, firehose, gearman, kinesis
+    transport: ~ # in_memory, firehose, kinesis
   event_bus:
-    transport: ~ # in_memory, firehose, gearman, kinesis
+    transport: ~ # in_memory, firehose, kinesis
   request_bus:
     # requests must return a value, so firehose and kinesis simply run
     # the request in memory as they don't support request/response.
-    transport: ~ # in_memory, gearman
-  transport:
-    gearman:
-      timeout: 5000 # default
-      channel_prefix: my_channel_ # defaults to "%app_env%_"
-      servers:
-        - {host: '127.0.0.1', port: 4730} # default
+    transport: ~ # in_memory
   event_store:
     provider: dynamodb
     dynamodb:
-      table_name: acme-event-store # defaults to: "%app_env%-event-store-".EventStoreTable::SCHEMA_VERSION
+      table_name: acme-event-store
   event_search:
     provider: elastica
-    # for multi-tenant applications, configure the field on the messages
-    # that determines what the tenant_id is.  The value will be used
-    # to populate the "tenant_id" on the context provided to the service.
-    #tenant_id_field: account_id # only needed if you actually have a multi-tenant app
     elastica:
       # your app will at some point need to customize the queries
       # override the class so you can provide these customizations.
@@ -90,7 +78,7 @@ gdbots_pbjx:
   scheduler:
     provider: dynamodb
     dynamodb:
-      table_name: acme-scheduler # defaults to: "%app_env%-scheduler-".SchedulerTable::SCHEMA_VERSION
+      table_name: acme-scheduler
       state_machine_arn: 'arn:aws:states:%cloud_region%:%aws_account_id%:stateMachine:acme-%app_env%-pbjx-scheduler'
 
 # typically these would be in services.yml file.
@@ -142,10 +130,10 @@ monolog:
 
 
 # Pbjx HTTP Endpoints
-Pbjx is ready to be used within your app and console commands but it's not yet available via HTTP.  
+Pbjx is ready to be used within your app and console commands but it's not yet available via HTTP.
 __Providing the HTTP features is very powerful but can be very dangerous if you don't secure it correctly.__
 
-All of the usual rules apply when securing your app.  Authentication and authorization is up to you, however, 
+All of the usual rules apply when securing your app.  Authentication and authorization is up to you, however,
 Symfony makes this fairly easy using the [security components](http://symfony.com/doc/current/components/security.html).
 
 __Example security configuration:__
@@ -180,7 +168,7 @@ pbjx:
 Once this is in place __ANY__ pbjx messages can be sent to the endpoint `/pbjx/vendor/package/category/message`.
 This url is the configured prefix and then the `SchemaCurie` resolved to a url.
 
-> Why not just use `/pbjx`?  It is a huge benefit to have the full path to the `SchemaCurie` for logging, 
+> Why not just use `/pbjx`?  It is a huge benefit to have the full path to the `SchemaCurie` for logging,
 > authorization, load balancing, debugging, etc.
 
 __Example curl request:__
@@ -212,7 +200,7 @@ $.ajax({
 
 # Controllers
 The recommended way to use Pbjx in a controller is to use Symfony dependency injection for
-the pbjx services you need and if necessary import the `PbjxControllerTrait` to get 
+the pbjx services you need and if necessary import the `PbjxControllerTrait` to get
 helper methods for rendering pbj into twig templates.
 
 
@@ -220,7 +208,7 @@ helper methods for rendering pbj into twig templates.
 final class ArticleController extends Controller
 {
     use PbjxControllerTrait;
-    
+
     /** @var Pbjx */
     private $pbjx;
 
@@ -251,7 +239,7 @@ final class ArticleController extends Controller
 ```
 
 ### PbjxControllerTrait::renderPbj
-This is a convenience method that accepts a pbj message and derives the template name 
+This is a convenience method that accepts a pbj message and derives the template name
 using `pbjTemplate` and calls Symfony's `render` method (from framework bundle `Controller`).
 
 The template will have `pbj` as a variable which is the message object itself.
@@ -260,14 +248,14 @@ The template will have `pbj` as a variable which is the message object itself.
 > or {{ pbj|json_encode(constant('JSON_PRETTY_PRINT')) }}
 
 ### PbjxControllerTrait::pbjTemplate
-Returns a reference to a twig template based on the schema of the provided message (pbj schema).  
-This allows for component style development for pbj messages.  You are asking for a template that 
+Returns a reference to a twig template based on the schema of the provided message (pbj schema).
+This allows for component style development for pbj messages.  You are asking for a template that
 can render your message (e.g. Article) as a "card", "modal", "page", etc.
 
 > This can be combined with __gdbots/app-bundle__ `DeviceViewRendererTrait::renderUsingDeviceView`
 > _(the renderPbj method does this automatically)_.
 
-What you end up with is a [namespaced path](http://symfony.com/doc/current/templating/namespaced_paths.html) 
+What you end up with is a [namespaced path](http://symfony.com/doc/current/templating/namespaced_paths.html)
 reference to a template which conforms to the [Symfony template naming best practices](http://symfony.com/doc/current/best_practices/templates.html#template-locations).
 Examples:
 
@@ -334,7 +322,7 @@ __Example:__
 ```
 
 ### Twig Function: pbjx_request
-In the same way that you can [embed a Symfony controller within twig](https://symfony.com/doc/current/templating/embedding_controllers.html) 
+In the same way that you can [embed a Symfony controller within twig](https://symfony.com/doc/current/templating/embedding_controllers.html)
 you can embed a pbjx request in twig.  This function performs a `$pbjx->request($request);`
 and returns the response.  If debugging is enabled an exception will be thrown
 (generally in dev), otherwise it will be logged and null will be returned.
@@ -363,7 +351,6 @@ pbjx:describe-event-store-storage   Describes the EventStore storage.
 pbjx:export-events                  Pipes events from the EventStore to STDOUT.
 pbjx:reindex-events                 Pipes events from the EventStore and reindexes them.
 pbjx:replay-events                  Pipes events from the EventStore and replays them through pbjx->publish.
-pbjx:run-gearman-consumer           Runs a gearman consumer up to the max-runtime.
 pbjx:tail-events                    Tails events from the EventStore for a given stream id and writes them to STDOUT.
 ```
 
@@ -440,8 +427,8 @@ Review the `--help` on the pbjx commands for more details.
 
 
 # Library Development
-Pbj has a concept of [mixins](https://github.com/gdbots/pbjc-php) which is just a schema that can 
-be added to other schemas.  This strategy is useful for creating consistent data structures and 
+Pbj has a concept of [mixins](https://github.com/gdbots/pbjc-php) which is just a schema that can
+be added to other schemas.  This strategy is useful for creating consistent data structures and
 allowing for library development to be done against mixins and not concrete schemas.
 
 > A mixin cannot be used by itself to create messages, it must be added to a schema that is NOT a mixin.
@@ -451,7 +438,7 @@ that automatically registers handlers for pbjx command and requests.
 
 __Example:__
 
-> Fictional __WidgetCo__ makes widgets for websites by creating mixins and libraries to 
+> Fictional __WidgetCo__ makes widgets for websites by creating mixins and libraries to
 > provide implementations for those mixins.
 
 - WidgetCo has a mixin called `widgetco:blog:mixin:add-comment`

@@ -3,42 +3,40 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\Command;
 
-use Gdbots\Common\Util\NumberUtils;
+use Gdbots\Pbj\Message;
+use Gdbots\Pbj\Util\NumberUtil;
 use Gdbots\Pbj\WellKnown\Microtime;
-use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
+use Gdbots\Schemas\Pbjx\Mixin\Event\EventV1Mixin;
 use Gdbots\Schemas\Pbjx\StreamId;
-use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-final class ReplayEventsCommand extends ContainerAwareCommand
+final class ReplayEventsCommand extends Command
 {
     use PbjxAwareCommandTrait;
 
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function __construct(LoggerInterface $logger)
+    protected static $defaultName = 'pbjx:replay-events';
+
+    public function __construct(ContainerInterface $container)
     {
+        $this->container = $container;
         parent::__construct();
-        $this->logger = $logger;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
+        $provider = $this->container->getParameter('gdbots_pbjx.event_store.provider');
+
         $this
-            ->setName('pbjx:replay-events')
-            ->setDescription('Pipes events from the EventStore and replays them through pbjx->publish.')
+            ->setDescription("Pipes events from the EventStore ({$provider}) and replays them through pbjx->publish.")
             ->setHelp(<<<EOF
-The <info>%command.name%</info> command will pipe events from the EventStore for the 
-given StreamId if provided or all events and re-publish them through pbjx->publish.
+The <info>%command.name%</info> command will pipe events from the EventStore ({$provider})
+for the given StreamId if provided or all events and re-publish them through pbjx->publish.
 
 <info>php %command.full_name% --dry-run --tenant-id=client1 'stream-id'</info>
 
@@ -48,7 +46,7 @@ EOF
                 'in-memory',
                 null,
                 InputOption::VALUE_NONE,
-                'Forces all transports to be "in_memory".  Useful for debugging or ensuring sequential processing.'
+                'Forces all transports to be "in_memory". Useful for debugging or ensuring sequential processing.'
             )
             ->addOption(
                 'dry-run',
@@ -60,7 +58,7 @@ EOF
                 'skip-errors',
                 null,
                 InputOption::VALUE_NONE,
-                'Skip any events that fail to replay.  Generally a bad idea.'
+                'Skip any events that fail to replay. Generally a bad idea.'
             )
             ->addOption(
                 'batch-size',
@@ -105,22 +103,16 @@ EOF
             ->addArgument(
                 'stream-id',
                 InputArgument::OPTIONAL,
-                'The stream to replay messages from.  See Gdbots\Schemas\Pbjx\StreamId for details.'
+                'The stream to replay messages from. See Gdbots\Schemas\Pbjx\StreamId for details.'
             );
     }
 
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
-     * @return null
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $dryRun = $input->getOption('dry-run');
         $skipErrors = $input->getOption('skip-errors');
-        $batchSize = NumberUtils::bound($input->getOption('batch-size'), 1, 1000);
-        $batchDelay = NumberUtils::bound($input->getOption('batch-delay'), 100, 600000);
+        $batchSize = NumberUtil::bound((int)$input->getOption('batch-size'), 1, 1000);
+        $batchDelay = NumberUtil::bound((int)$input->getOption('batch-delay'), 100, 600000);
         $since = $input->getOption('since');
         $until = $input->getOption('until');
         $context = $input->getOption('context') ?: '{}';
@@ -142,9 +134,10 @@ EOF
 
         $io = new SymfonyStyle($input, $output);
         $io->title(sprintf('Replaying events from stream "%s"', $streamId ?? 'ALL'));
+        $io->comment('context: ' . json_encode($context));
         $this->useInMemoryTransports($input, $io);
         if (!$this->readyForPbjxTraffic($io)) {
-            return;
+            return self::FAILURE;
         }
 
         $this->createConsoleRequest();
@@ -153,22 +146,21 @@ EOF
         $i = 0;
         $replayed = 0;
         $io->comment(sprintf('Processing batch %d from stream "%s".', $batch, $streamId ?? 'ALL'));
-        $io->comment(sprintf('context: %s', json_encode($context)));
         $io->newLine();
 
-        $receiver = function (Event $event, StreamId $streamId) use (
-            $output,
-            $io,
-            $pbjx,
-            $dryRun,
-            $skipErrors,
-            $batchSize,
-            $batchDelay,
-            &$batch,
-            &$replayed,
-            &$i
-        ) {
+        $generator = $streamId
+            ? $pbjx->getEventStore()->pipeEvents($streamId, $since, $until, $context)
+            : $pbjx->getEventStore()->pipeAllEvents($since, $until, $context);
+
+        foreach ($generator as $result) {
             ++$i;
+            /** @var Message $event */
+            if ($result instanceof Message) {
+                $event = $result;
+                $sid = $streamId;
+            } else {
+                [$event, $sid] = $result;
+            }
 
             try {
                 $output->writeln(
@@ -176,15 +168,18 @@ EOF
                         '<info>%d.</info> <comment>stream:</comment>%s, <comment>occurred_at:</comment>%s, ' .
                         '<comment>curie:</comment>%s, <comment>event_id:</comment>%s',
                         $i,
-                        $streamId,
-                        $event->get('occurred_at'),
+                        $sid,
+                        $event->get(EventV1Mixin::OCCURRED_AT_FIELD),
                         $event::schema()->getCurie()->toString(),
-                        $event->get('event_id')
+                        $event->get(EventV1Mixin::EVENT_ID_FIELD)
                     )
                 );
 
                 if ($dryRun) {
-                    $io->note(sprintf('DRY RUN - Would publish event "%s" here.', $event->get('event_id')));
+                    $io->note(sprintf(
+                        'DRY RUN - Would publish event "%s" here.',
+                        $event->get(EventV1Mixin::EVENT_ID_FIELD)
+                    ));
                 } else {
                     $event->isReplay(true);
                     $pbjx->publish($event);
@@ -193,7 +188,11 @@ EOF
                 ++$replayed;
             } catch (\Throwable $e) {
                 $io->error(sprintf('%d. %s', $i, $e->getMessage()));
-                $io->note(sprintf('%d. Failed event "%s" json below:', $i, $event->get('event_id')));
+                $io->note(sprintf(
+                    '%d. Failed event "%s" json below:',
+                    $i,
+                    $event->get(EventV1Mixin::EVENT_ID_FIELD)
+                ));
                 $io->text(json_encode($event, JSON_PRETTY_PRINT));
                 $io->newLine(2);
 
@@ -214,15 +213,11 @@ EOF
                 $io->comment(sprintf('Processing batch %d.', $batch));
                 $io->newLine();
             }
-        };
-
-        if ($streamId) {
-            $this->getPbjx()->getEventStore()->pipeEvents($streamId, $receiver, $since, $until, $context);
-        } else {
-            $this->getPbjx()->getEventStore()->pipeAllEvents($receiver, $since, $until, $context);
         }
 
         $io->newLine();
         $io->success(sprintf('Replayed %s events from stream "%s".', number_format($replayed), $streamId ?? 'ALL'));
+
+        return self::SUCCESS;
     }
 }

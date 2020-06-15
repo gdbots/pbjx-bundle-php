@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Gdbots\Bundle\PbjxBundle\DependencyInjection;
 
+use Gdbots\Bundle\PbjxBundle\PbjxTokenSigner;
 use Gdbots\Pbjx\DependencyInjection\PbjxBinder;
 use Gdbots\Pbjx\DependencyInjection\PbjxEnricher;
 use Gdbots\Pbjx\DependencyInjection\PbjxHandler;
@@ -18,20 +19,13 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 final class GdbotsPbjxExtension extends Extension
 {
-    /**
-     * @param array            $config
-     * @param ContainerBuilder $container
-     */
     public function load(array $config, ContainerBuilder $container)
     {
         $processor = new Processor();
-        $env = $container->hasParameter('app_env')
-            ? $container->getParameter('app_env')
-            : $container->getParameter('kernel.environment');
-        $configuration = new Configuration($env);
+        $configuration = new Configuration();
         $config = $processor->processConfiguration($configuration, $config);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
         $loader->load('event_search.xml');
         $loader->load('event_store.xml');
         $loader->load('http.xml');
@@ -59,7 +53,6 @@ final class GdbotsPbjxExtension extends Extension
             $config['request_bus']['transport'],
         ]);
 
-        $this->configureGearmanTransport($config, $container, $enabledTransports);
         $this->configureKinesisTransport($config, $container, $enabledTransports);
 
         if (isset($config['event_store'])) {
@@ -69,7 +62,6 @@ final class GdbotsPbjxExtension extends Extension
 
         if (isset($config['event_search'])) {
             $container->setParameter('gdbots_pbjx.event_search.provider', $config['event_search']['provider']);
-            $container->setParameter('gdbots_pbjx.event_search.tenant_id_field', $config['event_search']['tenant_id_field']);
             $this->configureElasticaEventSearch($config, $container, $config['event_search']['provider']);
         } else {
             $container->removeDefinition('gdbots_pbjx.event_search.event_indexer');
@@ -81,6 +73,7 @@ final class GdbotsPbjxExtension extends Extension
         }
 
         $container->setAlias(Pbjx::class, 'pbjx');
+        $container->setAlias(PbjxTokenSigner::class, 'gdbots_pbjx.pbjx_token_signer');
 
         $container->registerForAutoconfiguration(EventSubscriber::class)->addTag('pbjx.event_subscriber');
         $container->registerForAutoconfiguration(PbjxBinder::class)->addTag('pbjx.binder');
@@ -90,29 +83,6 @@ final class GdbotsPbjxExtension extends Extension
         $container->registerForAutoconfiguration(PbjxProjector::class)->addTag('pbjx.projector');
     }
 
-    /**
-     * @param array            $config
-     * @param ContainerBuilder $container
-     * @param array            $enabledTransports
-     */
-    protected function configureGearmanTransport(array $config, ContainerBuilder $container, array $enabledTransports): void
-    {
-        if (!isset($config['transport']['gearman']) || !isset($enabledTransports['gearman'])) {
-            $container->removeDefinition('gdbots_pbjx.transport.gearman');
-            $container->removeDefinition('gdbots_pbjx.transport.gearman_router');
-            return;
-        }
-
-        $container->setParameter('gdbots_pbjx.transport.gearman.servers', $config['transport']['gearman']['servers']);
-        $container->setParameter('gdbots_pbjx.transport.gearman.timeout', $config['transport']['gearman']['timeout']);
-        $container->setParameter('gdbots_pbjx.transport.gearman.channel_prefix', $config['transport']['gearman']['channel_prefix']);
-    }
-
-    /**
-     * @param array            $config
-     * @param ContainerBuilder $container
-     * @param array            $enabledTransports
-     */
     protected function configureKinesisTransport(array $config, ContainerBuilder $container, array $enabledTransports): void
     {
         if (!isset($enabledTransports['kinesis'])) {
@@ -122,11 +92,6 @@ final class GdbotsPbjxExtension extends Extension
         }
     }
 
-    /**
-     * @param array            $config
-     * @param ContainerBuilder $container
-     * @param string           $provider
-     */
     protected function configureDynamoDbEventStore(array $config, ContainerBuilder $container, ?string $provider): void
     {
         if (!isset($config['event_store']['dynamodb']) || 'dynamodb' !== $provider) {
@@ -143,11 +108,6 @@ final class GdbotsPbjxExtension extends Extension
         }
     }
 
-    /**
-     * @param array            $config
-     * @param ContainerBuilder $container
-     * @param string           $provider
-     */
     protected function configureElasticaEventSearch(array $config, ContainerBuilder $container, ?string $provider): void
     {
         if (!isset($config['event_search']['elastica']) || 'elastica' !== $provider) {
@@ -169,11 +129,6 @@ final class GdbotsPbjxExtension extends Extension
         $container->setParameter('gdbots_pbjx.event_search.elastica.clusters', $config['event_search']['elastica']['clusters']);
     }
 
-    /**
-     * @param array            $config
-     * @param ContainerBuilder $container
-     * @param string           $provider
-     */
     protected function configureDynamoDbScheduler(array $config, ContainerBuilder $container, ?string $provider): void
     {
         if (!isset($config['scheduler']['dynamodb']) || 'dynamodb' !== $provider) {

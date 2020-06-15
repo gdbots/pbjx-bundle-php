@@ -5,11 +5,9 @@ namespace Gdbots\Bundle\PbjxBundle\Twig;
 
 use Gdbots\Pbj\Message;
 use Gdbots\Pbj\MessageResolver;
-use Gdbots\Pbj\SchemaCurie;
 use Gdbots\Pbjx\Exception\InvalidArgumentException;
 use Gdbots\Pbjx\Pbjx;
-use Gdbots\Schemas\Pbjx\Mixin\Request\Request;
-use Gdbots\Schemas\Pbjx\Mixin\Response\Response;
+use Gdbots\Schemas\Pbjx\Mixin\Request\RequestV1Mixin;
 use Gdbots\UriTemplate\UriTemplateService;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -18,20 +16,10 @@ use Twig\TwigFunction;
 
 final class PbjxExtension extends AbstractExtension
 {
-    /** @var Pbjx */
-    private $pbjx;
+    private Pbjx $pbjx;
+    private LoggerInterface $logger;
+    private bool $debug = false;
 
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var bool */
-    private $debug = false;
-
-    /**
-     * @param Pbjx            $pbjx
-     * @param LoggerInterface $logger
-     * @param bool            $debug
-     */
     public function __construct(Pbjx $pbjx, ?LoggerInterface $logger = null, bool $debug = false)
     {
         $this->pbjx = $pbjx;
@@ -39,9 +27,6 @@ final class PbjxExtension extends AbstractExtension
         $this->debug = $debug;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getFunctions()
     {
         return [
@@ -50,14 +35,6 @@ final class PbjxExtension extends AbstractExtension
             new TwigFunction('pbjx_request', [$this, 'pbjxRequest']),
             new TwigFunction('uri_template_expand', [$this, 'uriTemplateExpand']),
         ];
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return 'gdbots_pbjx_extension';
     }
 
     /**
@@ -130,7 +107,7 @@ final class PbjxExtension extends AbstractExtension
     }
 
     /**
-     * Performs a pbjx->request and returns the response.  If debugging is enabled an exception will
+     * Performs a pbjx->request and returns the response. If debugging is enabled an exception will
      * be thrown (generally in dev), otherwise it will be logged and null will be returned.
      *
      * Example:
@@ -142,29 +119,22 @@ final class PbjxExtension extends AbstractExtension
      * @param string $curie
      * @param array  $data
      *
-     * @return Response|null
+     * @return Message
      *
      * @throws \Throwable
      */
-    public function pbjxRequest(string $curie, array $data = []): ?Response
+    public function pbjxRequest(string $curie, array $data = []): ?Message
     {
         try {
-            /** @var Request $class */
-            $class = MessageResolver::resolveCurie(SchemaCurie::fromString($curie));
-            $request = $class::fromArray($data);
-            if (!$request instanceof Request) {
+            $request = MessageResolver::resolveCurie($curie)::fromArray($data);
+            if (!$request::schema()->hasMixin(RequestV1Mixin::SCHEMA_CURIE)) {
                 throw new InvalidArgumentException(sprintf('The provided curie [%s] is not a request.', $curie));
             }
 
             // ensures permission check is bypassed
-            $request->set('ctx_causator_ref', $request->generateMessageRef());
+            $request->set(RequestV1Mixin::CTX_CAUSATOR_REF_FIELD, $request->generateMessageRef());
 
-            $response = $this->pbjx->request($request);
-            if (!$response->has('ctx_request')) {
-                $response->set('ctx_request', $request);
-            }
-
-            return $response;
+            return $this->pbjx->request($request);
         } catch (\Throwable $e) {
             if ($this->debug) {
                 throw $e;

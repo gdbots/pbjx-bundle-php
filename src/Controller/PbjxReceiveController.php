@@ -4,17 +4,17 @@ declare(strict_types=1);
 namespace Gdbots\Bundle\PbjxBundle\Controller;
 
 use Gdbots\Bundle\PbjxBundle\PbjxTokenSigner;
-use Gdbots\Common\Util\ClassUtils;
 use Gdbots\Pbj\Exception\GdbotsPbjException;
-use Gdbots\Pbj\Exception\HasEndUserMessage;
 use Gdbots\Pbj\Message;
+use Gdbots\Pbj\Util\ClassUtil;
 use Gdbots\Pbjx\Exception\RequestHandlingFailed;
 use Gdbots\Pbjx\ServiceLocator;
 use Gdbots\Pbjx\Transport\TransportEnvelope;
-use Gdbots\Pbjx\Util\StatusCodeConverter;
+use Gdbots\Pbjx\Util\StatusCodeUtil;
 use Gdbots\Schemas\Pbjx\Enum\Code;
-use Gdbots\Schemas\Pbjx\Mixin\Command\Command;
-use Gdbots\Schemas\Pbjx\Mixin\Event\Event;
+use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1Mixin;
+use Gdbots\Schemas\Pbjx\Mixin\Event\EventV1Mixin;
+use Gdbots\Schemas\Pbjx\Request\RequestFailedResponseV1;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -34,20 +34,10 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
  */
 final class PbjxReceiveController
 {
-    /** @var ServiceLocator */
-    private $locator;
+    private ServiceLocator $locator;
+    private PbjxTokenSigner $signer;
+    private bool $enabled = false;
 
-    /** @var PbjxTokenSigner */
-    private $signer;
-
-    /** @var bool */
-    private $enabled = false;
-
-    /**
-     * @param ServiceLocator  $locator
-     * @param PbjxTokenSigner $signer
-     * @param bool            $enabled
-     */
     public function __construct(ServiceLocator $locator, PbjxTokenSigner $signer, bool $enabled = false)
     {
         $this->locator = $locator;
@@ -55,13 +45,6 @@ final class PbjxReceiveController
         $this->enabled = $enabled;
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return JsonResponse
-     *
-     * @throws \Throwable
-     */
     public function receiveAction(Request $request): JsonResponse
     {
         if (!$this->enabled) {
@@ -137,22 +120,17 @@ final class PbjxReceiveController
             $data['results'][] = $result;
         }
 
-        return JsonResponse::create($data);
+        return new JsonResponse($data);
     }
 
-    /**
-     * @param Message $message
-     *
-     * @throws BadRequestHttpException
-     */
     private function receiveMessage(Message $message): void
     {
-        if ($message instanceof Command) {
+        if ($message::schema()->hasMixin(CommandV1Mixin::SCHEMA_CURIE)) {
             $this->locator->getCommandBus()->receiveCommand($message);
             return;
         }
 
-        if ($message instanceof Event) {
+        if ($message::schema()->hasMixin(EventV1Mixin::SCHEMA_CURIE)) {
             $this->locator->getEventBus()->receiveEvent($message);
             return;
         }
@@ -164,32 +142,24 @@ final class PbjxReceiveController
         );
     }
 
-    /**
-     * @param array      $result
-     * @param \Throwable $exception
-     */
     private function handleException(array &$result, \Throwable $exception): void
     {
-        if ($exception instanceof HasEndUserMessage) {
-            $code = $exception->getCode();
-            $errorName = ClassUtils::getShortName($exception);
-            $errorMessage = $exception->getEndUserMessage();
-        } elseif ($exception instanceof HttpExceptionInterface) {
-            $code = StatusCodeConverter::httpToVendor($exception->getStatusCode());
-            $errorName = ClassUtils::getShortName($exception);
+        if ($exception instanceof HttpExceptionInterface) {
+            $code = StatusCodeUtil::httpToVendor($exception->getStatusCode());
+            $errorName = ClassUtil::getShortName($exception);
             $errorMessage = $exception->getMessage();
         } elseif ($exception instanceof RequestHandlingFailed) {
             $response = $exception->getResponse();
-            $code = $response->get('error_code', Code::UNKNOWN);
-            $errorName = $response->get('error_name', ClassUtils::getShortName($exception));
-            $errorMessage = $response->get('error_message', $exception->getMessage());
+            $code = $response->get(RequestFailedResponseV1::ERROR_CODE_FIELD, Code::UNKNOWN);
+            $errorName = $response->get(RequestFailedResponseV1::ERROR_NAME_FIELD, ClassUtil::getShortName($exception));
+            $errorMessage = $response->get(RequestFailedResponseV1::ERROR_MESSAGE_FIELD, $exception->getMessage());
         } elseif ($exception instanceof GdbotsPbjException) {
             $code = Code::INVALID_ARGUMENT;
-            $errorName = ClassUtils::getShortName($exception);
+            $errorName = ClassUtil::getShortName($exception);
             $errorMessage = $exception->getMessage();
         } else {
             $code = $exception->getCode() > 0 ? $exception->getCode() : Code::INVALID_ARGUMENT;
-            $errorName = ClassUtils::getShortName($exception);
+            $errorName = ClassUtil::getShortName($exception);
             $errorMessage = $exception->getMessage();
         }
 

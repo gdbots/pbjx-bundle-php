@@ -16,23 +16,10 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 final class Configuration implements ConfigurationInterface
 {
-    private $env;
-
-    /**
-     * @param string $env
-     */
-    public function __construct(string $env = 'dev')
+    public function getConfigTreeBuilder(): TreeBuilder
     {
-        $this->env = $env;
-    }
-
-    /**
-     * @return TreeBuilder
-     */
-    public function getConfigTreeBuilder()
-    {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('gdbots_pbjx');
+        $treeBuilder = new TreeBuilder('gdbots_pbjx');
+        $rootNode = $treeBuilder->getRootNode();
 
         $rootNode
             ->children()
@@ -83,9 +70,6 @@ final class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('transport')
-                    ->children()
-                        ->append($this->getGearmanTransportConfigTree())
-                    ->end()
                 ->end()
                 ->arrayNode('command_bus')
                     ->addDefaultsIfNotSet()
@@ -129,9 +113,6 @@ final class Configuration implements ConfigurationInterface
                         ->scalarNode('provider')
                             ->defaultNull()
                         ->end()
-                        ->scalarNode('tenant_id_field')
-                            ->defaultNull()
-                        ->end()
                         ->append($this->getElasticaEventSearchConfigTree())
                     ->end()
                 ->end()
@@ -150,56 +131,10 @@ final class Configuration implements ConfigurationInterface
         return $treeBuilder;
     }
 
-    /**
-     * @return NodeDefinition
-     */
-    protected function getGearmanTransportConfigTree(): NodeDefinition
-    {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('gearman');
-
-        $node
-            ->addDefaultsIfNotSet()
-            ->children()
-                ->arrayNode('servers')
-                    ->requiresAtLeastOneElement()
-                    //->isRequired()
-                    ->treatNullLike([['host' => '127.0.0.1', 'port' => 4730]])
-                    ->defaultValue([['host' => '127.0.0.1', 'port' => 4730]])
-                    ->prototype('array')
-                        ->performNoDeepMerging()
-                        ->children()
-                            ->scalarNode('host')
-                                ->defaultValue('127.0.0.1')
-                                ->treatNullLike('127.0.0.1')
-                            ->end()
-                            ->integerNode('port')
-                                ->defaultValue(4730)
-                                ->treatNullLike(4730)
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end()
-                ->integerNode('timeout')
-                    ->defaultValue(5000)
-                    ->treatNullLike(5000)
-                ->end()
-                ->scalarNode('channel_prefix')
-                    ->defaultValue("{$this->env}_")
-                ->end()
-            ->end()
-        ;
-
-        return $node;
-    }
-
-    /**
-     * @return NodeDefinition
-     */
     protected function getDynamoDbEventStoreConfigTree(): NodeDefinition
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('dynamodb');
+        $treeBuilder = new TreeBuilder('dynamodb');
+        $node = $treeBuilder->getRootNode();
 
         $node
             ->addDefaultsIfNotSet()
@@ -208,7 +143,7 @@ final class Configuration implements ConfigurationInterface
                     ->defaultValue(DynamoDbEventStore::class)
                 ->end()
                 ->scalarNode('table_name')
-                    ->defaultValue("{$this->env}-event-store-".EventStoreTable::SCHEMA_VERSION)
+                    ->defaultValue('%env(default:app_vendor:APP_VENDOR)%-%env(default:app_env:CLOUD_ENV)%-event-store-'.EventStoreTable::SCHEMA_VERSION)
                 ->end()
             ->end()
         ;
@@ -216,13 +151,10 @@ final class Configuration implements ConfigurationInterface
         return $node;
     }
 
-    /**
-     * @return NodeDefinition
-     */
     protected function getElasticaEventSearchConfigTree(): NodeDefinition
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('elastica');
+        $treeBuilder = new TreeBuilder('elastica');
+        $node = $treeBuilder->getRootNode();
 
         $defaultServers = [['host' => '127.0.0.1', 'port' => 9200]];
         $defaultCluster = [
@@ -231,10 +163,8 @@ final class Configuration implements ConfigurationInterface
                 'timeout'     => 300,
                 'debug'       => false,
                 'persistent'  => true,
+                'ssl'         => true,
                 'servers'     => $defaultServers,
-                'config'      => [
-                    'ssl' => true,
-                ]
             ],
         ];
 
@@ -252,7 +182,7 @@ final class Configuration implements ConfigurationInterface
                             ->defaultValue(IndexManager::class)
                         ->end()
                         ->scalarNode('index_prefix')
-                            ->defaultValue("{$this->env}-events")
+                            ->defaultValue('%env(default:app_vendor:APP_VENDOR)%-%env(default:app_env:CLOUD_ENV)%-events')
                         ->end()
                     ->end()
                 ->end()
@@ -289,6 +219,10 @@ final class Configuration implements ConfigurationInterface
                                 ->defaultTrue()
                                 ->treatNullLike(true)
                             ->end()
+                            ->booleanNode('ssl')
+                                ->defaultTrue()
+                                ->treatNullLike(true)
+                            ->end()
                             ->arrayNode('servers')
                                 ->requiresAtLeastOneElement()
                                 ->treatNullLike($defaultServers)
@@ -308,15 +242,6 @@ final class Configuration implements ConfigurationInterface
                                     ->end()
                                 ->end()
                             ->end()
-                            ->arrayNode('config')
-                                ->addDefaultsIfNotSet()
-                                ->children()
-                                    ->booleanNode('ssl')
-                                        ->defaultTrue()
-                                        ->treatNullLike(true)
-                                    ->end()
-                                ->end()
-                            ->end()
                         ->end()
                     ->end()
                 ->end()
@@ -326,14 +251,10 @@ final class Configuration implements ConfigurationInterface
         return $node;
     }
 
-
-    /**
-     * @return NodeDefinition
-     */
     protected function getDynamoDbSchedulerConfigTree(): NodeDefinition
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('dynamodb');
+        $treeBuilder = new TreeBuilder('dynamodb');
+        $node = $treeBuilder->getRootNode();
 
         $node
             ->addDefaultsIfNotSet()
@@ -342,7 +263,7 @@ final class Configuration implements ConfigurationInterface
                     ->defaultValue(DynamoDbScheduler::class)
                 ->end()
                 ->scalarNode('table_name')
-                    ->defaultValue("{$this->env}-scheduler-".SchedulerTable::SCHEMA_VERSION)
+                    ->defaultValue('%env(default:app_vendor:APP_VENDOR)%-%env(default:app_env:CLOUD_ENV)%-scheduler-'.SchedulerTable::SCHEMA_VERSION)
                 ->end()
                 ->scalarNode('state_machine_arn')
                     ->isRequired()
