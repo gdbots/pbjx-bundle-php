@@ -2,6 +2,10 @@
 This changelog references the relevant changes done in 2.x versions.
 
 
+## v2.1.0
+* Uses `"gdbots/pbjx": "^3.1"` and configures `DynamoDbScheduler` to use `gdbots_pbjx.event_dispatcher`.
+
+
 ## v2.0.0
 __BREAKING CHANGES__
 

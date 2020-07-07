@@ -3,13 +3,16 @@ declare(strict_types=1);
 
 namespace Gdbots\Tests\Bundle\PbjxBundle\Controller;
 
+use Gdbots\Bundle\PbjxBundle\CheckHealthHandler;
 use Gdbots\Bundle\PbjxBundle\Controller\PbjxReceiveController;
 use Gdbots\Bundle\PbjxBundle\PbjxTokenSigner;
 use Gdbots\Pbj\Message;
+use Gdbots\Pbj\SchemaCurie;
 use Gdbots\Pbjx\RegisteringServiceLocator;
 use Gdbots\Pbjx\Transport\TransportEnvelope;
 use Gdbots\Schemas\Pbjx\Command\CheckHealthV1;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -18,6 +21,10 @@ class PbjxReceiveControllerTest extends TestCase
     public function testValidReceive(): void
     {
         $locator = new RegisteringServiceLocator();
+        $locator->registerCommandHandler(
+            SchemaCurie::fromString(CheckHealthV1::SCHEMA_CURIE),
+            new CheckHealthHandler(new NullLogger())
+        );
         $signer = new PbjxTokenSigner([['kid' => 'kid', 'secret' => 'secret']]);
         $controller = new PbjxReceiveController($locator, $signer, true);
 
@@ -53,6 +60,11 @@ class PbjxReceiveControllerTest extends TestCase
     public function testInvalidReceive(): void
     {
         $locator = new RegisteringServiceLocator();
+        $locator->registerCommandHandler(
+            SchemaCurie::fromString(CheckHealthV1::SCHEMA_CURIE),
+            new CheckHealthHandler(new NullLogger())
+        );
+
         $signer = new PbjxTokenSigner([['kid' => 'kid', 'secret' => 'secret']]);
         $controller = new PbjxReceiveController($locator, $signer, true);
 

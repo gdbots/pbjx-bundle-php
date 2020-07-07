@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "require": {
     "php": ">=7.4",
-    "gdbots/pbjx": "^3.0",
+    "gdbots/pbjx": "^3.1",
     "gdbots/uri-template": "^1.1",
     "symfony/console": "^5.1",
     "symfony/framework-bundle": "^5.1",
