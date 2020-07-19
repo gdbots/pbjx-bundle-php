@@ -10,11 +10,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-final class DescribeEventSearchCommand extends Command
+final class CreateEventSearchStorageCommand extends Command
 {
     use PbjxAwareCommandTrait;
 
-    protected static $defaultName = 'pbjx:describe-event-search';
+    protected static $defaultName = 'pbjx:create-event-search-storage';
 
     public function __construct(ContainerInterface $container)
     {
@@ -27,7 +27,7 @@ final class DescribeEventSearchCommand extends Command
         $provider = $this->container->getParameter('gdbots_pbjx.event_search.provider');
 
         $this
-            ->setDescription("Describes the EventSearch ({$provider}) storage")
+            ->setDescription("Creates the EventSearch ({$provider}) storage")
             ->addOption(
                 'context',
                 null,
@@ -52,12 +52,11 @@ final class DescribeEventSearchCommand extends Command
         $context['tenant_id'] = (string)$input->getOption('tenant-id');
 
         $io = new SymfonyStyle($input, $output);
-        $io->title('EventSearch Storage Describer');
+        $io->title('EventSearch Storage Creator');
         $io->comment('context: ' . json_encode($context));
 
-        $details = $this->getPbjx()->getEventSearch()->describeStorage($context);
-        $io->text($details);
-        $io->newLine();
+        $this->getPbjx()->getEventSearch()->createStorage($context);
+        $io->success('EventSearch storage created.');
 
         return self::SUCCESS;
     }

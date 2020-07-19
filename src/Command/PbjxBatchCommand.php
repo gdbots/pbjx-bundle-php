@@ -6,8 +6,6 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 use Gdbots\Pbj\Exception\DeserializeMessageFailed;
 use Gdbots\Pbj\Serializer\JsonSerializer;
 use Gdbots\Pbj\Util\NumberUtil;
-use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1Mixin;
-use Gdbots\Schemas\Pbjx\Mixin\Event\EventV1Mixin;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -227,23 +225,23 @@ EOF
                         '<info>%d.</info> DRY RUN <comment>ref:</comment>%s, <comment>occurred_at:</comment>%s',
                         $i,
                         $ref,
-                        $message->get(CommandV1Mixin::OCCURRED_AT_FIELD)
+                        $message->get('occurred_at')
                     ));
                 } else {
-                    if ($message::schema()->hasMixin(CommandV1Mixin::SCHEMA_CURIE)) {
+                    if ($message::schema()->hasMixin('gdbots:pbjx:mixin:command')) {
                         $io->text(sprintf(
                             '<info>%d.</info> Sending <comment>ref:</comment>%s, <comment>occurred_at:</comment>%s',
                             $i,
                             $ref,
-                            $message->get(CommandV1Mixin::OCCURRED_AT_FIELD)
+                            $message->get('occurred_at')
                         ));
                         $pbjx->send($message);
-                    } elseif ($message::schema()->hasMixin(EventV1Mixin::SCHEMA_CURIE)) {
+                    } elseif ($message::schema()->hasMixin('gdbots:pbjx:mixin:event')) {
                         $io->text(sprintf(
                             '<info>%d.</info> Publishing <comment>ref:</comment>%s, <comment>occurred_at:</comment>%s',
                             $i,
                             $ref,
-                            $message->get(EventV1Mixin::OCCURRED_AT_FIELD)
+                            $message->get('occurred_at')
                         ));
                         $pbjx->publish($message);
                     } else {

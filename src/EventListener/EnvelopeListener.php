@@ -44,19 +44,19 @@ final class EnvelopeListener
             $this->logger->error('Error running pbjx->triggerLifecycle on envelope.', ['exception' => $e]);
         }
 
-        $envelope->set(EnvelopeV1::OK_FIELD, Code::OK === $envelope->get(EnvelopeV1::CODE_FIELD));
-        $httpCode = $envelope->has(EnvelopeV1::HTTP_CODE_FIELD)
-            ? $envelope->get(EnvelopeV1::HTTP_CODE_FIELD)->getValue()
+        $envelope->set('ok', Code::OK === $envelope->get('code'));
+        $httpCode = $envelope->has('http_code')
+            ? $envelope->get('http_code')->getValue()
             : HttpCode::HTTP_OK;
         $array = $envelope->toArray();
 
-        if (isset($array[EnvelopeV1::ERROR_MESSAGE_FIELD]) && $redact) {
+        if (isset($array['error_message']) && $redact) {
             if ($httpCode >= HttpCode::HTTP_INTERNAL_SERVER_ERROR) {
                 $this->logger->error(
                     sprintf(
                         '%s::Message [{pbj_schema}] failed (Code:%s,HttpCode:%s).',
-                        $envelope->get(EnvelopeV1::ERROR_NAME_FIELD),
-                        $envelope->get(EnvelopeV1::CODE_FIELD),
+                        $envelope->get('error_name'),
+                        $envelope->get('code'),
                         $httpCode
                     ),
                     [
@@ -66,13 +66,13 @@ final class EnvelopeListener
                 );
             }
 
-            $array[EnvelopeV1::ERROR_MESSAGE_FIELD] = $this->redactErrorMessage($envelope, $request);
+            $array['error_message'] = $this->redactErrorMessage($envelope, $request);
         }
 
         $response = new JsonResponse($array, $httpCode, [
             'Content-Type'       => 'application/json',
-            'ETag'               => $envelope->get(EnvelopeV1::ETAG_FIELD),
-            'x-pbjx-envelope-id' => (string)$envelope->get(EnvelopeV1::ENVELOPE_ID_FIELD),
+            'ETag'               => $envelope->get('etag'),
+            'x-pbjx-envelope-id' => (string)$envelope->get('envelope_id'),
         ]);
 
         if ($request->attributes->getBoolean('_jsonp_enabled') && $request->query->has('callback')) {
@@ -97,9 +97,9 @@ final class EnvelopeListener
     private function redactErrorMessage(EnvelopeV1 $envelope, Request $request): string
     {
         try {
-            $code = Code::create($envelope->get(EnvelopeV1::CODE_FIELD))->getName();
+            $code = Code::create($envelope->get('code'))->getName();
         } catch (\Throwable $e) {
-            $code = (string)$envelope->get(EnvelopeV1::CODE_FIELD);
+            $code = (string)$envelope->get('code');
         }
 
         return sprintf('Your message could not be handled (Code:%s).', $code);

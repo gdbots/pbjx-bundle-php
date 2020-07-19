@@ -7,7 +7,6 @@ use Gdbots\Pbj\Message;
 use Gdbots\Pbj\MessageResolver;
 use Gdbots\Pbjx\Exception\InvalidArgumentException;
 use Gdbots\Pbjx\Pbjx;
-use Gdbots\Schemas\Pbjx\Mixin\Request\RequestV1Mixin;
 use Gdbots\UriTemplate\UriTemplateService;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -127,12 +126,12 @@ final class PbjxExtension extends AbstractExtension
     {
         try {
             $request = MessageResolver::resolveCurie($curie)::fromArray($data);
-            if (!$request::schema()->hasMixin(RequestV1Mixin::SCHEMA_CURIE)) {
+            if (!$request::schema()->hasMixin('gdbots:pbjx:mixin:request')) {
                 throw new InvalidArgumentException(sprintf('The provided curie [%s] is not a request.', $curie));
             }
 
             // ensures permission check is bypassed
-            $request->set(RequestV1Mixin::CTX_CAUSATOR_REF_FIELD, $request->generateMessageRef());
+            $request->set('ctx_causator_ref', $request->generateMessageRef());
 
             return $this->pbjx->request($request);
         } catch (\Throwable $e) {

@@ -39,25 +39,13 @@
     </service>
 
     <!-- binders -->
-    <service id="gdbots_pbjx.command_binder" class="Gdbots\Bundle\PbjxBundle\Binder\CommandBinder">
+    <service id="gdbots_pbjx.message_binder" class="Gdbots\Bundle\PbjxBundle\MessageBinder">
       <argument type="service" id="service_container"/>
       <tag name="pbjx.event_subscriber"/>
       <tag name="pbjx.binder"/>
     </service>
 
-    <service id="gdbots_pbjx.event_binder" class="Gdbots\Bundle\PbjxBundle\Binder\EventBinder">
-      <argument type="service" id="service_container"/>
-      <tag name="pbjx.event_subscriber"/>
-      <tag name="pbjx.binder"/>
-    </service>
-
-    <service id="gdbots_pbjx.query_parsing_binder" class="Gdbots\Bundle\PbjxBundle\Binder\QueryParsingBinder">
-      <tag name="pbjx.event_subscriber"/>
-      <tag name="pbjx.binder"/>
-    </service>
-
-    <service id="gdbots_pbjx.request_binder" class="Gdbots\Bundle\PbjxBundle\Binder\RequestBinder">
-      <argument type="service" id="service_container"/>
+    <service id="gdbots_pbjx.query_parsing_binder" class="Gdbots\Bundle\PbjxBundle\QueryParsingBinder">
       <tag name="pbjx.event_subscriber"/>
       <tag name="pbjx.binder"/>
     </service>

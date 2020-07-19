@@ -6,7 +6,6 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 use Gdbots\Pbj\Message;
 use Gdbots\Pbj\Util\NumberUtil;
 use Gdbots\Pbj\WellKnown\Microtime;
-use Gdbots\Schemas\Pbjx\Mixin\Event\EventV1Mixin;
 use Gdbots\Schemas\Pbjx\StreamId;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -169,17 +168,14 @@ EOF
                         '<comment>curie:</comment>%s, <comment>event_id:</comment>%s',
                         $i,
                         $sid,
-                        $event->get(EventV1Mixin::OCCURRED_AT_FIELD),
+                        $event->get('occurred_at'),
                         $event::schema()->getCurie()->toString(),
-                        $event->get(EventV1Mixin::EVENT_ID_FIELD)
+                        $event->get('event_id')
                     )
                 );
 
                 if ($dryRun) {
-                    $io->note(sprintf(
-                        'DRY RUN - Would publish event "%s" here.',
-                        $event->get(EventV1Mixin::EVENT_ID_FIELD)
-                    ));
+                    $io->note(sprintf('DRY RUN - Would publish event "%s" here.', $event->get('event_id')));
                 } else {
                     $event->isReplay(true);
                     $pbjx->publish($event);
@@ -191,7 +187,7 @@ EOF
                 $io->note(sprintf(
                     '%d. Failed event "%s" json below:',
                     $i,
-                    $event->get(EventV1Mixin::EVENT_ID_FIELD)
+                    $event->get('event_id')
                 ));
                 $io->text(json_encode($event, JSON_PRETTY_PRINT));
                 $io->newLine(2);

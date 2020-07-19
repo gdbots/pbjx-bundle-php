@@ -10,11 +10,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-final class DescribeSchedulerCommand extends Command
+final class CreateSchedulerStorageCommand extends Command
 {
     use PbjxAwareCommandTrait;
 
-    protected static $defaultName = 'pbjx:describe-scheduler';
+    protected static $defaultName = 'pbjx:create-scheduler-storage';
 
     public function __construct(ContainerInterface $container)
     {
@@ -27,7 +27,7 @@ final class DescribeSchedulerCommand extends Command
         $provider = $this->container->getParameter('gdbots_pbjx.scheduler.provider');
 
         $this
-            ->setDescription("Describes the Scheduler ({$provider}) storage")
+            ->setDescription("Creates the Scheduler ({$provider}) storage")
             ->addOption(
                 'context',
                 null,
@@ -52,12 +52,11 @@ final class DescribeSchedulerCommand extends Command
         $context['tenant_id'] = (string)$input->getOption('tenant-id');
 
         $io = new SymfonyStyle($input, $output);
-        $io->title('Scheduler Storage Describer');
+        $io->title('Scheduler Storage Creator');
         $io->comment('context: ' . json_encode($context));
 
-        $details = $this->getPbjxServiceLocator()->getScheduler()->describeStorage($context);
-        $io->text($details);
-        $io->newLine();
+        $this->getPbjxServiceLocator()->getScheduler()->createStorage($context);
+        $io->success('Scheduler storage created.');
 
         return self::SUCCESS;
     }

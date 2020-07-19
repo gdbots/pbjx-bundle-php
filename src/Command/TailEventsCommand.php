@@ -6,7 +6,6 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 use Gdbots\Pbj\Message;
 use Gdbots\Pbj\Util\NumberUtil;
 use Gdbots\Pbj\WellKnown\Microtime;
-use Gdbots\Schemas\Pbjx\Mixin\Event\EventV1Mixin;
 use Gdbots\Schemas\Pbjx\StreamId;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -100,7 +99,7 @@ EOF
             }
 
             if ($event instanceof Message) {
-                $since = $event->get(EventV1Mixin::OCCURRED_AT_FIELD);
+                $since = $event->get('occurred_at');
             }
 
             sleep($interval);
