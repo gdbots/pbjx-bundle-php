@@ -2,6 +2,14 @@
 This changelog references the relevant changes done in 2.x versions.
 
 
+## v2.2.0
+__POSSIBLE BREAKING CHANGES__
+
+* Remove use of mixin/message constants for fields and schema refs as it's too noisy and isn't enough of a help to warrant it.
+* Merge `CommandBinder`, `EventBinder` and `RequestBinder` into one `MessageBinder`.
+* Move `PermissionValidatorTrait` to root of project.
+
+
 ## v2.1.0
 * Uses `"gdbots/pbjx": "^3.1"` and configures `DynamoDbScheduler` to use `gdbots_pbjx.event_dispatcher`.
 

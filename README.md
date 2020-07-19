@@ -346,8 +346,10 @@ pbjx                                [pbjx:message] Handles pbjx messages (comman
 pbjx:batch                          [pbjx:lines] Reads messages from a newline-delimited JSON file and processes them.
 pbjx:create-event-search-storage    Creates the EventSearch storage.
 pbjx:create-event-store-storage     Creates the EventStore storage.
+pbjx:create-scheduler-storage       Creates the Scheduler storage.
 pbjx:describe-event-search-storage  Describes the EventSearch storage.
 pbjx:describe-event-store-storage   Describes the EventStore storage.
+pbjx:describe-scheduler-storage     Describes the Scheduler storage.
 pbjx:export-events                  Pipes events from the EventStore to STDOUT.
 pbjx:reindex-events                 Pipes events from the EventStore and reindexes them.
 pbjx:replay-events                  Pipes events from the EventStore and replays them through pbjx->publish.

@@ -137,7 +137,7 @@ EOF
             $errOutput->writeln('<error>' . $e->getMessage() . '</error>');
         }
 
-        $envelope->set(EnvelopeV1::OK_FIELD, Code::OK === $envelope->get('code'));
+        $envelope->set('ok', Code::OK === $envelope->get('code'));
         $output->writeln(json_encode($envelope, $input->getOption('pretty') ? JSON_PRETTY_PRINT : 0));
 
         return self::SUCCESS;

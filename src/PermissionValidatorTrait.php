@@ -1,13 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace Gdbots\Bundle\PbjxBundle\Validator;
+namespace Gdbots\Bundle\PbjxBundle;
 
 use Gdbots\Pbj\Message;
 use Gdbots\Pbjx\Event\PbjxEvent;
-use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1Mixin;
-use Gdbots\Schemas\Pbjx\Mixin\Event\EventV1Mixin;
-use Gdbots\Schemas\Pbjx\Mixin\Request\RequestV1Mixin;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -19,9 +16,9 @@ trait PermissionValidatorTrait
     public static function getSubscribedEvents()
     {
         return [
-            CommandV1Mixin::SCHEMA_CURIE . '.validate' => 'validate',
-            EventV1Mixin::SCHEMA_CURIE . '.validate'   => 'validate',
-            RequestV1Mixin::SCHEMA_CURIE . '.validate' => 'validate',
+            'gdbots:pbjx:mixin:command.validate' => 'validate',
+            'gdbots:pbjx:mixin:event.validate'   => 'validate',
+            'gdbots:pbjx:mixin:request.validate' => 'validate',
         ];
     }
 
@@ -45,7 +42,7 @@ trait PermissionValidatorTrait
         }
 
         $message = $pbjxEvent->getMessage();
-        if ($message->has(CommandV1Mixin::CTX_CAUSATOR_REF_FIELD)) {
+        if ($message->has('ctx_causator_ref')) {
             /*
              * if the "ctx_causator_ref" is present it was populated by
              * the server and means this message is a sub request which

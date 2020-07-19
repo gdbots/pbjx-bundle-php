@@ -12,9 +12,6 @@ use Gdbots\Pbjx\ServiceLocator;
 use Gdbots\Pbjx\Transport\TransportEnvelope;
 use Gdbots\Pbjx\Util\StatusCodeUtil;
 use Gdbots\Schemas\Pbjx\Enum\Code;
-use Gdbots\Schemas\Pbjx\Mixin\Command\CommandV1Mixin;
-use Gdbots\Schemas\Pbjx\Mixin\Event\EventV1Mixin;
-use Gdbots\Schemas\Pbjx\Request\RequestFailedResponseV1;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -125,12 +122,12 @@ final class PbjxReceiveController
 
     private function receiveMessage(Message $message): void
     {
-        if ($message::schema()->hasMixin(CommandV1Mixin::SCHEMA_CURIE)) {
+        if ($message::schema()->hasMixin('gdbots:pbjx:mixin:command')) {
             $this->locator->getCommandBus()->receiveCommand($message);
             return;
         }
 
-        if ($message::schema()->hasMixin(EventV1Mixin::SCHEMA_CURIE)) {
+        if ($message::schema()->hasMixin('gdbots:pbjx:mixin:event')) {
             $this->locator->getEventBus()->receiveEvent($message);
             return;
         }
@@ -150,9 +147,9 @@ final class PbjxReceiveController
             $errorMessage = $exception->getMessage();
         } elseif ($exception instanceof RequestHandlingFailed) {
             $response = $exception->getResponse();
-            $code = $response->get(RequestFailedResponseV1::ERROR_CODE_FIELD, Code::UNKNOWN);
-            $errorName = $response->get(RequestFailedResponseV1::ERROR_NAME_FIELD, ClassUtil::getShortName($exception));
-            $errorMessage = $response->get(RequestFailedResponseV1::ERROR_MESSAGE_FIELD, $exception->getMessage());
+            $code = $response->get('error_code', Code::UNKNOWN);
+            $errorName = $response->get('error_name', ClassUtil::getShortName($exception));
+            $errorMessage = $response->get('error_message', $exception->getMessage());
         } elseif ($exception instanceof GdbotsPbjException) {
             $code = Code::INVALID_ARGUMENT;
             $errorName = ClassUtil::getShortName($exception);

@@ -6,7 +6,6 @@ namespace Gdbots\Bundle\PbjxBundle;
 use Gdbots\Pbj\Message;
 use Gdbots\Pbjx\EventSubscriber;
 use Gdbots\Pbjx\Pbjx;
-use Gdbots\Schemas\Pbjx\Event\EventExecutionFailedV1;
 use Psr\Log\LoggerInterface;
 
 final class EventExecutionFailureLogger implements EventSubscriber
@@ -16,7 +15,7 @@ final class EventExecutionFailureLogger implements EventSubscriber
     public static function getSubscribedEvents()
     {
         return [
-            EventExecutionFailedV1::SCHEMA_CURIE => 'onEventExecutionFailed',
+            'gdbots:pbjx:event:event-execution-failed' => 'onEventExecutionFailed',
         ];
     }
 
@@ -29,8 +28,8 @@ final class EventExecutionFailureLogger implements EventSubscriber
     {
         $message = sprintf(
             '%s::%s Event subscriber failed to handle message [{pbj_schema}].',
-            $event->get(EventExecutionFailedV1::ERROR_NAME_FIELD),
-            $event->get(EventExecutionFailedV1::ERROR_CODE_FIELD)
+            $event->get('error_name'),
+            $event->get('error_code')
         );
 
         $this->logger->critical($message, [

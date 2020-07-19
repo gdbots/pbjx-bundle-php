@@ -6,8 +6,6 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 use Gdbots\Pbj\Message;
 use Gdbots\Pbj\Util\NumberUtil;
 use Gdbots\Pbj\WellKnown\Microtime;
-use Gdbots\Schemas\Pbjx\Mixin\Event\EventV1Mixin;
-use Gdbots\Schemas\Pbjx\Mixin\Indexed\IndexedV1Mixin;
 use Gdbots\Schemas\Pbjx\StreamId;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -155,11 +153,10 @@ EOF
                 [$event, $sid] = $result;
             }
 
-            if (!$event::schema()->hasMixin(IndexedV1Mixin::SCHEMA_CURIE)) {
+            if (!$event::schema()->hasMixin('gdbots:pbjx:mixin:indexed')) {
                 $io->note(sprintf(
-                    'IGNORING - Event [%s] does not have mixin [%s].',
+                    'IGNORING - Event [%s] does not have mixin [gdbots:pbjx:mixin:indexed].',
                     $event->generateMessageRef(),
-                    IndexedV1Mixin::SCHEMA_CURIE
                 ));
                 continue;
             }
@@ -173,9 +170,9 @@ EOF
                     '<comment>curie:</comment>%s, <comment>event_id:</comment>%s',
                     $i,
                     $sid,
-                    $event->get(EventV1Mixin::OCCURRED_AT_FIELD),
+                    $event->get('occurred_at'),
                     $event::schema()->getCurie()->toString(),
-                    $event->get(EventV1Mixin::EVENT_ID_FIELD)
+                    $event->get('event_id')
                 )
             );
 
