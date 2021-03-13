@@ -2,6 +2,10 @@
 This changelog references the relevant changes done in 2.x versions.
 
 
+## v2.2.1
+* Remove use of deprecated setPrivate method in RegisterHandlersPass.
+
+
 ## v2.2.0
 __POSSIBLE BREAKING CHANGES__
 

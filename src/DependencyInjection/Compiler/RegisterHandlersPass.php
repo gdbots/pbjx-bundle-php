@@ -36,7 +36,7 @@ final class RegisterHandlersPass implements CompilerPassInterface
 
         foreach ($container->findTaggedServiceIds('pbjx.handler') as $id => $attributes) {
             $def = $container->getDefinition($id);
-            $def->setPublic(false)->setPrivate(true);
+            $def->setPublic(false);
 
             if ($def->isAbstract()) {
                 throw new \InvalidArgumentException(

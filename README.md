@@ -1,8 +1,6 @@
 pbjx-bundle-php
 =============
 
-[![Build Status](https://api.travis-ci.org/gdbots/pbjx-bundle-php.svg)](https://travis-ci.org/gdbots/pbjx-bundle-php)
-
 Symfony bundle that integrates [gdbots/pbjx](https://github.com/gdbots/pbjx-php) library.
 
 
