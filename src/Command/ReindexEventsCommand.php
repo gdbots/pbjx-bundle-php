@@ -115,6 +115,8 @@ EOF
         }
         $context = json_decode($context, true);
         $context['tenant_id'] = (string)$input->getOption('tenant-id');
+        $context['skip_errors'] = $skipErrors;
+        $context['reindexing'] = true;
         $streamId = $input->getArgument('stream-id') ? StreamId::fromString($input->getArgument('stream-id')) : null;
 
         if (!empty($since)) {
