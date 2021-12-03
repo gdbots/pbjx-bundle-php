@@ -27,14 +27,19 @@ final class GdbotsPbjxBundle extends Bundle
         $container->addCompilerPass(new ValidateEventSearchPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
         $container->addCompilerPass(new ValidateEventStorePass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
         $container->addCompilerPass(new ValidateSchedulerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
-        $container->addCompilerPass(
-            new RegisterListenersPass(
-                'gdbots_pbjx.event_dispatcher',
-                'pbjx.event_listener',
-                'pbjx.event_subscriber'
-            ),
-            PassConfig::TYPE_BEFORE_REMOVING
-        );
+        /*
+         * Fixme: remove this if approved.
+         * Since symfony/event-dispatcher 5.3:
+         * Configuring "Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass" is deprecated.
+         * $container->addCompilerPass(
+         *   new RegisterListenersPass(
+         *       'gdbots_pbjx.event_dispatcher',
+         *       'pbjx.event_listener',
+         *       'pbjx.event_subscriber'
+         *  ),
+         *   PassConfig::TYPE_BEFORE_REMOVING
+         * );
+         */
         $container->addCompilerPass(new RegisterHandlersPass(), PassConfig::TYPE_BEFORE_REMOVING);
     }
 }
