@@ -12,7 +12,7 @@ class QueryParsingBinder implements EventSubscriber, PbjxBinder
 {
     protected QueryParser $queryParser;
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             'gdbots:ncr:mixin:search-nodes-request.bind'   => 'bind',

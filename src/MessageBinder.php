@@ -19,7 +19,7 @@ class MessageBinder implements EventSubscriber, PbjxBinder
     protected ?RequestStack $requestStack = null;
     protected array $restrictedFields;
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             'gdbots:pbjx:mixin:command.bind' => ['bind', 10000],
