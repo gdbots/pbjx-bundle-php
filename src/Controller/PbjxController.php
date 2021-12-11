@@ -252,7 +252,7 @@ final class PbjxController
         } else {
             $code = Code::tryFrom(
                 $exception->getCode() > 0 ? $exception->getCode() : Code::INVALID_ARGUMENT->value
-            ) ?: Code::UNKNOWN;
+            ) ?: Code::INVALID_ARGUMENT;
             $httpCode = StatusCodeUtil::vendorToHttp($code);
             $errorName = ClassUtil::getShortName($exception);
             $errorMessage = $exception->getMessage();

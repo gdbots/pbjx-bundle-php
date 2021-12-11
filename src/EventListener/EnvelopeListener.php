@@ -49,7 +49,7 @@ final class EnvelopeListener
         $array = $envelope->toArray();
 
         if (isset($array['error_message']) && $redact) {
-            if ($httpCode->value >= HttpCode::HTTP_INTERNAL_SERVER_ERROR->value) {
+            if ($httpCode >= HttpCode::HTTP_INTERNAL_SERVER_ERROR->value) {
                 $this->logger->error(
                     sprintf(
                         '%s::Message [{pbj_schema}] failed (Code:%s,HttpCode:%s).',
