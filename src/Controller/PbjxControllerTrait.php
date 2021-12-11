@@ -12,10 +12,10 @@ trait PbjxControllerTrait
      * Renders the provided message (pbj) using a template which is resolved by calling
      * the "pbjTemplate" method in this trait.
      *
-     * @param Message  $pbj
-     * @param string   $template
-     * @param Response $response
-     * @param string   $format
+     * @param Message       $pbj
+     * @param string        $template
+     * @param Response|null $response
+     * @param string        $format
      *
      * @return Response
      */

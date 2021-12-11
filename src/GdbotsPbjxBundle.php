@@ -4,13 +4,13 @@ declare(strict_types=1);
 namespace Gdbots\Bundle\PbjxBundle;
 
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\RegisterHandlersPass;
+use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\RegisterListenersPass;
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\ValidateEventSearchPass;
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\ValidateEventStorePass;
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\ValidateSchedulerPass;
 use Gdbots\Bundle\PbjxBundle\DependencyInjection\Compiler\ValidateTransportsPass;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 final class GdbotsPbjxBundle extends Bundle
@@ -23,10 +23,10 @@ final class GdbotsPbjxBundle extends Bundle
     public function build(ContainerBuilder $container)
     {
         parent::build($container);
-        $container->addCompilerPass(new ValidateTransportsPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
-        $container->addCompilerPass(new ValidateEventSearchPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
-        $container->addCompilerPass(new ValidateEventStorePass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
-        $container->addCompilerPass(new ValidateSchedulerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
+        $container->addCompilerPass(new ValidateTransportsPass());
+        $container->addCompilerPass(new ValidateEventSearchPass());
+        $container->addCompilerPass(new ValidateEventStorePass());
+        $container->addCompilerPass(new ValidateSchedulerPass());
         $container->addCompilerPass(
             new RegisterListenersPass(
                 'gdbots_pbjx.event_dispatcher',

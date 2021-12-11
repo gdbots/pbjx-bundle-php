@@ -19,7 +19,7 @@ class MessageBinder implements EventSubscriber, PbjxBinder
     protected ?RequestStack $requestStack = null;
     protected array $restrictedFields;
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             'gdbots:pbjx:mixin:command.bind' => ['bind', 10000],
@@ -144,7 +144,7 @@ class MessageBinder implements EventSubscriber, PbjxBinder
             return;
         }
 
-        if (strpos($ip, ':') !== false) {
+        if (str_contains($ip, ':')) {
             $message->set('ctx_ipv6', $ip);
         } else {
             $message->set('ctx_ip', $ip);

@@ -12,7 +12,7 @@ final class EventExecutionFailureLogger implements EventSubscriber
 {
     private LoggerInterface $logger;
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             'gdbots:pbjx:event:event-execution-failed' => 'onEventExecutionFailed',

@@ -13,7 +13,7 @@ trait PermissionValidatorTrait
 {
     protected RequestStack $requestStack;
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             'gdbots:pbjx:mixin:command.validate' => 'validate',

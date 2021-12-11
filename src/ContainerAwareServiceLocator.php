@@ -123,14 +123,7 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
         $this->forceTransportsToInMemory = true;
     }
 
-    /**
-     * @param SchemaCurie $curie
-     *
-     * @return CommandHandler|RequestHandler
-     *
-     * @throws HandlerNotFound
-     */
-    protected function getHandler(SchemaCurie $curie)
+    protected function getHandler(SchemaCurie $curie): CommandHandler|RequestHandler
     {
         $key = $curie->toString();
 
@@ -148,12 +141,13 @@ class ContainerAwareServiceLocator extends AbstractServiceLocator
     }
 
     /**
+     * @param string   $curie
+     * @param callable $handler
+     *
      * @see RegisterHandlersPass uses this method for all services tagged with "pbjx.handler"
      *
      * @internal
      *
-     * @param string   $curie
-     * @param callable $handler
      */
     public function registerHandler(string $curie, callable $handler): void
     {

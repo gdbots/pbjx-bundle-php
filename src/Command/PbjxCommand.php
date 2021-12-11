@@ -6,7 +6,6 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 use Gdbots\Bundle\PbjxBundle\Controller\PbjxController;
 use Gdbots\Pbj\SchemaCurie;
 use Gdbots\Schemas\Pbjx\Enum\Code;
-use Gdbots\Schemas\Pbjx\EnvelopeV1;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -137,7 +136,7 @@ EOF
             $errOutput->writeln('<error>' . $e->getMessage() . '</error>');
         }
 
-        $envelope->set('ok', Code::OK === $envelope->get('code'));
+        $envelope->set('ok', Code::OK->value === $envelope->get('code'));
         $output->writeln(json_encode($envelope, $input->getOption('pretty') ? JSON_PRETTY_PRINT : 0));
 
         return self::SUCCESS;

@@ -11,7 +11,7 @@ final class PbjxTokenSigner
     /**
      * Default kid to use when creating new tokens.
      *
-     * @var string
+     * @var string|null
      */
     private ?string $defaultKid;
 
@@ -58,9 +58,9 @@ final class PbjxTokenSigner
     /**
      * Creates a new signed token for the provided content.
      *
-     * @param string $content Pbjx content that is being signed
-     * @param string $aud     Pbjx endpoint this token will be sent to
-     * @param string $kid     Key ID to use to sign the token.
+     * @param string      $content Pbjx content that is being signed
+     * @param string      $aud     Pbjx endpoint this token will be sent to
+     * @param string|null $kid     Key ID to use to sign the token.
      *
      * @return PbjxToken
      */
@@ -99,7 +99,7 @@ final class PbjxTokenSigner
         );
 
         if (!$actualToken->equals($expectedToken)) {
-            throw new \InvalidArgumentException('PbjxTokens do not match.', Code::INVALID_ARGUMENT);
+            throw new \InvalidArgumentException('PbjxTokens do not match.', Code::INVALID_ARGUMENT->value);
         }
     }
 
@@ -117,6 +117,6 @@ final class PbjxTokenSigner
             return $secret;
         }
 
-        throw new \InvalidArgumentException('PbjxTokenSigner given unknown kid.', Code::INVALID_ARGUMENT);
+        throw new \InvalidArgumentException('PbjxTokenSigner given unknown kid.', Code::INVALID_ARGUMENT->value);
     }
 }

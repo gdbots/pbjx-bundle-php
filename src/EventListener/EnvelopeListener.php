@@ -44,14 +44,12 @@ final class EnvelopeListener
             $this->logger->error('Error running pbjx->triggerLifecycle on envelope.', ['exception' => $e]);
         }
 
-        $envelope->set('ok', Code::OK === $envelope->get('code'));
-        $httpCode = $envelope->has('http_code')
-            ? $envelope->get('http_code')->getValue()
-            : HttpCode::HTTP_OK;
+        $envelope->set('ok', Code::OK->value === $envelope->get('code'));
+        $httpCode = $envelope->get('http_code', HttpCode::HTTP_OK)->value;
         $array = $envelope->toArray();
 
         if (isset($array['error_message']) && $redact) {
-            if ($httpCode >= HttpCode::HTTP_INTERNAL_SERVER_ERROR) {
+            if ($httpCode >= HttpCode::HTTP_INTERNAL_SERVER_ERROR->value) {
                 $this->logger->error(
                     sprintf(
                         '%s::Message [{pbj_schema}] failed (Code:%s,HttpCode:%s).',
@@ -97,7 +95,7 @@ final class EnvelopeListener
     private function redactErrorMessage(EnvelopeV1 $envelope, Request $request): string
     {
         try {
-            $code = Code::create($envelope->get('code'))->getName();
+            $code = Code::from($envelope->get('code'))->name;
         } catch (\Throwable $e) {
             $code = (string)$envelope->get('code');
         }

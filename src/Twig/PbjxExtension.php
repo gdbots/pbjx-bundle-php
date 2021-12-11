@@ -17,7 +17,7 @@ final class PbjxExtension extends AbstractExtension
 {
     private Pbjx $pbjx;
     private LoggerInterface $logger;
-    private bool $debug = false;
+    private bool $debug;
 
     public function __construct(Pbjx $pbjx, ?LoggerInterface $logger = null, bool $debug = false)
     {
@@ -26,7 +26,7 @@ final class PbjxExtension extends AbstractExtension
         $this->debug = $debug;
     }
 
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new TwigFunction('pbj_template', [$this, 'pbjTemplate']),
@@ -45,14 +45,14 @@ final class PbjxExtension extends AbstractExtension
      * Example:
      *  {% include pbj_template(pbj, 'card', 'html', device_view) with {'pbj': pbj} %}
      *
-     * @param Message $pbj
-     * @param string  $template
-     * @param string  $format
-     * @param string  $deviceView
+     * @param Message     $pbj
+     * @param string      $template
+     * @param string      $format
+     * @param string|null $deviceView
      *
      * @return string|string[]  A single template reference or array if device view is not null
      */
-    public function pbjTemplate(Message $pbj, string $template, string $format = 'html', ?string $deviceView = null)
+    public function pbjTemplate(Message $pbj, string $template, string $format = 'html', ?string $deviceView = null): string|array
     {
         $curie = $pbj::schema()->getCurie();
         $path = str_replace('-', '_', sprintf('%s_%s/%s/%s',
@@ -82,7 +82,7 @@ final class PbjxExtension extends AbstractExtension
      * @param Message $pbj
      * @param string  $template
      *
-     * @return string
+     * @return string|null
      */
     public function pbjUrl(Message $pbj, string $template): ?string
     {
@@ -98,7 +98,7 @@ final class PbjxExtension extends AbstractExtension
      * @param string $id
      * @param array  $variables
      *
-     * @return string
+     * @return string|null
      */
     public function uriTemplateExpand(string $id, array $variables = []): ?string
     {
@@ -118,7 +118,7 @@ final class PbjxExtension extends AbstractExtension
      * @param string $curie
      * @param array  $data
      *
-     * @return Message
+     * @return Message|null
      *
      * @throws \Throwable
      */
