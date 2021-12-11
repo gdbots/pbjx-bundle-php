@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file WAS part of the Symfony package.

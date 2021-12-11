@@ -12,6 +12,7 @@ use Gdbots\Pbjx\ServiceLocator;
 use Gdbots\Pbjx\Transport\TransportEnvelope;
 use Gdbots\Pbjx\Util\StatusCodeUtil;
 use Gdbots\Schemas\Pbjx\Enum\Code;
+use Gdbots\Schemas\Pbjx\Enum\HttpCode;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -33,7 +34,7 @@ final class PbjxReceiveController
 {
     private ServiceLocator $locator;
     private PbjxTokenSigner $signer;
-    private bool $enabled = false;
+    private bool $enabled;
 
     public function __construct(ServiceLocator $locator, PbjxTokenSigner $signer, bool $enabled = false)
     {
@@ -48,7 +49,7 @@ final class PbjxReceiveController
             throw new AccessDeniedHttpException(
                 'The receive endpoint is not enabled.',
                 null,
-                Code::UNIMPLEMENTED
+                Code::UNIMPLEMENTED->value
             );
         }
 
@@ -57,14 +58,14 @@ final class PbjxReceiveController
             throw new AccessDeniedHttpException(
                 'The receive endpoint requires the "x-pbjx-token" header.',
                 null,
-                Code::PERMISSION_DENIED
+                Code::PERMISSION_DENIED->value
             );
         }
 
         try {
             $this->signer->validate($request->getContent(), $request->getUri(), $token);
         } catch (\Throwable $e) {
-            throw new AccessDeniedHttpException($e->getMessage(), $e, Code::PERMISSION_DENIED);
+            throw new AccessDeniedHttpException($e->getMessage(), $e, Code::PERMISSION_DENIED->value);
         }
 
         $handle = $request->getContent(true);
@@ -86,7 +87,7 @@ final class PbjxReceiveController
                 ++$data['lines']['ignored'];
                 $data['results'][] = [
                     'ok'            => false,
-                    'code'          => Code::INVALID_ARGUMENT,
+                    'code'          => Code::INVALID_ARGUMENT->value,
                     'error_name'    => 'InvalidArgumentException',
                     'error_message' => 'empty line',
                 ];
@@ -103,7 +104,7 @@ final class PbjxReceiveController
 
                 ++$data['lines']['ok'];
                 $result['ok'] = true;
-                $result['code'] = Code::OK;
+                $result['code'] = Code::OK->value;
                 $result['message_ref'] = $message->generateMessageRef()->toString();
             } catch (\Throwable $e) {
                 ++$data['lines']['failed'];
@@ -135,19 +136,20 @@ final class PbjxReceiveController
         throw new BadRequestHttpException(
             'The receive endpoint cannot process requests.',
             null,
-            Code::INVALID_ARGUMENT
+            Code::INVALID_ARGUMENT->value
         );
     }
 
     private function handleException(array &$result, \Throwable $exception): void
     {
         if ($exception instanceof HttpExceptionInterface) {
-            $code = StatusCodeUtil::httpToVendor($exception->getStatusCode());
+            $httpCode = HttpCode::tryFrom($exception->getStatusCode()) ?: HttpCode::UNKNOWN;
+            $code = StatusCodeUtil::httpToVendor($httpCode);
             $errorName = ClassUtil::getShortName($exception);
             $errorMessage = $exception->getMessage();
         } elseif ($exception instanceof RequestHandlingFailed) {
             $response = $exception->getResponse();
-            $code = $response->get('error_code', Code::UNKNOWN);
+            $code = Code::tryFrom($response->get('error_code')) ?: Code::UNKNOWN;
             $errorName = $response->get('error_name', ClassUtil::getShortName($exception));
             $errorMessage = $response->get('error_message', $exception->getMessage());
         } elseif ($exception instanceof GdbotsPbjException) {
@@ -155,13 +157,15 @@ final class PbjxReceiveController
             $errorName = ClassUtil::getShortName($exception);
             $errorMessage = $exception->getMessage();
         } else {
-            $code = $exception->getCode() > 0 ? $exception->getCode() : Code::INVALID_ARGUMENT;
+            $code = Code::tryFrom(
+                $exception->getCode() > 0 ? $exception->getCode() : Code::INVALID_ARGUMENT->value
+            ) ?: Code::UNKNOWN;
             $errorName = ClassUtil::getShortName($exception);
             $errorMessage = $exception->getMessage();
         }
 
         $result['ok'] = false;
-        $result['code'] = $code;
+        $result['code'] = $code->value;
         $result['error_name'] = $errorName;
         $result['error_message'] = $errorMessage;
     }

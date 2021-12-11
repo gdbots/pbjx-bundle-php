@@ -144,7 +144,7 @@ class MessageBinder implements EventSubscriber, PbjxBinder
             return;
         }
 
-        if (strpos($ip, ':') !== false) {
+        if (str_contains($ip, ':')) {
             $message->set('ctx_ipv6', $ip);
         } else {
             $message->set('ctx_ip', $ip);

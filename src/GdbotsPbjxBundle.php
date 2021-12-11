@@ -23,10 +23,10 @@ final class GdbotsPbjxBundle extends Bundle
     public function build(ContainerBuilder $container)
     {
         parent::build($container);
-        $container->addCompilerPass(new ValidateTransportsPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
-        $container->addCompilerPass(new ValidateEventSearchPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
-        $container->addCompilerPass(new ValidateEventStorePass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
-        $container->addCompilerPass(new ValidateSchedulerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
+        $container->addCompilerPass(new ValidateTransportsPass());
+        $container->addCompilerPass(new ValidateEventSearchPass());
+        $container->addCompilerPass(new ValidateEventStorePass());
+        $container->addCompilerPass(new ValidateSchedulerPass());
         $container->addCompilerPass(
             new RegisterListenersPass(
                 'gdbots_pbjx.event_dispatcher',

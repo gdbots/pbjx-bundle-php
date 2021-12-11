@@ -2,7 +2,7 @@
 This changelog references the relevant changes done in 3.x versions.
 
 
-## v2.0.0
+## v3.0.0
 __BREAKING CHANGES__
 
-* Upgrade to support Symfony 6 and PHP 8.
+* Upgrade to support Symfony 6 and PHP 8.1
