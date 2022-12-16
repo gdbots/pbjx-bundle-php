@@ -32,15 +32,11 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
  */
 final class PbjxReceiveController
 {
-    private ServiceLocator $locator;
-    private PbjxTokenSigner $signer;
-    private bool $enabled;
-
-    public function __construct(ServiceLocator $locator, PbjxTokenSigner $signer, bool $enabled = false)
-    {
-        $this->locator = $locator;
-        $this->signer = $signer;
-        $this->enabled = $enabled;
+    public function __construct(
+        private ServiceLocator $locator,
+        private PbjxTokenSigner $signer,
+        private bool $enabled = false
+    ) {
     }
 
     public function receiveAction(Request $request): JsonResponse
