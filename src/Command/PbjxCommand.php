@@ -6,6 +6,7 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 use Gdbots\Bundle\PbjxBundle\Controller\PbjxController;
 use Gdbots\Pbj\SchemaCurie;
 use Gdbots\Schemas\Pbjx\Enum\Code;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

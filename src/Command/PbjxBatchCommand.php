@@ -6,6 +6,7 @@ namespace Gdbots\Bundle\PbjxBundle\Command;
 use Gdbots\Pbj\Exception\DeserializeMessageFailed;
 use Gdbots\Pbj\Serializer\JsonSerializer;
 use Gdbots\Pbj\Util\NumberUtil;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
