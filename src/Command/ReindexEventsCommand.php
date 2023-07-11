@@ -26,7 +26,7 @@ final class ReindexEventsCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $storeProvider = $this->container->getParameter('gdbots_pbjx.event_store.provider');
         $searchProvider = $this->container->getParameter('gdbots_pbjx.event_search.provider');

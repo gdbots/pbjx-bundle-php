@@ -13,7 +13,7 @@ class ValidateTransportsPassTest extends TestCase
     public function testValidateKinesisTransport(): void
     {
         $this->expectException(\LogicException::class);
-        $this->expectErrorMessage('The service "gdbots_pbjx.transport.kinesis" has a dependency on a non-existent service "gdbots_pbjx.transport.kinesis_router". You must define this in your app since it requires stream names and partition logic. See \Gdbots\Pbjx\PartitionableRouter.');
+        $this->expectExceptionMessage('The service "gdbots_pbjx.transport.kinesis" has a dependency on a non-existent service "gdbots_pbjx.transport.kinesis_router". You must define this in your app since it requires stream names and partition logic. See \Gdbots\Pbjx\PartitionableRouter.');
         $container = new ContainerBuilder();
         $container->setParameter('gdbots_pbjx.command_bus.transport', 'kinesis');
 
@@ -24,7 +24,7 @@ class ValidateTransportsPassTest extends TestCase
         $this->process($container);
     }
 
-    protected function process(ContainerBuilder $container)
+    protected function process(ContainerBuilder $container): void
     {
         $pass = new ValidateTransportsPass();
         $pass->process($container);

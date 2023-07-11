@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  */
 final class ValidateSchedulerPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         if (!$container->hasParameter('gdbots_pbjx.scheduler.provider')) {
             return;

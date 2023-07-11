@@ -26,7 +26,7 @@ final class PbjxBatchCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Reads messages from a newline-delimited JSON file and processes them')

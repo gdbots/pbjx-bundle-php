@@ -26,7 +26,7 @@ final class TailEventsCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $provider = $this->container->getParameter('gdbots_pbjx.event_store.provider');
 

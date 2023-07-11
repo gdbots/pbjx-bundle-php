@@ -44,25 +44,19 @@ class RegisterListenersPass implements CompilerPassInterface
         $this->eventAliasesParameter = $eventAliasesParameter;
     }
 
-    /**
-     * @return $this
-     */
-    public function setHotPathEvents(array $hotPathEvents)
+    public function setHotPathEvents(array $hotPathEvents): self
     {
         $this->hotPathEvents = array_flip($hotPathEvents);
         return $this;
     }
 
-    /**
-     * @return $this
-     */
     public function setNoPreloadEvents(array $noPreloadEvents): self
     {
         $this->noPreloadEvents = array_flip($noPreloadEvents);
         return $this;
     }
 
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition($this->dispatcherService) && !$container->hasAlias($this->dispatcherService)) {
             return;
@@ -205,7 +199,7 @@ class ExtractingEventDispatcher extends EventDispatcher implements EventSubscrib
     public static $aliases = [];
     public static $subscriber;
 
-    public function addListener(string $eventName, $listener, int $priority = 0)
+    public function addListener(string $eventName, $listener, int $priority = 0): void
     {
         $this->listeners[] = [$eventName, $listener[1], $priority];
     }

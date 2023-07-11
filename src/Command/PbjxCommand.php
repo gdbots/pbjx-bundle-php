@@ -26,7 +26,7 @@ final class PbjxCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Handles pbjx messages (command, event, request) and returns an envelope with the result')

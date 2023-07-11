@@ -19,11 +19,11 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 final class GdbotsPbjxExtension extends Extension
 {
-    public function load(array $config, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $processor = new Processor();
         $configuration = new Configuration();
-        $config = $processor->processConfiguration($configuration, $config);
+        $configs = $processor->processConfiguration($configuration, $configs);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
         $loader->load('event_search.xml');
@@ -34,42 +34,42 @@ final class GdbotsPbjxExtension extends Extension
         $loader->load('transport.xml');
         $loader->load('twig.xml');
 
-        $container->setParameter('gdbots_pbjx.service_locator.class', $config['service_locator']['class']);
+        $container->setParameter('gdbots_pbjx.service_locator.class', $configs['service_locator']['class']);
 
-        $container->setParameter('gdbots_pbjx.pbjx_token_signer.default_kid', $config['pbjx_token_signer']['default_kid']);
-        $container->setParameter('gdbots_pbjx.pbjx_token_signer.keys', $config['pbjx_token_signer']['keys']);
+        $container->setParameter('gdbots_pbjx.pbjx_token_signer.default_kid', $configs['pbjx_token_signer']['default_kid']);
+        $container->setParameter('gdbots_pbjx.pbjx_token_signer.keys', $configs['pbjx_token_signer']['keys']);
 
-        $container->setParameter('gdbots_pbjx.pbjx_controller.allow_get_request', $config['pbjx_controller']['allow_get_request']);
-        $container->setParameter('gdbots_pbjx.pbjx_controller.bypass_token_validation', $config['pbjx_controller']['bypass_token_validation']);
+        $container->setParameter('gdbots_pbjx.pbjx_controller.allow_get_request', $configs['pbjx_controller']['allow_get_request']);
+        $container->setParameter('gdbots_pbjx.pbjx_controller.bypass_token_validation', $configs['pbjx_controller']['bypass_token_validation']);
 
-        $container->setParameter('gdbots_pbjx.pbjx_receive_controller.enabled', $config['pbjx_receive_controller']['enabled']);
+        $container->setParameter('gdbots_pbjx.pbjx_receive_controller.enabled', $configs['pbjx_receive_controller']['enabled']);
 
-        $container->setParameter('gdbots_pbjx.command_bus.transport', $config['command_bus']['transport']);
-        $container->setParameter('gdbots_pbjx.event_bus.transport', $config['event_bus']['transport']);
-        $container->setParameter('gdbots_pbjx.request_bus.transport', $config['request_bus']['transport']);
+        $container->setParameter('gdbots_pbjx.command_bus.transport', $configs['command_bus']['transport']);
+        $container->setParameter('gdbots_pbjx.event_bus.transport', $configs['event_bus']['transport']);
+        $container->setParameter('gdbots_pbjx.request_bus.transport', $configs['request_bus']['transport']);
         $enabledTransports = array_flip([
-            $config['command_bus']['transport'],
-            $config['event_bus']['transport'],
-            $config['request_bus']['transport'],
+            $configs['command_bus']['transport'],
+            $configs['event_bus']['transport'],
+            $configs['request_bus']['transport'],
         ]);
 
-        $this->configureKinesisTransport($config, $container, $enabledTransports);
+        $this->configureKinesisTransport($configs, $container, $enabledTransports);
 
-        if (isset($config['event_store'])) {
-            $container->setParameter('gdbots_pbjx.event_store.provider', $config['event_store']['provider']);
-            $this->configureDynamoDbEventStore($config, $container, $config['event_store']['provider']);
+        if (isset($configs['event_store'])) {
+            $container->setParameter('gdbots_pbjx.event_store.provider', $configs['event_store']['provider']);
+            $this->configureDynamoDbEventStore($configs, $container, $configs['event_store']['provider']);
         }
 
-        if (isset($config['event_search'])) {
-            $container->setParameter('gdbots_pbjx.event_search.provider', $config['event_search']['provider']);
-            $this->configureElasticaEventSearch($config, $container, $config['event_search']['provider']);
+        if (isset($configs['event_search'])) {
+            $container->setParameter('gdbots_pbjx.event_search.provider', $configs['event_search']['provider']);
+            $this->configureElasticaEventSearch($configs, $container, $configs['event_search']['provider']);
         } else {
             $container->removeDefinition('gdbots_pbjx.event_search.event_indexer');
         }
 
-        if (isset($config['scheduler'])) {
-            $container->setParameter('gdbots_pbjx.scheduler.provider', $config['scheduler']['provider']);
-            $this->configureDynamoDbScheduler($config, $container, $config['scheduler']['provider']);
+        if (isset($configs['scheduler'])) {
+            $container->setParameter('gdbots_pbjx.scheduler.provider', $configs['scheduler']['provider']);
+            $this->configureDynamoDbScheduler($configs, $container, $configs['scheduler']['provider']);
         }
 
         $container->setAlias(Pbjx::class, 'pbjx');
@@ -83,7 +83,7 @@ final class GdbotsPbjxExtension extends Extension
         $container->registerForAutoconfiguration(PbjxProjector::class)->addTag('pbjx.projector');
     }
 
-    protected function configureKinesisTransport(array $config, ContainerBuilder $container, array $enabledTransports): void
+    protected function configureKinesisTransport(array $configs, ContainerBuilder $container, array $enabledTransports): void
     {
         if (!isset($enabledTransports['kinesis'])) {
             $container->removeDefinition('gdbots_pbjx.transport.kinesis');
@@ -92,52 +92,52 @@ final class GdbotsPbjxExtension extends Extension
         }
     }
 
-    protected function configureDynamoDbEventStore(array $config, ContainerBuilder $container, ?string $provider): void
+    protected function configureDynamoDbEventStore(array $configs, ContainerBuilder $container, ?string $provider): void
     {
-        if (!isset($config['event_store']['dynamodb']) || 'dynamodb' !== $provider) {
+        if (!isset($configs['event_store']['dynamodb']) || 'dynamodb' !== $provider) {
             $container->removeDefinition('gdbots_pbjx.event_store.dynamodb');
             return;
         }
 
-        $container->setParameter('gdbots_pbjx.event_store.dynamodb.class', $config['event_store']['dynamodb']['class']);
-        if (isset($config['event_store']['dynamodb']['table_name'])) {
+        $container->setParameter('gdbots_pbjx.event_store.dynamodb.class', $configs['event_store']['dynamodb']['class']);
+        if (isset($configs['event_store']['dynamodb']['table_name'])) {
             $container->setParameter(
                 'gdbots_pbjx.event_store.dynamodb.table_name',
-                $config['event_store']['dynamodb']['table_name']
+                $configs['event_store']['dynamodb']['table_name']
             );
         }
     }
 
-    protected function configureElasticaEventSearch(array $config, ContainerBuilder $container, ?string $provider): void
+    protected function configureElasticaEventSearch(array $configs, ContainerBuilder $container, ?string $provider): void
     {
-        if (!isset($config['event_search']['elastica']) || 'elastica' !== $provider) {
+        if (!isset($configs['event_search']['elastica']) || 'elastica' !== $provider) {
             $container->removeDefinition('gdbots_pbjx.event_search.elastica');
             $container->removeDefinition('gdbots_pbjx.event_search.elastica.client_manager');
             $container->removeDefinition('gdbots_pbjx.event_search.elastica.index_manager');
             return;
         }
 
-        $container->setParameter('gdbots_pbjx.event_search.elastica.class', $config['event_search']['elastica']['class']);
-        $container->setParameter('gdbots_pbjx.event_search.elastica.index_manager.class', $config['event_search']['elastica']['index_manager']['class']);
-        if (isset($config['event_search']['elastica']['index_manager']['index_prefix'])) {
+        $container->setParameter('gdbots_pbjx.event_search.elastica.class', $configs['event_search']['elastica']['class']);
+        $container->setParameter('gdbots_pbjx.event_search.elastica.index_manager.class', $configs['event_search']['elastica']['index_manager']['class']);
+        if (isset($configs['event_search']['elastica']['index_manager']['index_prefix'])) {
             $container->setParameter(
                 'gdbots_pbjx.event_search.elastica.index_manager.index_prefix',
-                $config['event_search']['elastica']['index_manager']['index_prefix']
+                $configs['event_search']['elastica']['index_manager']['index_prefix']
             );
         }
-        $container->setParameter('gdbots_pbjx.event_search.elastica.query_timeout', $config['event_search']['elastica']['query_timeout']);
-        $container->setParameter('gdbots_pbjx.event_search.elastica.clusters', $config['event_search']['elastica']['clusters']);
+        $container->setParameter('gdbots_pbjx.event_search.elastica.query_timeout', $configs['event_search']['elastica']['query_timeout']);
+        $container->setParameter('gdbots_pbjx.event_search.elastica.clusters', $configs['event_search']['elastica']['clusters']);
     }
 
-    protected function configureDynamoDbScheduler(array $config, ContainerBuilder $container, ?string $provider): void
+    protected function configureDynamoDbScheduler(array $configs, ContainerBuilder $container, ?string $provider): void
     {
-        if (!isset($config['scheduler']['dynamodb']) || 'dynamodb' !== $provider) {
+        if (!isset($configs['scheduler']['dynamodb']) || 'dynamodb' !== $provider) {
             $container->removeDefinition('gdbots_pbjx.scheduler.dynamodb');
             return;
         }
 
-        $container->setParameter('gdbots_pbjx.scheduler.dynamodb.class', $config['scheduler']['dynamodb']['class']);
-        $container->setParameter('gdbots_pbjx.scheduler.dynamodb.table_name', $config['scheduler']['dynamodb']['table_name']);
-        $container->setParameter('gdbots_pbjx.scheduler.dynamodb.state_machine_arn', $config['scheduler']['dynamodb']['state_machine_arn']);
+        $container->setParameter('gdbots_pbjx.scheduler.dynamodb.class', $configs['scheduler']['dynamodb']['class']);
+        $container->setParameter('gdbots_pbjx.scheduler.dynamodb.table_name', $configs['scheduler']['dynamodb']['table_name']);
+        $container->setParameter('gdbots_pbjx.scheduler.dynamodb.state_machine_arn', $configs['scheduler']['dynamodb']['state_machine_arn']);
     }
 }

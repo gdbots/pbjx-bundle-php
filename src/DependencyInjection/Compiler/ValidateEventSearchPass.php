@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  */
 final class ValidateEventSearchPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         if (!$container->hasParameter('gdbots_pbjx.event_search.provider')) {
             return;

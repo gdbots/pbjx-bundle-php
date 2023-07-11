@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  */
 final class ValidateTransportsPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         foreach (['command', 'event', 'request'] as $busName) {
             $transport = $container->getParameter('gdbots_pbjx.' . $busName . '_bus.transport');
