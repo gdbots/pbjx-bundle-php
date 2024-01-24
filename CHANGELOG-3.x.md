@@ -2,6 +2,10 @@
 This changelog references the relevant changes done in 3.x versions.
 
 
+## v3.2.0
+* Allow symfony 6.4.x and 7.x
+
+
 ## v3.1.2
 * Updates for symfony 6.3.x deprecations.
 
