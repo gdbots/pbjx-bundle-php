@@ -67,5 +67,5 @@ trait PbjxControllerTrait
     /**
      * @see \Symfony\Bundle\FrameworkBundle\Controller\AbstractController::render
      */
-    abstract protected function render(string $view, array $parameters = [], Response $response = null): Response;
+    abstract protected function render(string $view, array $parameters = [], ?Response $response = null): Response;
 }

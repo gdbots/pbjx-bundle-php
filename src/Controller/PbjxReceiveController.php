@@ -30,12 +30,12 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
  * internal services.
  *
  */
-final class PbjxReceiveController
+final readonly class PbjxReceiveController
 {
     public function __construct(
-        private ServiceLocator $locator,
+        private ServiceLocator  $locator,
         private PbjxTokenSigner $signer,
-        private bool $enabled = false
+        private bool            $enabled = false
     ) {
     }
 
