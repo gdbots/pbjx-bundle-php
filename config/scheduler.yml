@@ -1,0 +1,13 @@
+services:
+  gdbots_pbjx.scheduler.dynamodb:
+    class: '%gdbots_pbjx.scheduler.dynamodb.class%'
+    public: true
+    arguments:
+      - '@?aws.dynamodb'
+      - '%gdbots_pbjx.scheduler.dynamodb.table_name%'
+      - '@?aws.sfn'
+      - '%gdbots_pbjx.scheduler.dynamodb.state_machine_arn%'
+      - '@gdbots_pbjx.event_dispatcher'
+      - '@?logger'
+    tags:
+      - { name: monolog.logger, channel: pbjx }

@@ -15,7 +15,7 @@ use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 final class GdbotsPbjxExtension extends Extension
 {
@@ -25,14 +25,14 @@ final class GdbotsPbjxExtension extends Extension
         $configuration = new Configuration();
         $configs = $processor->processConfiguration($configuration, $configs);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
-        $loader->load('event_search.xml');
-        $loader->load('event_store.xml');
-        $loader->load('http.xml');
-        $loader->load('services.xml');
-        $loader->load('scheduler.xml');
-        $loader->load('transport.xml');
-        $loader->load('twig.xml');
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
+        $loader->load('event_search.yml');
+        $loader->load('event_store.yml');
+        $loader->load('http.yml');
+        $loader->load('services.yml');
+        $loader->load('scheduler.yml');
+        $loader->load('transport.yml');
+        $loader->load('twig.yml');
 
         $container->setParameter('gdbots_pbjx.service_locator.class', $configs['service_locator']['class']);
 

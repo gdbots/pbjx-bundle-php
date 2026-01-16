@@ -1,0 +1,76 @@
+services:
+  _defaults:
+    public: false
+
+  Gdbots\Bundle\PbjxBundle\Command\:
+    resource: '../src/Command/*'
+    autoconfigure: true
+    autowire: true
+
+  pbjx:
+    class: Gdbots\Pbjx\SimplePbjx
+    public: true
+    arguments:
+      - '@gdbots_pbjx.service_locator'
+
+  gdbots_pbjx.service_locator:
+    class: '%gdbots_pbjx.service_locator.class%'
+    public: true
+    arguments:
+      - '@service_container'
+
+  gdbots_pbjx.pbjx_token_signer:
+    class: Gdbots\Bundle\PbjxBundle\PbjxTokenSigner
+    arguments:
+      - '%gdbots_pbjx.pbjx_token_signer.keys%'
+      - '%gdbots_pbjx.pbjx_token_signer.default_kid%'
+
+  gdbots_pbjx.event_dispatcher:
+    class: Symfony\Component\EventDispatcher\EventDispatcher
+    public: true
+    arguments:
+      - '@service_container'
+
+  gdbots_pbjx.exception_handler:
+    class: Gdbots\Pbjx\LogAndDispatchExceptionHandler
+    public: true
+    arguments:
+      - '@gdbots_pbjx.service_locator'
+      - '@?logger'
+    tags:
+      - { name: monolog.logger, channel: pbjx }
+
+  gdbots_pbjx.event_execution_failure_logger:
+    class: Gdbots\Bundle\PbjxBundle\EventExecutionFailureLogger
+    arguments:
+      - '@logger'
+    tags:
+      - { name: monolog.logger, channel: pbjx }
+      - { name: pbjx.event_subscriber }
+
+  gdbots_pbjx.message_binder:
+    class: Gdbots\Bundle\PbjxBundle\MessageBinder
+    arguments:
+      - '@service_container'
+    tags:
+      - { name: pbjx.event_subscriber }
+      - { name: pbjx.binder }
+
+  gdbots_pbjx.query_parsing_binder:
+    class: Gdbots\Bundle\PbjxBundle\QueryParsingBinder
+    tags:
+      - { name: pbjx.event_subscriber }
+      - { name: pbjx.binder }
+
+  gdbots_pbjx.check_health_handler:
+    class: Gdbots\Bundle\PbjxBundle\CheckHealthHandler
+    arguments:
+      - '@logger'
+    tags:
+      - { name: monolog.logger, channel: pbjx }
+      - { name: pbjx.handler }
+
+  gdbots_pbjx.echo_request_handler:
+    class: Gdbots\Bundle\PbjxBundle\EchoRequestHandler
+    tags:
+      - { name: pbjx.handler }

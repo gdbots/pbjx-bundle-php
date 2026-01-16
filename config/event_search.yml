@@ -1,0 +1,36 @@
+services:
+  gdbots_pbjx.event_search.elastica:
+    class: '%gdbots_pbjx.event_search.elastica.class%'
+    public: true
+    arguments:
+      - '@gdbots_pbjx.event_search.elastica.client_manager'
+      - '@gdbots_pbjx.event_dispatcher'
+      - '@gdbots_pbjx.event_search.elastica.index_manager'
+      - '@?logger'
+      - '%gdbots_pbjx.event_search.elastica.query_timeout%'
+    tags:
+      - { name: monolog.logger, channel: pbjx }
+
+  gdbots_pbjx.event_search.elastica.client_manager:
+    class: Gdbots\Pbjx\EventSearch\Elastica\ClientManager
+    public: true
+    arguments:
+      - '%gdbots_pbjx.event_search.elastica.clusters%'
+      - '@?logger'
+    tags:
+      - { name: monolog.logger, channel: pbjx }
+
+  gdbots_pbjx.event_search.elastica.index_manager:
+    class: '%gdbots_pbjx.event_search.elastica.index_manager.class%'
+    public: true
+    arguments:
+      - '%gdbots_pbjx.event_search.elastica.index_manager.index_prefix%'
+      - '@?logger'
+    tags:
+      - { name: monolog.logger, channel: pbjx }
+
+  gdbots_pbjx.event_search.event_indexer:
+    class: Gdbots\Pbjx\EventSearch\EventIndexer
+    public: false
+    tags:
+      - { name: pbjx.event_subscriber }

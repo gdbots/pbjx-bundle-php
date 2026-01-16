@@ -1,0 +1,11 @@
+services:
+  gdbots_pbjx.twig.pbjx_extension:
+    class: Gdbots\Bundle\PbjxBundle\Twig\PbjxExtension
+    public: false
+    arguments:
+      - '@pbjx'
+      - '@?logger'
+      - '%kernel.debug%'
+    tags:
+      - { name: monolog.logger, channel: pbjx }
+      - { name: twig.extension }

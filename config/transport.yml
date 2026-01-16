@@ -1,0 +1,22 @@
+services:
+  gdbots_pbjx.transport.in_memory:
+    class: Gdbots\Pbjx\Transport\InMemoryTransport
+    public: true
+    arguments:
+      - '@gdbots_pbjx.service_locator'
+
+  gdbots_pbjx.transport.firehose:
+    class: Gdbots\Pbjx\Transport\FirehoseTransport
+    public: true
+    arguments:
+      - '@gdbots_pbjx.service_locator'
+      - '@?aws.firehose'
+      - '@?gdbots_pbjx.transport.firehose_router'
+
+  gdbots_pbjx.transport.kinesis:
+    class: Gdbots\Pbjx\Transport\KinesisTransport
+    public: true
+    arguments:
+      - '@gdbots_pbjx.service_locator'
+      - '@?aws.kinesis'
+      - '@?gdbots_pbjx.transport.kinesis_router'

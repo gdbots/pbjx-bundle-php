@@ -1,0 +1,13 @@
+pbjx:
+  path: '/{pbjx_vendor}/{pbjx_package}/{pbjx_category}/{pbjx_message}'
+  controller: gdbots_pbjx.pbjx_controller::handleAction
+  requirements:
+    pbjx_vendor: '[a-z0-9-]+'
+    pbjx_package: '[a-z0-9\.-]+'
+    pbjx_category: '([a-z0-9_-]+)?'
+    pbjx_message: '[a-z0-9-]+'
+
+pbjx_receive:
+  path: /receive
+  controller: gdbots_pbjx.pbjx_receive_controller::receiveAction
+  methods: [POST]

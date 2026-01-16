@@ -1,0 +1,27 @@
+services:
+  gdbots_pbjx.pbjx_controller:
+    class: Gdbots\Bundle\PbjxBundle\Controller\PbjxController
+    public: true
+    arguments:
+      - '@pbjx'
+      - '@gdbots_pbjx.pbjx_token_signer'
+      - '%gdbots_pbjx.pbjx_controller.allow_get_request%'
+      - '%gdbots_pbjx.pbjx_controller.bypass_token_validation%'
+
+  gdbots_pbjx.pbjx_receive_controller:
+    class: Gdbots\Bundle\PbjxBundle\Controller\PbjxReceiveController
+    public: true
+    arguments:
+      - '@gdbots_pbjx.service_locator'
+      - '@gdbots_pbjx.pbjx_token_signer'
+      - '%gdbots_pbjx.pbjx_receive_controller.enabled%'
+
+  gdbots_pbjx.envelope_listener:
+    class: Gdbots\Bundle\PbjxBundle\EventListener\EnvelopeListener
+    public: false
+    arguments:
+      - '@pbjx'
+      - '@?logger'
+    tags:
+      - { name: monolog.logger, channel: pbjx }
+      - { name: kernel.event_listener, event: kernel.view }

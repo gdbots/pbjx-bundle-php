@@ -1,0 +1,12 @@
+services:
+  gdbots_pbjx.event_store.dynamodb:
+    class: '%gdbots_pbjx.event_store.dynamodb.class%'
+    public: true
+    arguments:
+      - '@pbjx'
+      - '@?aws.dynamodb'
+      - '%gdbots_pbjx.event_store.dynamodb.table_name%'
+      - '@gdbots_pbjx.event_dispatcher'
+      - '@?logger'
+    tags:
+      - { name: monolog.logger, channel: pbjx }
